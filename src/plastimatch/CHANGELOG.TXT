@@ -1,0 +1,240 @@
+Version 1.6.3 (build @PLASTIMATCH_SVN_VERSION@)
+@TIMESTAMP@
+
+Version 1.6.2 (build 5130)
+Tue Jul 28 14:38:04 EDT 2015
+* New MABS post-processing feature to fill holes and remove islands
+* Center of gravity pre-alignment for registration and MABS
+* Fix subtle bug in gamma computation with mask
+* Fix bug in Hausdorff calculation with single slice images
+* Fix crash in vf_invert
+* Build system fixes for non-intel platforms
+* Remove dependency on bstrlib
+
+Version 1.6.1 (build 5068)
+Wed May 13 13:26:55 EDT 2015
+* Remove dependency on patched ITK library
+* Implement max avg Hausdorff statistic
+* Workaround for regression test failures on i386
+* Remove obsolete libraries: getopt, dbf, FindCUDA
+
+Version 1.6.0 (build 5025)
+Mon Apr 27 15:26:01 EDT 2015
+* Registration supports grid search
+* Registration supports gradient magnitude
+* Registration landmarks can now appear in stages
+* Registration improved ROI support
+* Registration resolutions can now be subsampled by voxel, mm, or percent
+* Gamma calculation supports local gamma, interp-search, other improvements
+* New plastimatch filter command for filtering with gabor, gauss, others
+* Many MABS updates
+* Many dose calculation improvements
+* Fix problem rasterizing tilted structures
+* Several DICOM fixes
+* Several parallelization improvements
+* Run registration in worker thread; allow restartable registrations
+* Many other bug fixes
+
+Version 1.5.16 (build 4659)
+Sun May 18 16:06:34 EDT 2014
+* Many mabs updates
+* Many proton dose calculation updates
+* Improve handling of DICOM slope/offset on export
+* DICOM image loading no longer uses ITK when DCMTK is present
+* DICOM SRO export fixes
+* Let plastimatch stats use DICOM input
+* Let plastimatch gamma work without creating output file
+* Add noise option to plastimatch synth
+* Add min_its and convergence_tol options to lbfgsb optimizer
+
+Version 1.5.15 (build 4523)
+Sun Dec 15 14:00:47 EST 2013
+* Support for DICOM export of spatial registration object
+* Fix bug in computing statistics with a mask
+* Fix two debian bugs
+
+Version 1.5.14 (build 4503)
+Sun Nov 24 16:35:22 EST 2013
+* Many MABS improvements, especially atlas selection and configuration
+* Implement per-stage masking capabilities
+* Add ITK diff, ldd, sym-ldd demons
+* Add ITK optimizers FRPR and OnePlusOne
+* Add MI intensity threshold options
+* Add ITK normalized mutual information
+* Add plastimatch dmap command
+* New fast native Danielsson distance map implementation
+* Many improvements in wed, dew, and proton_dose
+* Many DICOM improvements
+* Add capability to load Elekta XVI format
+* Fix for important gamma calculation bug
+
+Version 1.5.13 (build 4289)
+Mon May 27 12:46:04 EDT 2013
+* DICOM interchange using dcmtk now complete
+* ITK 4 support now complete
+* The wed command can now generate beam apertures and range compenators
+* Better support for Kepler architecture GPUs
+* Many external API improvements
+* Internal smart pointer support for plastimatch native types
+* Bug fixes in mutual information
+* Bug fixes in hausdorff computation
+
+Version 1.5.12 (build 4075)
+Sun Jan 27 09:19:01 EST 2013
+* B-spline support for direction cosines
+* Alpha version of plastimatch library API
+* Vector field inverter "vf_invert" now officially supported
+* Add "adjust" command for changing image intensities
+* Better support for masks in B-spline registration
+* Better ITK4 and DCMTK support
+* Add support for loading Elkta/NKI CBCT format images
+* Beta version of "mabs" command for atlas-based segmentation
+* Beta version of "wed" command for water-equivalent pathlength computation
+* Move dice command into plastimatch executable
+* Move structure set union command into plastimatch executable
+* Move sift feature detection command into plastimatch executable
+* Fix potential divide by zero in B-spline registration
+* Bug fixes in DVH computation
+* Bug fixes and speed improvements for B-spline warper
+* Speed improvements for Dice calculation
+
+Version 1.5.11 (build 3637)
+Sat Jun  9 19:58:20 EDT 2012
+* Reorganize code into smaller libraries
+* Mostly complete support for ITK 4
+* Improve performance of native B-spline registration
+* Convert/warp routine can now import "prefix directories"
+* Add "plastimatch average" command
+* Add "plastimatch synth-vf" command
+* Improve thumbnailer so it can auto window/level and export png or tiff
+* Improve aperture support in proton dose
+* Proton dose now uses configuration files
+* Bug fixes to threshbox, gamma analysis
+* Better (though still incomplete) dcmtk support
+* Add viscous as standalone program
+* Add support to specify study UIDs from command line
+* Upgrade dlib to 17.46
+* Fix bug calling demons stage after translation or rigid stage
+* Fix memory error resizing ITK B-spline transforms
+
+Version 1.5.10 (build 3259)
+Sat Apr 14 19:18:41 EDT 2012
+* Embedded lua-based scripting engine
+* Final version of sift code
+* Improved direction-cosine support in B-spline registration
+* Image masking support for B-spline registration
+* Fix memory error in vector field warper
+* Incomplete support of dcmtk 3.6 for dicom file i/o
+* New synthetic image generators: grid, lung
+
+Version 1.5.9 (build 3050)
+Sat Feb 18 10:10:22 EST 2012
+* New auto-4D feature introduced to command file
+* Attempt to fix big-endian build on debian (yet again)
+
+Version 1.5.8 (build 3028)
+Sat Feb 11 22:32:07 EST 2012
+* Attempt to fix big-endian build on debian (again)
+
+Version 1.5.7 (build 3020)
+Mon Feb  6 22:21:36 EST 2012
+* Add weighted addition to plastimatch add command
+* Improve compatibility for CUDA 4.X
+* Fix bug creating directory when writing bspline xform file
+* Fix floating point rounding issue in writing DICOM dose
+
+Version 1.5.6 (build 2984)
+Wed Jan 25 22:47:55 EST 2012
+* Partial fix for B-spline registration problems when direction cosines 
+  are not identity
+* B-spline warper is now multi-threaded
+* Fix memory error with large image sizes
+* New slicer plugin for isodose, dose comparison extraction
+* Fix bug rasterizing more than eight structures
+* Fix program abort when putting B-spline stage after demons stage
+* Fix program abort when writing dicom for images without 
+  existing metadata
+* Add vector field to B-spline converter to xf-convert command
+* Get metadata from referenced CT if there is no other existing metadata
+* Option feval_max is now respected when using the liblbfgs optimizer 
+  with B-splines
+* Improve portability to big-endian, unsigned char platforms
+* Add direction cosines option to resample command
+* Fix bug where dicom output was not written for fill command
+* Add panel offset option to FDK reconstructor
+
+Version 1.5.5 (build 2868)
+Mon Oct 31 00:35:29 EDT 2011
+* Add support for landmark penalty to B-spline registration
+* First working version of plastimatch autolabel
+* Add --xor-contours option for converting DICOM-RT structure sets
+* Implement a primitive synthetic_vf command
+* Fix bug where demographics weren't loaded when converting Xio dose
+* Fix bug where Xio dose was not converted due to version mismatch
+* Fix bug loading pointsets in txt format
+
+Version 1.5.4 (build 2832)
+Mon Oct 10 00:20:35 EDT 2011
+* Include reg-2-3 in default build
+* Add plastimatch probe command
+* Add landmark_diff program
+* Add support for numeric implementation of B-spline regularization
+* Add support for different image resolutions to Dice
+* Remove automatic parsing of current directory for dicom images
+* Early support for optimized histogram binning for mutual information
+* Early support for reading images with irregular slice spacing
+* Fix bug in converting between image types, where values were being 
+  incorrectly clamped
+* Fix bug in Nocedal optimizer where wrong answer is returned when 
+   optimization ends during partial line search
+* Fix bug where Nocedal optimizer would run out of memory during 
+  initialization of large problems
+* Fix bug where --fixed option was ignored when resampling vector fields
+* Fix bug in image resampling between stages of multi-resolution registration
+* Fix bug with mutual information during multi-resolution registration
+
+Version 1.5.3 (build 2678)
+Sun Aug 14 21:56:51 EDT 2011
+* Add support for signed char image type
+* Add output image type to slicer bspline plugin
+* Add bspline regularization to slicer bspline plugin
+* Add ss_list (structure set name) file input/output to slicer dicomrt
+  import/export plugins
+* Fix/workaround problem with b-spline regularization on images with 
+  negative voxel spacing
+* Fix bug where pixel values were wrapped instead of clamped when 
+  converting to a pixel type with smaller range of values
+* Fix bug where img_out_type field was ignored in registration command file
+* Remove deprecated brook code
+
+Version 1.5.2 (build 2621)
+Sun Jul 24 21:06:48 EDT 2011
+* Fix build problem with cuda
+* Fix regression on loading mha files without direction cosines
+
+Version 1.5.1 (build 2617)
+* Reg-2-3 code for 2D-3D registration
+* Slicer plugin enhancements: XFORM warper, synthetic images, DVH display
+* Early prototype of B-spline regularization
+* Many bug fixes
+
+Version 1.5.0 (build 2498)
+* CUDA-accelerated mutual information for B-splines
+* Regularized gaussian landmark splines
+* Replace cone RBF with Wendland RBF
+* Better handling of image metadata
+* Many improvements to image conversion and warping
+
+Version 1.4.0 (svn only)
+* Native grid-aligned B-spline registration (MSE: CUDA, OpenMP, MI: CPU)
+* Native demons registration (Brook, CPU)
+* Wrappers for some ITK registration transforms: translation, rigid, 
+  affine, B-spline, demons
+* Global thin-plate spline (ITK), local cone RBF (native)
+* Multistage registration framework
+* FDK cone-beam reconstruction (CUDA, OpenMP)
+* DRR generation (CUDA, OpenMP)
+* Dicom image import/export, DicomRT structure set import/export
+* XiO image import, XiO structure set import/export
+* 3D slicer plugins
+* Mondoshot screen capture program

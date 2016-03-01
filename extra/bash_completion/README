@@ -1,0 +1,21 @@
+This directory includes a bash completion script for use with platimatch.
+
+Using the included script will allow Linux users using the bash command shell
+to use the <TAB> key to auto complete plastimatch commands as well as find
+valid input files for various plastimatch operations.
+
+To enable command auto-completion in bash:
+  1) Copy the included script (named 'plastimatch') into
+     your bash completion configuration directory:
+
+     $ sudo cp plastimatch /etc/bash_completion.d/
+
+  2) Refresh the auto completion system by running:
+
+     $ . /etc/bash_completion
+
+     -OR-
+
+     alternatively, you may simply reboot
+
+  3) Enjoy!

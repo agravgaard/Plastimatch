@@ -1,0 +1,16 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rectarr-01.mha
+moving=@PLM_BUILD_TESTING_DIR@/rectarr-02.mha
+fixed_mask=@PLM_BUILD_TESTING_DIR@/rectarr-m-02.mha
+#moving_mask=@PLM_BUILD_TESTING_DIR@/rectarr-m-02.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-reg-roi-d-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-reg-roi-d-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-reg-roi-d-img.mha
+
+[STAGE]
+xform=bspline
+res=2 2 2
+max_its=10
+regularization_lambda=0.1
+grid_spac=10 10 10

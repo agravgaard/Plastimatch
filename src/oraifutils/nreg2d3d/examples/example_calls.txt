@@ -1,0 +1,96 @@
+NREG2D3D Commandline tool
+--------------------------
+Commandline options
+
+NOTE: optional arguments are case-sensitive!
+-h or --help: print the following help
+-v or --verbose ... verbose messages to std::cout [optional];
+-pp{i} or --projection-props{i} ... i-th (zero-based) projection properties (in mm): 
+  <x-off> <y-off> <x-size> <y-size> <source-pos-x> <source-pos-y> <source-pos-z> [must be specified]
+-srcc{i} or --src-config{i} ... i-th (zero-based) metric configuration (SRC, stochastic rank correlation): 
+  <fhist-min> <fhist-max> <fbins> <mhist-min> <mhist-max> <mbins> <coverage> <rule-prefix> <rule-postfix> [1 metric config per fixed image must be specified; prefix and postfix are ( and ) in their simpliest form]
+-nmic{i} or --nmi-config{i} ... i-th (zero-based) metric configuration (NMI, norm. mutual info.):
+  <fhist-min> <fhist-max> <fbins> <mhist-min> <mhist-max> <mbins> <pad-value> <rule-prefix> <rule-postfix> [1 metric config per fixed image must be specified; prefix and postfix are ( and ) in their simpliest form]
+-ncc{i} or --nc-config{i} ... i-th (zero-based) metric configuration (NC, norm. correlation): 
+  <subtract-mean> <rule-prefix> <rule-postfix> [1 metric config per fixed image must be specified; prefix and postfix are ( and ) in their simpliest form]
+-mrsdc{i} or --mrsd-config{i} ... i-th (zero-based) metric configuration (MRSD, mean reciprocal square diff.): 
+  <lambda> <rule-prefix> <rule-postfix> [1 metric config per fixed image must be specified; prefix and postfix are ( and ) in their simpliest form]
+-msc{i} or --ms-config{i} ... i-th (zero-based) metric configuration (MS, mean squares): 
+  <rule-prefix> <rule-postfix> [1 metric config per fixed image must be specified; prefix and postfix are ( and ) in their simpliest form]
+-gdc{i} or --gd-config{i} ... i-th (zero-based) metric configuration (GD, gradient difference):
+  <rule-prefix> <rule-postfix> [1 metric config per fixed image must be specified; prefix and postfix are ( and ) in their simpliest form]
+-itf or --intensity-transfer-function{i} ... intensity transfer function: 
+  <itf-num-pairs> <itf-in1> <itf-out1> <itf-in2> <itf-out2> ...
+-itfff or --itf-from-file{i} ... intensity transfer function specification by file (same format as -itf-option): 
+  <file-name> [alternative to -itf-option]
+-ma{i} or --mask{i} ... i-th optional mask image specification: 
+  <mask-image-file> [same size as fixed image; same pixel spacing as fixed image!; UCHAR; pixels>0 contribute]
+-cma{i} or --circular-mask{i} ... i-th optional circular mask specification: 
+  <mask-radius> <c-x> <c-y>
+-rma{i} or --rectangular-mask{i} ... i-th optional rectangular mask specification: 
+  <off-x> <off-y> <length> <height>
+-it or --initial-transform ... initial transform parameters (3 rotations in rad, 3 translations in mm) [default: 0 0 0 0 0 0]
+-l or --levels ... number of multi-resolution levels [default: 1]
+-os or --optimizer-scales ... optimizer scales (6 scales) [default: 57.3 57.3 57.3 1 1 1]
+-io or --image-output ... generate images that document the registration [optional]
+-evolc or --evol-config ... evolutionary optimizer configuration: 
+  max. iterations, initial radius, growth factor, shrink factor, epsilon (min Frobenius norm), seed [if seed < 0 -> random (non-deterministic); must be specified]
+-amoebac or --amoeba-config ... amoeba (Nelder-Mead) optimizer configuration: 
+  max. iterations, parameter tolerance, function value tolerance, initial-simplex-delta-0, ..., initial-simplex-delta-5 [if at least one delta <= 0 -> automatic initial simplex is applied; must be specified]
+-or or --optimized-registration ... optimized registration (threaded composite metric evaluation if n>1) is switched ON; WARNING: This may be a rather experimental option!
+
+
+------------------------------------------------
+**************** Example  usage ****************
+------------------------------------------------
+# basic functionality without intensity transfer function or mask with one image and default parameters (ie. no initial transform, no levels specified)
+# one plus evolution optimizer with random seed and 100 iterations
+# mean squares metric
+# projection properties: offset 0;0 size 410x410, source position 1000; 0; 0
+-v -evolc 100 1.5 1.05 0.95 0.01 -1 -msc0 '1.0*(' ')' -pp0 0 0 410 410 1000 0 0 volume.mhd fixed2_0.mhd
+
+# same as above with rectangular mask and gradient difference metric
+-v -rma0 5 5 405 405 -evolc 100 1.5 1.05 0.95 0.01 1 -gdc0 '1.0*(' ')' -pp0 0 0 410 410 1000 0 0 volume.mhd fixed2_0.mhd
+
+# same as above with circular mask
+-v -cma0 300 10 10 -evolc 100 1.5 1.05 0.95 0.01 1 -gdc0 '1.0*(' ')' -pp0 0 0 410 410 1000 0 0 volume.mhd fixed2_0.mhd
+
+# same as above with itf file and extreme optimization
+-v -or -scales 57 57 57 1.01 1.01 1.01 -cma0 300 10 10 -itff itf.txt -evolc 100 1.5 1.05 0.95 0.01 1 -gdc0 '1.0*(' ')' -pp0 0 0 410 410 1000 0 0 volume.mhd fixed2_0.mhd
+# itf.txt content (without the quotes) "7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0"
+
+# 1+1 evolution optimizer with 3 images and gradient difference metric, itf, maks and initial transform, 3 levels and image output
+-io -l 3 -v -evolc 100 1.5 1.05 0.95 0.01 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -gdc0 '1.0*(' ')' -gdc1 '1.0*(' ')' -gdc2 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# 1+1 evolution optimizer with 3 images and stochastic rank correlation metric, itf, maks and initial transform
+-io -l 3  -v -evolc 100 1.5 1.05 0.95 0.01 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -srcc0 0.95 1.05 1 0.95 1.05 2 1 '1.0*(' ')' -srcc1 0.95 1.05 1 0.95 1.05 2 1 '1.0*(' ')' -srcc2 0.95 1.05 1 0.95 1.05 2 1 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# 1+1 evolution optimizer with 3 images and  norm. mutual info. metric, itf, maks and initial transform
+-io -l 3  -v -evolc 100 1.5 1.05 0.95 0.01 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -nmic0 0.95 1.05 1 0.95 1.05 1 1.1 '1.0*(' ')' -nmic1 0.95 1.05 1 0.95 1.05 1 1.1 '1.0*(' ')' -nmic2 0.95 1.05 1 0.95 1.05 1 1.1 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# 1+1 evolution optimizer with 3 images and norm. correlation metric, itf, maks and initial transform
+-io -l 3 -v -evolc 100 1.5 1.05 0.95 0.01 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -ncc0 0.5 '1.0*(' ')' -ncc1 0.5 '1.0*(' ')' -ncc2 0.5 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# 1+1 evolution optimizer with 3 images and mean reciprocal square diff metric, itf, maks and initial transform
+-io -l 3 -v -evolc 100 1.5 1.05 0.95 0.01 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -mrsdc0 0.05 '1.0*(' ')' -mrsdc1 0.05 '1.0*(' ')' -mrsdc2 0.05 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# 1+1 evolution optimizer with 3 images and mean squares metric, itf, maks and initial transform
+-io -l 3 -v -evolc 100 1.5 1.05 0.95 0.01 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -msc0 '1.0*(' ')' -msc1 '1.0*(' ')' -msc2 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# amoeba optimizer with 3 images and gradient difference metric, itf, maks and initial transform
+-io -l 3 -v -amoebac 200 0.1 1.0 1 1 1 1 1 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -srcc0 0.95 1.05 1 0.95 1.05 2 1 '1.0*(' ')' -srcc1 0.95 1.05 1 0.95 1.05 2 1 '1.0*(' ')' -srcc2 0.95 1.05 1 0.95 1.05 2 1 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# amoeba optimizer with 3 images and stochastic rank correlation metric, itf, maks and initial transform
+-io -l 3 -v -amoebac 200 0.1 1.0 1 1 1 1 1 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -gdc0 '1.0*(' ')' -gdc1 '1.0*(' ')' -gdc2 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# amoeba optimizer with 3 images and  norm. mutual info. metric, itf, maks and initial transform
+-io -l 3 -v -amoebac 200 0.1 1.0 1 1 1 1 1 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -nmic0 0.95 1.05 1 0.95 1.05 1 1.1 '1.0*(' ')' -nmic1 0.95 1.05 1 0.95 1.05 1 1.1 '1.0*(' ')' -nmic2 0.95 1.05 1 0.95 1.05 1 1.1 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# amoeba optimizer with 3 images and norm. correlation metric, itf, maks and initial transform
+-io -l 3 -v -amoebac 200 0.1 1.0 1 1 1 1 1 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -ncc0 0.5 '1.0*(' ')' -ncc1 0.5 '1.0*(' ')' -ncc2 0.5 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# amoeba optimizer with 3 images and mean reciprocal square diff metric, itf, maks and initial transform
+-io -l 3 -v -amoebac 200 0.1 1.0 1 1 1 1 1 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -mrsdc0 0.05 '1.0*(' ')' -mrsdc1 0.05 '1.0*(' ')' -mrsdc2 0.05 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd
+
+# amoeba optimizer with 3 images and mean squares metric, itf, maks and initial transform
+-io -l 3 -v -amoebac 200 0.1 1.0 1 1 1 1 1 1 -it 0.5 -0.3 -0.5 10 -10 -15 -itf 7 0 0 500 0.05 1001 0.2 1200 0.3 1201 0.3 2500 1.0 3000 1.0 -msc0 '1.0*(' ')' -msc1 '1.0*(' ')' -msc2 '1.0*(' ')' -ma0 mask1.mhd -rma1 10 10 290 310 -cma2 125 140 100 -pp0 0 0 410 410 0 0 1000 -pp1 0 0 300 320 1000 0 0 -pp2 0 0 250 280 250.38 0 -968.15 volume.mhd fixed1_-90.mhd fixed21_0.mhd fixed42_+75.5.mhd

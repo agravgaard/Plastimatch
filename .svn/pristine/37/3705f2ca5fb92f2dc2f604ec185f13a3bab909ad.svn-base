@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/xyp">
+        <file>img/zoomin.png</file>
+        <file>img/zoomout.png</file>
+        <file>img/zoomfull.png</file> 
+        <file>img/save.png</file>
+        <file>img/draw.png</file>
+        <file>img/not-draw.png</file>
+    </qresource>
+</RCC>

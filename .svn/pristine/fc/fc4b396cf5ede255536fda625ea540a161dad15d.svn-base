@@ -1,0 +1,13 @@
+[PROCESS]
+adjust=-inf,0,-980,-980,inf,1
+
+[PROCESS]
+resample=7.5
+
+[FEATURE]
+feature-type=gauss
+gauss-width=10
+
+[FEATURE]
+feature-type=gabor
+gauss-width=10

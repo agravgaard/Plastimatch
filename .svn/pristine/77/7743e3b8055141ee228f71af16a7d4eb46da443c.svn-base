@@ -1,0 +1,241 @@
+# Example proton dose configuration file <EXPERIMENTAL>
+# This file demonstrates a flat SOBP
+
+# Example phantom for use:
+# plastimatch synth --pattern rect --output water.mha --rect-size 300 --volume-size 500 --dim 200
+
+# flavor: algorithm selection
+# threading: single, openmp, cuda
+# patient: input patient CT volume
+# dose: output dose volume
+# detail: low (no scatter/interplay) or high
+[SETTINGS]
+flavor=a
+#flavor=d
+threading=single
+patient=lung.mha
+dose=dose.mha
+detail=low
+
+# center: center of aperture (mm)
+# offset: distance from beam nozzle (mm)
+# resolution: size of aperture/# of pencil beams
+[APERTURE]
+center=5.5 5.5
+offset=100
+resolution=12 12
+
+# bragg_curve: file containing bragg curve
+# pos: position of nozzle
+# if bragg_curve is not specified, we generate
+# a synthetic bragg curve using:
+#   depth : maximum water equiv. depth of bragg curve
+#   res   : spatial resolution of bragg curve (cm)
+[BEAM]
+pos=400 0 0
+isocenter=0 0 0
+depth=800
+res=1
+
+#   energy: initial energy of protons exiting nozzle
+#   spread: energy spread of protons
+#   weight: relative intensity of this bragg peak
+[PEAK]
+energy=81.000000
+spread=50.000000
+weight=0.015750
+
+[PEAK]
+energy=82.000000
+spread=50.000000
+weight=0.012891
+
+[PEAK]
+energy=83.000000
+spread=50.000000
+weight=0.010377
+
+[PEAK]
+energy=84.000000
+spread=50.000000
+weight=0.009923
+
+[PEAK]
+energy=85.000000
+spread=50.000000
+weight=0.010222
+
+[PEAK]
+energy=86.000000
+spread=50.000000
+weight=0.009924
+
+[PEAK]
+energy=87.000000
+spread=50.000000
+weight=0.019520
+
+[PEAK]
+energy=88.000000
+spread=50.000000
+weight=0.009921
+
+[PEAK]
+energy=89.000000
+spread=50.000000
+weight=0.012375
+
+[PEAK]
+energy=90.000000
+spread=50.000000
+weight=0.012264
+
+[PEAK]
+energy=91.000000
+spread=50.000000
+weight=0.011746
+
+[PEAK]
+energy=92.000000
+spread=50.000000
+weight=0.011886
+
+[PEAK]
+energy=93.000000
+spread=50.000000
+weight=0.011350
+
+[PEAK]
+energy=94.000000
+spread=50.000000
+weight=0.014945
+
+[PEAK]
+energy=95.000000
+spread=50.000000
+weight=0.015619
+
+[PEAK]
+energy=96.000000
+spread=50.000000
+weight=0.013529
+
+[PEAK]
+energy=97.000000
+spread=50.000000
+weight=0.011389
+
+[PEAK]
+energy=98.000000
+spread=50.000000
+weight=0.013359
+
+[PEAK]
+energy=99.000000
+spread=50.000000
+weight=0.023084
+
+[PEAK]
+energy=100.000000
+spread=50.000000
+weight=0.016826
+
+[PEAK]
+energy=101.000000
+spread=50.000000
+weight=0.018758
+
+[PEAK]
+energy=102.000000
+spread=50.000000
+weight=0.024458
+
+[PEAK]
+energy=103.000000
+spread=50.000000
+weight=0.022037
+
+[PEAK]
+energy=104.000000
+spread=50.000000
+weight=0.018894
+
+[PEAK]
+energy=105.000000
+spread=50.000000
+weight=0.010599
+
+[PEAK]
+energy=106.000000
+spread=50.000000
+weight=0.029428
+
+[PEAK]
+energy=107.000000
+spread=50.000000
+weight=0.031212
+
+[PEAK]
+energy=108.000000
+spread=50.000000
+weight=0.027284
+
+[PEAK]
+energy=109.000000
+spread=50.000000
+weight=0.020866
+
+[PEAK]
+energy=110.000000
+spread=50.000000
+weight=0.029228
+
+[PEAK]
+energy=111.000000
+spread=50.000000
+weight=0.043610
+
+[PEAK]
+energy=112.000000
+spread=50.000000
+weight=0.031641
+
+[PEAK]
+energy=113.000000
+spread=50.000000
+weight=0.033131
+
+[PEAK]
+energy=114.000000
+spread=50.000000
+weight=0.050920
+
+[PEAK]
+energy=115.000000
+spread=50.000000
+weight=0.039499
+
+[PEAK]
+energy=116.000000
+spread=50.000000
+weight=0.074600
+
+[PEAK]
+energy=117.000000
+spread=50.000000
+weight=0.041772
+
+[PEAK]
+energy=118.000000
+spread=50.000000
+weight=0.091955
+
+[PEAK]
+energy=119.000000
+spread=50.000000
+weight=0.168672
+
+[PEAK]
+energy=120.000000
+spread=50.000000
+weight=0.199063

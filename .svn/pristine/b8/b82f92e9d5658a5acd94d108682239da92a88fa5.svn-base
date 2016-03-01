@@ -1,0 +1,12 @@
+[STAGE]
+xform=align_center
+
+[STAGE]
+xform=rigid
+optim=amoeba
+max_its=5
+
+[STAGE]
+xform=rigid
+optim=rsg
+max_its=5

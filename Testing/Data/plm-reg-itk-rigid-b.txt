@@ -1,0 +1,17 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rect-1.mha
+moving=@PLM_BUILD_TESTING_DIR@/rect-2.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-rigid-b-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-rigid-b-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-rigid-b-img.mha
+
+[STAGE]
+xform=rigid
+optim=versor
+metric=nmi
+impl=itk
+max_its=5
+convergence_tol=3
+grad_tol=0.1
+res=2 2 2

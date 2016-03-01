@@ -1,0 +1,18 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rectarr-01.mha
+moving=@PLM_BUILD_TESTING_DIR@/rectarr-02.mha
+fixed_mask=@PLM_BUILD_TESTING_DIR@/rectarr-m-01.mha
+moving_mask=@PLM_BUILD_TESTING_DIR@/rectarr-m-01.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-reg-roi-b-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-reg-roi-b-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-reg-roi-b-img.mha
+
+[STAGE]
+xform=align_center
+
+[STAGE]
+xform=translation
+optim=rsg
+max_its=10
+res=2 2 2

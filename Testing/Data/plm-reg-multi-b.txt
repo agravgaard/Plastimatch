@@ -1,0 +1,15 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rect-2.mha
+moving=@PLM_BUILD_TESTING_DIR@/sphere-2.mha
+
+img_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-img.nrrd
+
+[STAGE]
+xform=bspline
+impl=plastimatch
+max_its=20
+res=4 4 4
+
+[STAGE]
+grid_spac=10 10 10
+res=1 1 1

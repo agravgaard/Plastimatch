@@ -1,0 +1,23 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rect-10.mha
+moving=@PLM_BUILD_TESTING_DIR@/rect-11.mha
+
+moving_mask=@PLM_BUILD_TESTING_DIR@/rect-11-mask.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-reg-mask-a-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-reg-mask-a-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-reg-mask-a-img.mha
+
+[STAGE]
+xform=bspline
+optim=lbfgsb
+metric=mi
+mi_fixed_minVal=-100
+mi_fixed_maxVal=100
+impl=plastimatch
+threading=single
+max_its=5
+convergence_tol=3
+grad_tol=0.1
+grid_spac=30 30 30
+res=1 1 1

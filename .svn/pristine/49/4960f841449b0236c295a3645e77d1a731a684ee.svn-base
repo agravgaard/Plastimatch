@@ -1,0 +1,129 @@
+.TH bspline 7 "16 May 2010" "1.4-beta" "Plastimatch User Manual"
+
+.SH NAME
+bspline - performs deformable registration
+
+.SH SYNOPSIS
+
+.B bspline [options]... [fixed image] [moving image]
+
+.SH DESCRIPTION
+This utility performs the proton dose calculation given a CT volume
+of the patient anatomy and a file containing the character of the
+proton beam.
+
+.SH OPTIONS
+.TP
+.B -A hardware
+Either "cpu" or "cuda".  If not specified, proton_dose will perform the
+proton dose computation using the CPU.  If your system is equipped
+with an NVIDIA GPU and CUDA has been installed, specifying "cuda"
+will accelerate the computation by utilizing your graphics card.
+
+.TP
+.B -a [steepest | lbfgsb]
+Selects the optimization algorithm.
+
+.TP
+.B -M [mse | mi]
+Selects the similarity metric used for the registration.
+MSE (Mean Squared Error) is fast and geared towards registering
+unimodal image volumes.  MI (Mutual Information) is somewhat slower,
+but is capable of multimodal image registration.
+
+.TP
+.B -f implementation
+List implementations here.
+
+.TP
+.B -m iterations
+Specifies how man cost function evaluations should be performed.  The
+default is 10.
+
+.TP
+.B --factr value
+L-BFGS-B optimizer cost convergence tolerance. The default is 1e+7.
+
+.TP
+.B --pgtol value
+L-BFGS-B optimizer projected gradient tolerance.  The default is 1e-5.
+
+.TP
+.B -s "i j k"
+Integer knot spacing of the B-spline control grid.  Quantity is
+specified in voxels.
+
+.TP
+.B -h filename prefix
+When using Mutual Information as a similarity metric (-M mi), this
+option will generate an X-Pixel Map (XPM) image containing the fixed,
+moving, and joint histograms for each cost function evaluation.  File
+names will begin with the specified prefix and will end with the number
+of the cost function evaluation.
+
+.TP
+.B -V filename
+Upon completion, the vector field describing the registration will
+be written to disk with the specified filename.
+
+.TP
+.B -X filename
+Used to load a set of B-spline coefficients.
+
+.TP
+.B -x filename
+Writes B-spline coefficients to disk with the specified filename.
+
+.TP
+.B -O filename
+Upon completion, the moving image will be warped by the computed
+vector field and written to disk with the specified filename.
+
+.TP
+.B --fixed-landmarks filename
+Loads the fixed image landmarks specified in the provided filename.
+
+.TP
+.B --moving-landmarks filename
+Loads the moving image landmarks specified in the provided filename.
+
+.TP
+.B --warped-landmarks filename
+Write the warped image landmarks to disk with the specified filename.
+
+.TP
+.B --landmark-stiffness value
+Relative weight of landmarks
+
+.TP
+.B -F implementation
+Specifies the landmark implementation to be used.
+
+.TP
+.B --young-modulus value
+Specifies Young's Modulus (cost of vector field gradient).
+
+.TP
+.B --rbf-radius value
+Apply radial basis functions with the specified radius.
+
+.TP
+.B --debug
+Produces various debugging files in the current directory.
+
+.SH EXAMPLES
+
+Registration of fixed image fixed.mha to moving image moving.mha
+using the MSE similarity metric, 20 cost function
+evaluations, writing vector field to vf.mha, warped image volume
+to warped.mha:
+
+.B bspline -a lbfgsb -M mse -m 20 -V vf.mha -O warp.mha fixed.mha moving.mha
+
+
+Registration of fixed image fixed.mha to moving image moving.mha
+using the MI similarity metric, 20 cost function
+evaluations, writing vector field to vf.mha, warped image volume
+to warped.mha.  GPU accelerated:
+
+.B bspline -A cuda -a lbfgsb -M mi -m 20 -V vf.mha -O warp.mha fixed.mha moving.mha

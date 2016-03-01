@@ -1,0 +1,4 @@
+[STAGE]
+xform=bspline
+grid_spac=50 50 50
+max_its=10

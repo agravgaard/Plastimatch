@@ -1,0 +1,4 @@
+This directory contains useful bash scripts for timing the performance
+of the various bspline implementations.
+
+Please see comments inside individual scripts for usage information.

@@ -1,0 +1,7 @@
+
+#TODO: ... add this at the end of the CMakeLists.txt (testing-subfolder assumed)
+
+# UNIT TEST
+IF (ORAIFUTILS_BUILD_TESTING)
+  ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/testing)
+ENDIF (ORAIFUTILS_BUILD_TESTING)

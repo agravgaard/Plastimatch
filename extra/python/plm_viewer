@@ -1,0 +1,77 @@
+#! /usr/bin/env python
+
+"""
+This is an easy command line image viewer.
+It is part of Plastimatch project.
+It can show a single image or an image overlayed on another one
+(in the checkerboard mode, diff mode, color mode or trasparency mode).
+A vector field and/or binary structures (maximum two) can be also added.
+
+FUNCTION STILL IN TESTING
+
+Author: Paolo Zaffino (p.zaffino@unicz.it)
+
+rev 5
+
+Required libraries:
+1) Argparse (only if your python version is < 2.7)
+2) pypla_viewer.py file (another file of the Pypla project)
+
+NOT TESTED ON PYTHON 3
+
+USAGE EXAMPLE:
+
+from unix-like shell type something like:
+./plm_view --img_in=foo.mha ... ...
+
+If the needed files are in the system/python path you can run it from
+everywhere in the system
+
+"plm_viewer -h" shows the guide
+"""
+
+
+########################################################################
+
+
+import argparse
+import pypla_viewer
+
+
+########################################################################
+
+
+## Parser settings
+parser = argparse.ArgumentParser(description='Command line image viewer')
+parser.add_argument('--img_in', help='Input image', type=str, required=True)
+parser.add_argument('--slice_n', help='Slice number, default slice is the middle one',type=int)
+parser.add_argument('--view', help='View, default is coronal',type=str, default='c', choices=('a','c','s'))
+parser.add_argument('--overlay_img', help='Overlay image', type=str)
+parser.add_argument('--overlay_img_gain', help='Gain of overlay image', type=int, default=1)
+parser.add_argument('--overlay_img_trasparency', help='Image trasparency of the overlap image (0.0 transparent, 1.0 opaque)', type=float, default=0.5)
+parser.add_argument('--img_windowing', help='Windowing interval as "-100 100" (for the main image)', type=str, default='')
+parser.add_argument('--overlay_img_windowing', help='Windowing interval for the overlay image', type=str, default='')
+parser.add_argument('--vf', help='Vector field file name. The viewer plots the phase map of the vector field', type=str)
+parser.add_argument('--vf_trasparency', help='Vector field trasparency in overlap mode (0.0 transparent, 1.0 opaque)', type=float, default=0.5)
+parser.add_argument('--structure', help='Binary structure file name', type=str)
+parser.add_argument('--structure_color', help='Structure 1 color (default is "red")', type=str, default='red', choices=('red','green','blue', 'yellow'))
+parser.add_argument('--structure_alpha', help='Structure 1 alpha value (default is 1.0)', type=float, default=1.0)
+parser.add_argument('--structure2', help='Binary structure file name', type=str)
+parser.add_argument('--structure2_color', help='Structure 2 color (default is "blue")', type=str, default='blue', choices=('red','green','blue', 'yellow'))
+parser.add_argument('--structure2_alpha', help='Structure 2 alpha value (default is 0.8)', type=float, default=0.8)
+parser.add_argument('--checkerboard', help='Sets the checkerboard in the overlay mode', action='store_true')
+parser.add_argument('--check_size', help='Size of the check (in voxel)', type=int, default=100)
+parser.add_argument('--diff', help='Shows the difference between the input image and the overlay one', action='store_true')
+parser.add_argument('--colors', help='Sets the color in the overlay mode', action='store_true')
+parser.add_argument('--axes', help='Enables the axes', action='store_true')
+parser.add_argument('--screenshot_filename', help='Screenshot file name', type=str)
+
+args = parser.parse_args()
+
+pypla_viewer.show_img(img_in=args.img_in, slice_n=args.slice_n, view=args.view, overlay_img=args.overlay_img,
+overlay_img_gain=args.overlay_img_gain, overlay_img_trasparency=args.overlay_img_trasparency,
+img_windowing=args.img_windowing, overlay_img_windowing=args.overlay_img_windowing, vf=args.vf,
+vf_trasparency=args.vf_trasparency, structure=args.structure, structure_color=args.structure_color,
+structure_alpha=args.structure_alpha, structure2=args.structure2, structure2_color=args.structure2_color,
+structure2_alpha=args.structure2_alpha, checkerboard=args.checkerboard, check_size=args.check_size,
+diff=args.diff, colors=args.colors, axes=args.axes, screenshot_filename=args.screenshot_filename)

@@ -1,0 +1,32 @@
+# - Find Sqlite
+# Find the native Sqlite includes and library
+#
+#  SQLITE_INCLUDE_DIR - where to find zlib.h, etc.
+#  SQLITE_LIBRARIES   - List of libraries when using zlib.
+#  SQLITE_FOUND       - True if zlib found.
+
+
+IF (SQLITE_INCLUDE_DIR)
+  # Already in cache, be silent
+  SET (Sqlite_FIND_QUIETLY TRUE)
+ENDIF (SQLITE_INCLUDE_DIR)
+
+FIND_PATH(SQLITE_INCLUDE_DIR sqlite3.h)
+
+SET (SQLITE_NAMES sqlite3)
+FIND_LIBRARY (SQLITE_LIBRARY NAMES ${SQLITE_NAMES})
+
+# handle the QUIETLY and REQUIRED arguments and set SQLITE_FOUND to TRUE if 
+# all listed variables are TRUE
+INCLUDE (FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS (SQLITE DEFAULT_MSG 
+  SQLITE_LIBRARY 
+  SQLITE_INCLUDE_DIR)
+
+IF(SQLITE_FOUND)
+  SET (SQLITE_LIBRARIES ${SQLITE_LIBRARY})
+ELSE (SQLITE_FOUND)
+  SET (SQLITE_LIBRARIES)
+ENDIF (SQLITE_FOUND)
+
+MARK_AS_ADVANCED (SQLITE_LIBRARY SQLITE_INCLUDE_DIR)

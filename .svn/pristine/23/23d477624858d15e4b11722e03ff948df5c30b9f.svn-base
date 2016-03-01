@@ -1,0 +1,59 @@
+# Config file explanation
+
+#(*) have to be defined 
+#(o) optional
+## default value
+
+
+[PLAN]				   #(*) Flag to define the parameters of the plan 
+
+patient = string 		   #(*) name of the input image 
+target = string 		   #(*) name of the input target volume
+threading = single, openmp, cuda   #(o) threading choice (Greg...?) ## openmp
+dose_out = string		   #(*) name of the output file containing the dose volume
+debug = 0,1			   #(o) if = 0, no debug, if = 1, debug ## 0
+dose_prescription		   #(o) dose prescription in Gy, (default 1) ## 1.0
+
+
+[BEAM] 				   #(*) Flag to declare and create the first beam
+
+flavor = a, f, g, h 		   #(o) algorithm of dose calculation: a = ray tracer, f = cartesian, g = divergent, h = hong ## a
+homo_approx = y, n		   #(o) homogeneous approximation of heterogeneities for lateral scattering calculation (yes or no) ## n
+ray_step = number		   #(o) general resolution of the geometrical volumes for ray tracing, along the ray in mm ## 1
+aperture_out = string		   #(o) output file name for the aperture ## ""
+proj_dose_out = string		   #(o) output file name of the projection dose volume ## ""
+proj_img_out = string		   #(o) output file name of the projection dose image ## ""
+rc_out = string			   #(o) output file name of the range compensator ## ""
+sigma_out = string		   #(o) output file name of the sigma (lateral scattering) volume ##""
+wed_out = string		   #(o) output file name of the wed volume ## ""
+beam_type = X, P, HE... 	   #(o) particle type: X = photon, P = proton, other = ions(letter = atomic symbol: HE, H, BE, B, LI, C, O) ## P
+detail = low, high 		   #(o) low: complete dose calculation, high: only on the axis (to be avoided) ## low
+beam_weight = num 		   #(o) beam weight in the plan (usually 0-> 1) ## 1.0
+depth_dose_z_max = num		   #(o) maximum depth for dose calculation along a ray - in mm ## 800.0
+depth_dose_z_res = num		   #(o) depth dose resolution for depth dose calculation along a ray - in mm ## 1.0
+source = num, num, num 		   #(o) position of the source: x, y, z - in mm ## 0.0 0.0 0.0
+isocenter = num,  num, num 	   #(o) position of the isocenter: x, y, z - in mm ## 0.0 0.0 0.0
+prescription_min = num		   #(o) minimal depth to be covered by the sobp - in mm - manual definition - not useful if the target is described, or if peaks are defined manually ## 50.0
+prescription_max = num 		   #(o) maximal depth to be covered by the sobp - in mm - manual definition - not useful if the target is described, or if peaks are defined manually ## 100.0
+
+aperture_up = num, num, num	   #(o) direction of the up vector of the aperture: x, y, z - in mm ## 0.0 0.0 1.0
+aperture_offset = num 		   #(o) distance between the source and the aperture - in mm ## 100.0
+aperture_origin = num, num	   #(o) coordinates of the first pixel of the aperture in the aperture referential: x, y - in mm ## 0.0 0.0
+aperture_resolution = num, num 	   #(o) number of pixels creating the aperture in the x and y direction ## 200 200
+aperture_spacing = num, num	   #(o) distance between the pixel centers along x and y in the aperture referential - in mm ## 1.0 1.0
+source_size = num		   #(o) FWHM of the source spot - in mm ## 0.0
+aperture_file_in = string	   #(o) file name of the input aperture ## ""
+range_compensator_file_in = string #(o) file name of the range compensator aperture ## ""
+aperture_smearing = num		   #(o) aperture 2D enlargement - in mm ## 0.0
+proximal_margin = num		   #(o) proximal margin applied on the target volume - in mm ## 0.0
+distal_margin = num		   #(o) distal margin applied on the target voluem - in mm ## 0.0
+energy_x = num			   #(o) energy in MeV, for photons only ## 6.0
+
+[PEAK]				   #(o) manual definition of the peaks for ions (protons included) -NB: target geometry + margins, or prescription min/max will be ignored
+energy = num			   #(o) energy of the peak - in MeV ## 100.0
+spread = num			   #(o) spread of the peak - in mm ## 1.0
+weight = num 			   #(o) weight of the peak (0 -> 1 - usefull for sobp creation) ## 1.0
+bragg_curve = string 		   #(o) own depth dose curve text file to be loaded ## ""
+
+#End of the definition of the first beam
+#If you want to create a new beam, just add another flag [BEAM] and define in the same way the parameters that will be different with respect to the first beam (see example files) - [PEAK] have to be defined again

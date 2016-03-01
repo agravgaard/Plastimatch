@@ -1,0 +1,170 @@
+Introduction
+------------
+This is part 2 of the style guide.  It concerns how variables 
+and functions should be named to maintain a uniform look and feel.
+
+Include files
+-------------
+Include files should be in the following order:
+
+ 1) plm_config.h
+ 2) Standard C++ include files (sorted alphabetically)
+ 3) Standard C include files (sorted alphabetically)
+ 4) Third party library include files (grouped, sorted alphabetically 
+    within each group if possible)
+ 5) Plastimatch include files (sorted alphabetically)
+
+File names and function names
+-----------------------------
+Generally, files will come in pairs, one h file and one cxx file.  
+These pair of files will normally define a single public
+C++ class, and optionally will define a second private C++ class.
+
+The public class name will have the same name as the h and cxx file. 
+For example, the class Plm_image is defined in plm_image.h.
+
+The private class will include the suffix "_private", and is defined 
+in the cxx file.  For example, class Plm_image_private is defined in 
+plm_image.cxx.
+
+Layout of a public class definition
+-----------------------------------
+The first entries of the class definition specify the API 
+linkage, smart pointer support, and private class data.
+Next are the constructors and destructors.  For example:
+
+class PLMBASE_API Plm_image {
+public:
+    SMART_POINTER_SUPPORT (Plm_image);
+    Plm_image_private *d_ptr;
+public:
+    Plm_image ();
+
+The token PLMBASE_API is defined in plmbase_config.h, and is 
+reqired for linking with the library on windows.  The macro 
+SMART_POINTER_SUPPORT specifies that this class allows the use 
+of smart pointers, and is defined in smart_pointer.h.
+
+Native layer, itk layer, wrapper layer [Proposed, not implemented]
+------------------------------------------------------------------
+The following prefixes should be used for these three layers:
+
+  itk_xxxx            ## ITK layer, makes itk function calls.
+  xxxx                ## Native layer
+  plm_xxxx            ## Wrapper layer
+
+Alternatives:
+
+  plc_xxx             ## Native layer
+  plm_core_xxx        ## Native layer
+  plw_xxx             ## Wrapper layer
+
+For images, we currently use this following:
+
+  itk_image, itk      ## ITK layer
+  volume              ## Native layer
+  plm_image, pli      ## Wrapper layer
+
+For complex images (multiple irregular spacings), consider the following:
+
+  itk_volume, itk      ## ITK layer
+  volume               ## Native layer
+  plm_volume, plv      ## Wrapper layer
+
+  plm_volset, plv      ## Wrapper layer (wrapper layer sufficient?)
+
+The image header would become:
+
+  itk_volume_header    ## ITK layer
+  volume_header        ## Native layer
+  plm_volume_header    ## Wrapper layer
+
+  plm_volset_header    ## Wrapper layer (wrapper layer sufficient?)
+
+Command line args, Function options [Proposed, not implemented]
+---------------------------------------------------------------
+Command line arguments are digested, and then placed in a structure 
+called Xxx_args.  Example:
+
+class Warp_args {
+    ...
+};
+
+Complicated functions which are controlled by a structure full of 
+options will use a structure called Xxx_opts.  Example:
+
+typedef struct bspline_opts Bspline_opts;
+struct bspline_opts {
+    ...
+};
+
+N.b. The old way is to use the term "parms" for both types of structures.  
+
+N.b. Does this even make sense?  Cxt_to_mha can use the same structure 
+for both uses.
+
+Dim, dims, offset, origin, spacing
+----------------------------------
+To describe the position of an image in mm, use origin, not offset.  
+The term offset is used to describe an ROI in voxels.
+
+To describe the resolution of an image in voxels, use dim, not dims.
+
+The order of parameters should be alphabetic:
+
+  calling_a_function (dim, origin, spacing);
+
+Except that direction_cosines is last:
+
+  calling_a_function (dim, origin, spacing, direction_cosines);
+
+For itk routines, it should follow the same semantic order, 
+but it becomes non-alphabetic:
+
+  calling_a_function (region, origin, spacing, direction_cosines);
+
+Direction_cosines, direction_matrix, Itk_direction
+--------------------------------------------------
+A "direction matrix" is a raw matrix of nine numbers.
+The ITK version is called an Itk_direction.
+A Direction_cosine is a container that also holds the inverse.
+
+UChar, Char, ...
+----------------
+The ordering is: 
+    itk, then gpuit,
+    integers, then float, then vectors,
+    smaller, then larger,
+    unsigned, then signed.
+
+Plm_image, ITK image, Volume
+----------------------------
+Overloaded functions which return specific types should specify 
+them as follows:
+
+     object.get_image ();        // Returns Plm_image::Pointer
+     object.get_image_itk ()     // Returns most appropriate itk type
+                                 // (usually FloatImageType::Pointer)
+     object.get_volume ();       // Returns Volume::Pointer of most 
+                                 // appropriate type (usually float) 
+     object.get_vol ();          // Returns Volume*
+
+When appropriate, the functions may be suffixed to specify the 
+return type:
+
+     object.get_image_itk_float ();
+     object.get_volume_float ();
+
+
+Variable naming for indexing  [Proposed, not implemented]
+---------------------------------------------------------
+Fixed image voxel                   fijk[3], fidx <currently (fi,fj,fk),fv>
+Fixed world coord                   fxyz[3]
+Moving image voxel                  mijk[3], midx < ditto >
+Moving world voxel                  mxyz[3]
+Tile                                p[3], pidx
+Offset within tile                  q[3], qidx
+Control point                       (c[3]), cidx <currently (i,j,k), m>
+Coefficient array                   ?                <currently cidx>
+Multiplier LUT                      qidx
+Index LUT                           pidx

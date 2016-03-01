@@ -1,0 +1,29 @@
+
+INCLUDE_DIRECTORIES(
+  ${BASIC_TESTING_SUBDIR}
+  # TODO: ADD SPECIFIC SUB-DIRS NEEDED FOR TEST CODE
+)
+ADD_EXECUTABLE(TestBinary #TODO: ADD TEST NAME (starting with "Test..")
+  
+  #TODO: ADD TEST SOURCE FILE
+  
+  #TODO: ADD SPECIFIC SUB-SOURCE FILES / HEADERS (use sub-dir variables)
+)
+TARGET_LINK_LIBRARIES(TestBinary #TODO: ADD TEST NAME (starting with "Test..")
+  #TODO: ADD sub-libraries to link against
+)
+#TODO: Apply test name and arguments to be called by CTest -> replace TestBinary and possibly alternate the call arguments (currently: -v)
+ADD_TEST(TestBinary ${EXECUTABLE_OUTPUT_PATH}/TestBinary -v)
+#TODO: OPTIONALLY set test properties like timeout (remove the line if not needed) -> replace TestBinary
+#SET_TESTS_PROPERTIES(TestBinary PROPERTIES TIMEOUT 30)
+#TODO: OPTIONALLY copy test-specific test data to binary directory (remove the lines if not needed) -> replace TestBinary and Data.File
+# Copy test-specific data to binary directory
+#ADD_CUSTOM_COMMAND(TARGET TestBinary POST_BUILD
+#   COMMAND ${CMAKE_COMMAND} -E echo "moving test data ..."
+#)
+#ADD_CUSTOM_COMMAND(TARGET TestBinary POST_BUILD 
+#  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/data
+#)
+#ADD_CUSTOM_COMMAND(TARGET TestBinary POST_BUILD
+#  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/data/Data.File ${CMAKE_CURRENT_BINARY_DIR}/data 
+#)

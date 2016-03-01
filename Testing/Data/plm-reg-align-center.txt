@@ -1,0 +1,8 @@
+[GLOBAL]
+fixed=gauss-1.mha
+moving=gauss-6.mha
+xform_out=plm-reg-align-center-xf.txt
+img_out=plm-reg-align-center-img.mha
+
+[STAGE]
+xform=align_center

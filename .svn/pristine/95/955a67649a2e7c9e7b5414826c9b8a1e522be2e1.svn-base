@@ -1,0 +1,40 @@
+# James Shackleford
+# 2012.05.16
+#   Example proton dose configuration file <EXPERIMENTAL>
+
+# flavor: algorithm selection
+# threading: single, openmp, cuda
+# patient: input patient CT volume
+# dose: output dose volume
+# detail: low (no scatter/interplay) or high
+[SETTINGS]
+flavor=a
+threading=single
+patient=test.mha
+dose=dose.mha
+detail=low
+
+# bragg_curve: file containing bragg curve
+# pos: position of nozzle
+# if bragg_curve is not specified, we generate
+# a synthetic bragg curve using:
+#   energy: initial energy of protons exiting nozzle
+#   spread: energy spread of protons
+#   depth : maximum water equiv. depth of bragg curve
+#   res   : spatial resolution of bragg curve (cm)
+[BEAM]
+#bragg_curve=pdd.59
+pos=400 0 -30
+isocenter=0 0 -30
+energy=500
+spread=5
+depth=50
+res=1
+
+# center: center of aperture (mm)
+# offset: distance from beam nozzle (mm)
+# resolution: size of aperture/# of pencil beams
+[APERTURE]
+center=4.5 4.5
+offset=100
+resolution=10 10

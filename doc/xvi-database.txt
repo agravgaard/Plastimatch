@@ -1,0 +1,24 @@
+(1) tab_act
+
+    This table probably records "Table actual" motion.  It occasionally 
+    shows very high values for LONG & HEIG fields, which could correspond 
+    to manual table motions following scans.
+
+(2) vol_reg
+
+    This table seems to have REG_XXX which are the registration results
+    and SHIFT_XXX which are the motions after converting to corrections.
+    There are no fields in the table for couch rotation or 
+    hexapod rotations here.
+
+    Registrations seem to be in mm relative to isocenter, as evidenced 
+    by morning QA data.
+
+(3) iso_cntr
+
+    This table has the isocenter in both dicom and iso coordinates.
+
+(4) ctvolume
+
+    The coordinates in this table are most likely the default viewing 
+    center.  

@@ -1,0 +1,18 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rect-2.mha
+moving=@PLM_BUILD_TESTING_DIR@/rect-5.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-bsp-dcos-a-vf.nrrd
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-bsp-dcos-a-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-bsp-dcos-a-img.nrrd
+
+[STAGE]
+xform=bspline
+optim=lbfgsb
+impl=plastimatch
+flavor=g
+max_its=5
+convergence_tol=3
+grad_tol=0.1
+grid_spac=30 30 30
+res=2 2 2

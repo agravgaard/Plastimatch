@@ -1,0 +1,19 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
+moving=@PLM_BUILD_TESTING_DIR@/gauss-3.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-bsp-gm-k-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-bsp-gm-k-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-bsp-gm-k-img.mha
+
+[STAGE]
+xform=bspline
+optim=lbfgsb
+impl=plastimatch
+threading=single
+alg_flavor=k
+metric=gm
+max_its=20
+grad_tol=0.1
+grid_spac=10 10 10
+res=2 2 2

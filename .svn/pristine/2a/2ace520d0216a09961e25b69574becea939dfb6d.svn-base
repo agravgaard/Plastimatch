@@ -1,0 +1,1980 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DlgGammaViewClass</class>
+ <widget class="QDialog" name="DlgGammaViewClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1120</width>
+    <height>823</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="qyklabel" name="labelOverlapWnd1">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>40</y>
+     <width>512</width>
+     <height>512</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="qyklabel" name="labelOverlapWnd2">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>40</y>
+     <width>256</width>
+     <height>256</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="qyklabel" name="labelOverlapWnd3">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>340</y>
+     <width>256</width>
+     <height>256</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>650</y>
+     <width>381</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QComboBox" name="comboBoxImgFixed">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>10</y>
+      <width>161</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Fixed Image</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderFixedW">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>221</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
+    <property name="pageStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>2000</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBoxFixedW">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>40</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="singleStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>2000</number>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderFixedL">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>231</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>65535</number>
+    </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
+    <property name="pageStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>1024</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBoxFixedL">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>60</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>65535</number>
+    </property>
+    <property name="singleStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>1024</number>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditOriginFixed">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>90</y>
+      <width>211</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Origin (DICOM, mm)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_29">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>40</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>W</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_30">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>60</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>L</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonPassFixed">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>10</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pass</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>650</y>
+     <width>381</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QComboBox" name="comboBoxImgMoving">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>10</y>
+      <width>151</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Moving Image</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderMovingW">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>221</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
+    <property name="pageStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>2000</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBoxMovingW">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>40</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="singleStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>2000</number>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderMovingL">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>231</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>65535</number>
+    </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
+    <property name="pageStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>1024</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBoxMovingL">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>60</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>65535</number>
+    </property>
+    <property name="singleStep">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>1024</number>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditOriginMoving">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>90</y>
+      <width>201</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Origin (DICOM, mm)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_31">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>40</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>W</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_32">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>60</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>L</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonPassMoving">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>10</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pass</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QSlider" name="sliderPosDisp1">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>10</y>
+     <width>361</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>65535</number>
+   </property>
+   <property name="singleStep">
+    <number>1</number>
+   </property>
+   <property name="pageStep">
+    <number>10</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QSlider" name="sliderPosDisp3">
+   <property name="geometry">
+    <rect>
+     <x>640</x>
+     <y>310</y>
+     <width>161</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>65535</number>
+   </property>
+   <property name="singleStep">
+    <number>1</number>
+   </property>
+   <property name="pageStep">
+    <number>10</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QSlider" name="sliderPosDisp2">
+   <property name="geometry">
+    <rect>
+     <x>640</x>
+     <y>10</y>
+     <width>161</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>65535</number>
+   </property>
+   <property name="singleStep">
+    <number>1</number>
+   </property>
+   <property name="pageStep">
+    <number>10</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>560</y>
+     <width>511</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QLineEdit" name="lineEditCurPosX">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>60</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditCurPosY">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>60</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditCurPosZ">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>60</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonCurPosGo">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>60</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GO</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X (mm)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>60</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y (mm)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>60</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z (mm)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>0</y>
+      <width>181</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Current Position (DICOM)</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxDrawCrosshair">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>10</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Crosshair</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxDrawSplit">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>30</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SplitView</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxZoom">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>30</y>
+      <width>51</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zoom</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxPan">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>10</y>
+      <width>51</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pan</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonRestoreSingle">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>10</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Restore single</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonRestoreAll">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>50</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Restore all</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="labelDisp1">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>10</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Axial</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelDisp2">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>10</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Frontal</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelDisp3">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>310</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Sagittal</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>130</y>
+     <width>261</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Manual registration</string>
+   </property>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Moving origin</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditOriginChanged">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Moving resolution (mm)</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditMovingResol">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>90</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1.0</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonRestoreOriginal">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>20</y>
+      <width>51</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Restore</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxKeyMoving">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Keyboard</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditGradOption">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>60</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0.7,0.7,0.7</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_5">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>390</y>
+     <width>221</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Plastimatch- rigid body</string>
+   </property>
+   <widget class="QPushButton" name="pushButtonDoRigid">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>20</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Do registration</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_41">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Crop skin  bf. DIR</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditCBCTSkinCropBfDIR">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>60</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>8.0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_42">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>60</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>mm</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_6">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>490</y>
+     <width>221</width>
+     <height>261</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Plastimatch-deformable</string>
+   </property>
+   <widget class="QLabel" name="label_25">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Optimization</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBoxDeformOption">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>-1</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonDoDeformable">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>200</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Do registration</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_26">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Arguments Step1</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditArgument1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>2,2,1,30,0.00001,0.005,30</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_27">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Arguments Step2</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditArgument2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_28">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Arguments Step3</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditArgument3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>170</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonMacro">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>230</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Macro</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButtonChangeView">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>600</y>
+     <width>91</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Chage View</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_7">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>10</y>
+     <width>221</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Prepare CT</string>
+   </property>
+   <widget class="QCheckBox" name="checkBoxCropBkgroundCT">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Crop bkground</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxFillBubbleCT">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>71</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fill bubble</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonProcessCT">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>80</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Process</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditBkDetectCT">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>50</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-600</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_33">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>10</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Detect</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_34">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>10</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fill</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditBkFillCT">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>30</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-1024</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditBubFillCT">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>50</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_37">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>30</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>skin</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_8">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>260</y>
+     <width>221</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Prepare CBCT</string>
+   </property>
+   <widget class="QCheckBox" name="checkBoxCropBkgroundCBCT">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>101</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Crop bkground</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxFillBubbleCBCT">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>71</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fill bubble</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditBubFillCBCT">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>50</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>700</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_35">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>10</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Detect</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditBubDetectCBCT">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>50</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>500</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_36">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>10</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fill</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditBkFillCBCT">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>30</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_38">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>30</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>skin</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_39">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Crop skin  bf. regid</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditCBCTSkinCropBfRegid">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>80</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>10.0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_40">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>80</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>mm</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButtonGradSearch">
+   <property name="geometry">
+    <rect>
+     <x>980</x>
+     <y>150</y>
+     <width>61</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Gradient</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>qyklabel</class>
+   <extends>QLabel</extends>
+   <header>qyklabel.h</header>
+   <slots>
+    <slot>SetDrawPointToggle(bool)</slot>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButtonCurPosGo</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_CrntPosGo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>412</x>
+     <y>634</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>633</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderPosDisp1</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageWhenSliceChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>165</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>118</x>
+     <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderPosDisp2</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageWhenSliceChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>735</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>817</x>
+     <y>22</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderPosDisp3</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageWhenSliceChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>695</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>808</x>
+     <y>305</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderFixedW</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageInFixedSlice()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>697</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>16</x>
+     <y>697</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderFixedL</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageInFixedSlice()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>723</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>14</x>
+     <y>731</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderMovingW</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageInFixedSlice()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>696</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>423</x>
+     <y>701</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderMovingL</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageInFixedSlice()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>456</x>
+     <y>721</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>733</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderFixedW</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxFixedW</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>254</x>
+     <y>698</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>697</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxFixedW</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>sliderFixedW</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>300</x>
+     <y>693</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>240</x>
+     <y>694</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderFixedL</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxFixedL</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>228</x>
+     <y>716</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>297</x>
+     <y>716</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxFixedL</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>sliderFixedL</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>727</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>728</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderMovingW</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxMovingW</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>655</x>
+     <y>701</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>689</x>
+     <y>699</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderMovingL</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxMovingL</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>667</x>
+     <y>722</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>683</x>
+     <y>722</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxMovingL</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>sliderMovingL</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>710</x>
+     <y>727</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>647</x>
+     <y>728</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxMovingW</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>sliderMovingW</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>686</x>
+     <y>697</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>659</x>
+     <y>697</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonChangeView</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_ChangeView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>597</x>
+     <y>608</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>638</x>
+     <y>612</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxDrawCrosshair</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DrawImageWhenSliceChange()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>281</x>
+     <y>584</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>563</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonRestoreSingle</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_RestoreImageSingle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>529</x>
+     <y>585</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>541</x>
+     <y>552</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonRestoreAll</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_RestoreImageAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>508</x>
+     <y>632</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>537</x>
+     <y>648</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonDoRigid</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DoRegistrationRigid()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>935</x>
+     <y>268</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>828</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxKeyMoving</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_BringFocusToEnableArrow(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>900</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1012</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxKeyMoving</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_KeyMoving(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>900</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1019</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxImgFixed</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_FixedImageSelected(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>663</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>387</x>
+     <y>792</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxImgMoving</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_MovingImageSelected(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>780</x>
+     <y>674</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>822</x>
+     <y>721</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonRestoreOriginal</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_RestoreMovingImg()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1003</x>
+     <y>170</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>968</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonDoDeformable</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DoRegistrationDeform()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>948</x>
+     <y>690</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>951</x>
+     <y>584</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonProcessCT</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_PreProcessCT()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>952</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1008</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonPassFixed</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_PassFixedImgForAnalysis()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>672</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>18</x>
+     <y>640</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonPassMoving</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_PassMovingImgForAnalysis()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>613</x>
+     <y>670</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>625</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonMacro</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_Macro()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>946</x>
+     <y>734</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>948</x>
+     <y>757</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonGradSearch</sender>
+   <signal>released()</signal>
+   <receiver>DlgGammaViewClass</receiver>
+   <slot>SLT_DoRegistrationGradient()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>940</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>SLT_CrntPosGo()</slot>
+  <slot>SLT_DrawImageWhenSliceChange()</slot>
+  <slot>SLT_DrawImageInFixedSlice()</slot>
+  <slot>SLT_ChangeView()</slot>
+  <slot>SLT_RestoreImageSingle()</slot>
+  <slot>SLT_RestoreImageAll()</slot>
+  <slot>SLT_DoRegistrationRigid()</slot>
+  <slot>SLT_BringFocusToEnableArrow(bool)</slot>
+  <slot>SLT_KeyMoving(bool)</slot>
+  <slot>SLT_FixedImageSelected(QString)</slot>
+  <slot>SLT_MovingImageSelected(QString)</slot>
+  <slot>SLT_RestoreMovingImg()</slot>
+  <slot>SLT_DoRegistrationDeform()</slot>
+  <slot>SLT_PreProcessCT()</slot>
+  <slot>SLT_PreProcessCBCT()</slot>
+  <slot>SLT_PassFixedImgForAnalysis()</slot>
+  <slot>SLT_PassMovingImgForAnalysis()</slot>
+  <slot>SLT_Macro()</slot>
+  <slot>SLT_ExchangeRawRef()</slot>
+  <slot>SLT_DoRegistrationGradient()</slot>
+ </slots>
+</ui>

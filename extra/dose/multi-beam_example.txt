@@ -1,0 +1,38 @@
+#this file will create two beams (0° and 180°), both made of two protons peaks
+
+[PLAN]
+patient = input_volume.mha 
+dose_out = dose.mha
+
+[BEAM]
+flavor = g
+homo_approx = n
+
+source = 0 -2000 0
+isocenter = 0 0 0
+
+aperture_origin = -40 -40
+aperture_offset = 1500
+aperture_spacing = 1 1
+aperture_resolution = 81 81
+source_size = 0
+
+[PEAK]
+energy=100.00000
+spread=1.000000
+weight=.5
+
+[PEAK]
+energy=80.00000
+spread=1.000000
+weight=.5
+
+#end of definition of your first beam. If your don't need another beam, your configuration file is now complete. If you need another beam, keep going with this pattern (only the parameters that are different from the first beam + PEAKs definition):
+
+[BEAM]
+source = 0 2000 0
+
+[PEAK]
+energy=120.00000
+spread=1.000000
+weight=1

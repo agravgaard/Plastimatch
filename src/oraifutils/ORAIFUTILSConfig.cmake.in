@@ -1,0 +1,19 @@
+# - Config file for the ORAIFUTILS package
+# It defines the following variables
+#  ORAIFUTILS_INCLUDE_DIRS - include directories for ORAIFUTILS
+#  ORAIFUTILS_LIBRARY_DIRS - library directories for ORAIFUTILS (normally not used!)
+#  ORAIFUTILS_LIBRARIES    - libraries to link against
+#  ORAIFUTILS_EXECUTABLE   - the executable(s) if available
+
+# Tell the user project where to find our headers and libraries
+SET(ORAIFUTILS_INCLUDE_DIRS "@ORAIFUTILS_INCLUDE_DIRS@")
+SET(ORAIFUTILS_LIBRARY_DIRS "@ORAIFUTILS_LIB_DIR@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+IF(NOT DEFINED PLM_BUILD_REG23)
+  INCLUDE("@ORAIFUTILS_CMAKE_DIR@/ORAIFUTILSLibraryDepends.cmake")
+ENDIF(NOT DEFINED PLM_BUILD_REG23)
+
+# These are IMPORTED targets created by ORAIFUTILSLibraryDepends.cmake
+SET(ORAIFUTILS_LIBRARIES "@ORAIFUTILS_LIBRARIES@")
+SET(ORAIFUTILS_EXECUTABLE "") # NONE AVAILABLE

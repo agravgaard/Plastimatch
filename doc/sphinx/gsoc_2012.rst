@@ -1,0 +1,86 @@
+.. _gsoc_2012:
+
+Google Summer of Code 2012: Project Ideas
+-----------------------------------------
+Plastimatch is an open source 
+medical image computation project, focusing on 
+high-performance algorithms for image registration, 
+image segmentation, and image reconstruction.  
+
+This page describes a list of project ideas for 
+`Google Summer of Code 2012 <http://www.google-melange.com/gsoc/homepage/google/gsoc2012>`_.
+The projects have been designed to be (1) interesting, (2) useful, 
+and (3) achievable within the 3 month time limit.  
+Other projects that are not on this list 
+are also welcome -- please contact us using email list.
+If you are interested in participating, please familiarize 
+yourself with our software infrastructure:
+
+* :ref:`contents`
+* `Download page (svn) <http://forge.abcd.harvard.edu/gf/project/plastimatch/scmsvn/?action=AccessInfo>`_
+* `E-mail list <http://groups.google.com/group/plastimatch>`_
+
+3D-Slicer plugin for DRR generation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Description:**  Plastimatch currently runs as a plugin for 
+`3D Slicer <http://slicer.org>`_.
+There are already existing plugins for B-spline registration, 
+DICOM-RT interchange, and dose comparison tools, however there is 
+no plugin for DRR generation.  In this project, you would create a new 
+command line plugin to allow users to create DRRs in 3D-Slicer.
+The project could be expanded to allow interactive selection of 
+source and target positions using Slicer's 3D viewer.
+
+**Difficulty:** Basic to intermediate
+
+**Skills:** C++
+
+**Mentors:** Greg Sharp
+
+OpenCL-accelerated FDK tomographic reconstruction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Description:**  The FDK algorithm is the most popular method 
+for creating 3D volumetric images from cone-beam projections.
+Although a basic OpenCL implementation exists, it is not 
+very fast because it doesn't take advantage of hardware 
+interpolators.  The goal of this project is to impove 
+the OpenCL FDK implementation to use hardware interpolation.  
+The project can be expanded to applying hardware interpolation 
+to DRR generation.
+
+**Difficulty:** Basic to intermediate
+
+**Skills:** C++
+
+**Mentors:** James Shackleford
+
+Running registration with python
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Description:**  Python is a becoming a useful and popular language for 
+scientific computing.  This project is to design a framework to
+use python for imaging pre-processing with plastimatch 
+for registration.  Ideally, the images can be loaded and manipulated 
+in python, and then registered with plastimatch directly in 
+shared memory.  This project could be expanded to give python fine 
+grain control over registration stage parameters.
+
+**Difficulty:** Basic to intermediate
+
+**Skills:** C++, python
+
+**Mentors:** Paolo Zaffino
+
+Your project here
+^^^^^^^^^^^^^^^^^
+
+**Description:**  We invite your project proposal related to 
+medical image computation.
+
+**Difficulty:** Varies
+
+**Skills:** Varies
+
+**Mentors:** Varies

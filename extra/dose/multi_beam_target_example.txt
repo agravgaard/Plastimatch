@@ -1,0 +1,35 @@
+#this file will create two beams (0° and 180°) of 100 MeV, automatically shaped to fit a target with 5 mm margins - if you don't specify the PEAKS, a SOBP will be automatically created to fit the target, you can also defined proximal and distal margins
+
+[PLAN]
+patient = input_file.mha
+dose_out = dose.mha
+target = target_file.nrrd
+
+[BEAM]
+flavor = g
+homo_approx = n
+
+source = 4.04291 -1991.01 -75
+isocenter = 4.04291 8.99026 -75
+
+aperture_origin = -75 -75
+aperture_offset = 1500
+aperture_spacing = 3.75 3.75
+aperture_resolution = 41 41
+aperture_smearing = 5
+source_size = 0
+
+[PEAK]
+energy=100.00000
+spread=1.000000
+weight=1.0
+
+
+[BEAM]
+
+source = 4.04291 +1991.01 -75
+
+[PEAK]
+energy=100.00000
+spread=1.000000
+weight=1.0

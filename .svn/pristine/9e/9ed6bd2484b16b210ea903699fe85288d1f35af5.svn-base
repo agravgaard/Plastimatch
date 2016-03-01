@@ -1,0 +1,1046 @@
+
+; REG23 configuration file reference documentation.
+; (N-way 2D/3D Registration)
+
+; REG23 is configured with this typical INI file.
+; This INI file consists of sections, keys (indents), values, comments and pre-headers.
+; The General Format of an INI file is:
+;   pre-header-space
+;   [section1-name]
+;   indent1-name=value
+;   indent2-name=value
+;   ...
+;   ; optional-comments
+;   [section2-name]
+;   indent1-name=value
+;   indent2-name=value
+;    ...
+;
+; Some intuitive rules on INI files:
+; - Primary comments are introduced using ';' or '//' characters.
+; - Comments, sections and indents are case-sensitive.
+; - The pre-header entries generally should contain comments concerning the 
+;   complete INI file.
+; - Sections, keys, comments and values must not exceed the region of
+;     one line (must not include carriage return or line feed)
+; - Sections form groups of logically related indents (keys, values)
+; - The order of sections within an INI file or the order of indents
+;   within a section plays no primary role.
+; - Section-names themselves must not contain '[' or ']' characters.
+; - Indent-names must not contain '[' or ']' at the first position,
+;   furthermore they must not contain the '=' character at any position.
+; - There are no special restrictions on values except the ones already
+;   denoted (values are generally represented as strings). 
+; - indents and values are separated by the '=' character, there must not be
+;   any spaces between the '=' character and the indent or value respectively 
+;   (otherwise the spaces are discovered being part of the indent or the 
+;   value respectively).
+; - Optional comments can be added to each section, but are expected
+;   to be unique within the belonging section (the easiest way to achieve
+;   uniqueness is to consecutively number the comment lines).
+; - White (empty) lines are allowed everywhere.
+
+
+; information on the images (1 moving and N fixed images)
+[Images]
+
+; Volume image specification
+; Volume=<file-name>|FROM-COMMAND-LINE
+; <file-name> ... The volume is loaded from the specified file (must exist and 
+;   must be readable, e.g. ora.xml or .mhd - for ora.xml-files ORA section must 
+;   be valid!).
+; FROM-COMMAND-LINE ... The volume file name is expected to be found in the 
+;   command line call (the next argument after the last valid option).
+Volume=\\192.168.141.15\RAServer\TestSite\Patients\DemoPatient-20110101010000-c1ra001\Studies\CT1\Series\Series1\Volume.ora.xml
+xVolume=C:\dev\data\Volume.mhd
+xVolume=FROM-COMMAND-LINE
+
+; Fixed image(s) specification (enumerated from x = 1 to N)
+; FixedImage{x}=<file-name>|FROM-COMMAND-LINE
+; <file-name> ... The fixed image(s) are loaded from the specified file(s) 
+;   (must exist and must be readable, e.g. .mhd or .rti - for ora.xml-file ORA 
+;   section must be valid!). 
+; FROM-COMMAND-LINE ... If at least one FixedImage{x}-key contains this value, 
+;   the fixed images are expected to be found in the command line call (after 
+;   the last valid option or after command line volume specification).
+FixedImage1=\\192.168.141.15\RAServer\TestSite\Patients\DemoPatient-20110101010000-c1ra001\Plans\7FprostforwardIT2P1\Views\1351\kVi7.rti
+FixedImage2=W:\TestSite\Patients\DemoPatient-20110101010000-c1ra001\Plans\7FprostforwardIT2P1\Views\2251\kVi6.rti
+xFixedImage1=C:\dev\data\kVi6.mhd
+xFixedImage1=FROM-COMMAND-LINE
+
+; Fixed image(s) view name (= window name)
+; FixedImage{x}.ViewName=<view-name>
+; <view-name> a string expression which is displayed in the respective fixed
+;   image's render view window (title bar) and render view button; for 
+;   .rti-images, this title is automatically extracted from the corresponding 
+;   view infos; however, even for .rti-images this key can be used to override 
+;   the original name; 
+; NOTE: This key is purely optional and needs not to be set for all fixed images!
+FixedImage1.ViewName=180 deg
+FixedImage2.ViewName=90 deg
+
+; Image pre-processing operations specifications
+; <image-name>.PreProcess{x}=Cast|Crop|Resample|UnsharpMasking|RescaleMinMax|RescaleShiftScale|RescaleWindowing|Flip
+; For each image (volume and fixed images), a set of sequential image pre-processing 
+; operations can be specified. Basically, these operations are all 3D 
+; (fixed images are single-sliced 3D images with a size of 1 in the 3rd dimension).
+; The operations are specified by <image-name>.PreProcess{x}-keys, e.g. 
+; FixedImage1.PreProcess1=<operation-specification>.
+; Possible operations are (NOTE: case-insensitive and intermediate spaces should not matter):
+; Cast(<type>) ... Cast the image to the specified pixel type (CHAR, UCHAR, SHORT, 
+;   USHORT, INT, UINT, LONG, ULONG, FLOAT, DOUBLE).
+;   NOTE: At the end, each fixed image is automatically (implicitly) cast to FLOAT!
+;   NOTE: Moreover, casts could potentially invalidate consecutive rescaling 
+;   operations which is not automatically detected!
+; Crop(<x1>,<y1>,<z1>,<w>,<h>,<d>) ... Crops the image to the specified region 
+;   starting at index (in PIXELS!) <x1>,<y1>,<z1>  with a size of <w>,<h>,<d> 
+;   (width, height, depth).
+; Resample(<sx>,<sy>,<sz>,<interpolation>[,<smoothing-factor>]) ... Resamples 
+;   the image to the specified spacing (in x-/y-/z-direction) and the 
+;   specified intensity interpolation mode (LINEAR or BSPLINE-3), preserving its 
+;   orientation and origin in 3D space. Optionally a smoothing-factor can be 
+;   specified (this is either an integer representing the smoothing radius in 
+;   pixels or the constant string ANTIALIASING. If smoothing is specified 
+;   (positive integer), a mean image filter with a specified radius is applied 
+;   to the image BEFORE resampling it in order to avoid antialiasing. 
+;   If ANTIALIASING is specified, the radius is automatically computed dependent 
+;   on the spacing before and after resampling. 
+; Flip(<direction>) ... Applies a flip to the image data. The image geometry is 
+;   preserved (origin, direction). The Flip()-operator requires exactly one <direction>
+;   argument to set the flip direction ("X" or "Y").
+;   NOTE: At the moment this operation is only applicable to the fixed images, 
+;   not to the volume.
+; UnsharpMasking([<blur-term>]) ... Applies "unsharp masking" to the image by 
+;   accentuating the higher frequencies (some kind of 'adaptive' contrast 
+;   enhancement). Optionally a <blur-term> can be set which specifies the 
+;   blurring radius in pixels. If left empty, the radius is defined by 
+;   max(imagewidth/32,imageheight/32). The <blur-term> entry can be either 
+;   numeric or a formula-expression with the following available variables: 
+;   "v{image.height}" (the image height in pixels), 
+;   "v{image.width}" (the image width in pixels) and 
+;   "v{image.depth}" (the image depth in pixels).
+;   e.g. UnsharpMasking(max(v{image.width}/32),v{image.height}/32)) ... Some heuristic approach
+;   e.g. UnsharpMasking() ... Default
+;   e.g. UnsharpMasking(10) ... Radius of 10
+; RescaleMinMax(<min>,<max>) ... Rescales the image intensities to the range [<min>,<max>].
+; RescaleShiftScale(<shift>,<scale>) ... Rescales the image intensities by 
+;   adding <shift> to the values and then multiplying with <scale>.
+; RescaleWindowing(<win-min>,<win-min>,<out-min>,<out-max>) ... Rescales the 
+;   image intensities by windowing it: the values from [<win-min>,<win-max>] are 
+;   mapped to [<out-min>,<out-max>]. Input values which are out of range are 
+;   clamped to [<out-min>,<out-max>].
+; ThresholdOutside(<min>,<max>,<out>) ... Thresholds the image intensities which
+;   are outside the specified intensity range [<min>,<max>]. Values outside the 
+;   range are replaced with the intensity <out>.
+; ThresholdAbove(<thresh>,<out>) ... Thresholds the image intensities which
+;   are above the specified intensity <thresh>. Values above the value 
+;   are replaced with the intensity <out>.
+; ThresholdBelow(<thresh>,<out>) ... Thresholds the image intensities which
+;   are below the specified intensity <thresh>. Values below the value 
+;   are replaced with the intensity <out>.
+; Store(<file-name>) ... Stores the image into a file (use *.mhd extension).
+Volume.PreProcess1=Cast(FLOAT)
+Volume.PreProcess2=Crop(100,100,10,250,250,35)
+Volume.PreProcess3=Resample(3,3,3,LINEAR)
+Volume.PreProcess4=RescaleMinMax(0.0,255.0)
+Volume.PreProcess5=Cast(UCHAR)
+Volume.PreProcess6=Store(Volume.mhd)
+
+FixedImage1.PreProcess1=Cast(FLOAT)
+FixedImage1.PreProcess2=Resample(1.0,1.0,1.0,LINEAR)
+FixedImage1.PreProcess3=RescaleMinMax(0,255)
+FixedImage1.PreProcess4=Store(FixedImage1.mhd)
+
+FixedImage2.PreProcess1=Cast(FLOAT)
+FixedImage2.PreProcess2=Resample(1.0,1.0,1.0,LINEAR)
+FixedImage2.PreProcess3=RescaleMinMax(0,255)
+FixedImage2.PreProcess4=Store(FixedImage2.mhd)
+
+; Image post-processing operations specifications
+; <image-name>.PostProcess{x}=Cast|RescaleMinMax|RescaleMinMaxMask|RescaleShiftScale|RescaleWindowing|UnsharpMasking|Store
+; For each FIXED image a set of sequential image post-processing operations can 
+; be specified. 
+; NOTE: These operations are performed after Auto-Masking. 
+; Basically, these operations are all 3D (fixed images are single-sliced 3D 
+; images with a size of 1 in the 3rd dimension). The operations are specified by 
+; <image-name>.PostProcess{x}-keys, e.g. FixedImage1.PostProcess1=<operation-specification>.
+; Possible operations are (NOTE: case-insensitive and intermediate spaces should not matter):
+; Cast(<type>) ... Cast the image to the specified pixel type (CHAR, UCHAR, 
+;   SHORT, USHORT, INT, UINT, LONG, ULONG, FLOAT, DOUBLE).
+;   NOTE: At the end, each fixed image is automatically (implicitly) cast to FLOAT!
+;   NOTE: Moreover, casts could potentially invalidate consecutive rescaling 
+;   operations which is not automatically detected!
+; RescaleMinMax(<min>,<max>) ... Rescales the image intensities to the range [<min>,<max>].
+; RescaleMinMaxMask(<min>,<max>) ... Rescales the masked image intensities to 
+;   the range [<min>,<max>]. 
+;   NOTE: If a mask exists the operation only operates on the pixel values that 
+;   are inside the corresponding mask. If no mask exists it has the same effect 
+;   as RescaleMinMax.
+; RescaleShiftScale(<shift>,<scale>) ... Rescales the image intensities by 
+;   multiplying with <scale> and then adding <shift>.
+; RescaleWindowing(<win-min>,<win-min>,<out-min>,<out-max>) ... Rescales the 
+;   image intensities by windowing it: the values from [<win-min>,<win-max>] are 
+;   mapped to [<out-min>,<out-max>]. Input values which are out of range are 
+;   clamped to [<out-min>,<out-max>].
+; UnsharpMasking([<blur-radius>]) ... Applies "unsharp masking" to the image by 
+;   accentuating the higher frequencies (some kind of 'adaptive' contrast 
+;   enhancement). Optionally a <blur-radius> can be set which specifies the 
+;   blurring radius in pixels. If left empty, the radius is defined by 
+;   max(imagewidth/32,imageheight/32). The <blur-radius> entry must be numeric (integer).
+;   e.g. UnsharpMasking() ... Default (implicitly taking max(imagewidth/32,imageheight/32))
+;   e.g. UnsharpMasking(10) ... Radius of 10
+;   NOTE: At the moment this operation is only applicable to the fixed images, 
+;   not to the volume.
+; Store(<file-name>) ... Stores the image into a file (use *.mhd extension).
+; The Crop() and Resample() operations are NOT allowed here because the images 
+; must have the same size as the already generated mask images.
+xFixedImage1.PostProcess1=RescaleMinMaxMask(0,255)
+xFixedImage1.PostProcess2=Cast(FLOAT)
+xFixedImage1.PostProcess3=Store(FixedImage1-Post.mhd)
+
+xFixedImage2.PostProcess1=RescaleMinMaxMask(0,255)
+xFixedImage2.PostProcess2=Cast(FLOAT)
+xFixedImage2.PostProcess3=Store(FixedImage2-Post.mhd)
+
+
+; Information on (optional) structures.
+[Structures]
+
+; All structures that are listed in this section are loaded/created and buffered 
+; for later purposes (e.g. visualization or auto-mask-generation).
+;
+; NOTE: A structure is always defined with the raw volume's in the world
+; coordinate system. Therefore, if an isocenter is defined, it is translated 
+; similarly as the volume! This means: a structure should conform with the
+; volume in world coordinate system!
+; 
+; Structure{x}=<structure-set-uid>,<structure-uid>[,<new-structure-uid>]|Sphere|Box
+; There are several ways how a structure can be defined:
+; 
+; 1) ORA-structure
+;   <structure-set-uid>,<structure-uid>[,<new-structure-uid>] ... Loads an 
+;   existing ORA structure from the specified patient (ORA-connectivity 
+;   required!). Optionally a new (unique!) structure UID can be defined (in order 
+;   to load the same ORA-structure multiple times for different pre-processing).
+;   If the optional new structure UID is not defined, the original ORA structure 
+;   UID is used.
+; 2) Sphere structure 
+;   Sphere(<x>,<y>,<z>,<r>),<structure-uid> ... Generate a sphere object that 
+;   can be used as structure <structure-uid> later. The values <x>,<y>,<z> define 
+;   the sphere center and <r> defines the sphere radius in mm. 
+;   NOTE: The <structure-uid> must be unique within this configuration file! 
+;   NOTE: All of the arguments can contain formulas and generic variables!
+; 3) Box structure
+;   Box(<x>,<y>,<z>,<w>,<h>,<d>),<structure-uid> ... Generate an axis-aligned 
+;   box object that can be used as <structure-uid> later. The values <x>,<y>,<z> 
+;   define the box's lower left corner and <w>,<h>,<d> the width, height and 
+;   depth in mm. 
+;   NOTE: The <structure-uid> must be unique within this configuration file! 
+;   NOTE: All of the arguments can contain formulas and generic variables!
+; 4) Stored File structure
+;   File(<filename>,<format>),<structure-uid> ... Generates a structure by 
+;   simply loading it from a specified file (<filename>) in a specified (VTK-
+;   compatible) file format (<format>). Supported formats are:
+;     DSW ... VTK legacy format (vtkDataSetReader, usually extension ".vtk" or 
+;       ".dsw")
+;     PLY ... Stanford University PLY format (vtkPLYReader, usually extension 
+;       ".ply")
+;     XML ... VTK XML poly data format (vtkXMLPolyDataReader, usually extension 
+;       ".vtp")
+;
+; Moreover, some pre-processing on the structures can be defined by applying
+; continuously enumerated ".PreProcess{x}" entries. 
+; <structure-name>.PreProcess{x}=Store|Decimate|NormalWarp|Clip
+; NOTE: The entries which require another structure (e.g. Clip) must make sure 
+; that the other structure has been defined BEFORE! 
+; The following entries are possible:
+; Store(<file-name>,<format>) ... Store the actual structure to a VTK-file 
+;   named <file-name>; the file format for 3D polygonal data set storage is 
+;   specified through <format> which can be one of the following ones:
+;     DSW ... VTK legacy format (vtkDataSetWriter, usually extension ".vtk" or ".dsw")
+;     PLY ... Stanford University PLY format (vtkPLYWriter, usually extension ".ply")
+;     XML ... VTK XML poly data format (vtkXMLPolyDataWriter, usually extension ".vtp")
+; Decimate(<type>,<reduction-ratio>) ... Decimate the structure, where <type> 
+;   can be PRO (a trivial, relatively fast approach) or QUADRIC (a more complex, 
+;   slightly slower approach). The <reduction-ratio> is the desired percentage 
+;   of points to remove (0-100%). 
+;   NOTE: The <reduction-ratio> argument can contain formulas and generic variables!
+; NormalWarp(<amount>) ... Warps the structure by moving the vertices in 
+;   direction of the cell normals. The <amount> is specified in mm. If a negative
+;   <amount> is specified, the structure will be eroded, if a positive <amount>
+;   is applied, the structure will be dilated. 
+;   NOTE: the <amount> argument can contain formulas and generic variables!
+; Clip(<another-struct>,<inverse-flag>) ... Clip the structure with another 
+;   structure. If the <inverse-flag> is set to true, the non-clipped part is
+;   the result.
+;   NOTE: At the moment, only clipping with simple structures is supported
+;   (e.g. generated with Sphere(), Box() - using complex structures may cause 
+;   problems and artifacts!)
+; Volumemask([<structure1>,...,<structureN>,]<filename>) ... Generates a 
+;   volume mask from the current structure. Additional structures 
+;   "<structure1>,...,<structureN>" can be provided. The structures should have 
+;   a closed surface in order to create a properly shaped mask volume (e.g.
+;   Box, Sphere). Voxels inside any polydata-objects are "outside" (value of 
+;   zero) of the mask, and voxels outside any polydata-object are "inside" 
+;   (value 255). the result is written to a file (<filename>).
+;   NOTE: The saved image is of type unsigned char.
+;
+; Generic variables: 
+; Some of the expressions above (see description) are quite generic. 
+; For example, the <x>-expression of the Sphere()-command does not 
+; necessarily require an absolute value, it can also use one or more generic 
+; variables and formulas. Generic variables have the following form:
+;   v{<structure-uid>.<attribute>}
+; where <structure-uid> denotes a previously loaded/generated (!) structure or
+; "VOLUME", and <attribute> is one of the following attributes of that structure:
+;  xmin ... x-bound in negative direction of structure <structure-uid>
+;  xmax ... x-bound in positive direction of structure <structure-uid>
+;  ymin ... y-bound in negative direction of structure <structure-uid>
+;  ymax ... y-bound in positive direction of structure <structure-uid>
+;  zmin ... z-bound in negative direction of structure <structure-uid>
+;  zmax ... z-bound in positive direction of structure <structure-uid>
+;  w ... width of structure <structure-uid> (along x-axis)
+;  h ... height of structure <structure-uid> (along y-axis)
+;  d ... depth of structure <structure-uid> (along z-axis)
+;  cells ... number of cells (triangles) of structure <structure-uid>
+;  points ... number of points of structure <structure-uid>
+; Moreover, these generic variables can be packed into formula expressions. Even
+; an inline-version of "if" is possible: 
+;  if(<test-expression>#<trueresult>#<falseresult>)
+; where <trueresult> and <falseresult> can contain expressions again (even "if"
+; again).
+Structure1=CT1Prostata25mmBecken2,Skelett,SkelettStructure1
+Structure2=CT1Prostata06mmGoldmarker,CTVprostata2,PTVStructure1
+Structure3=Box(v{SkelettStructure1.xmin},v{SkelettStructure1.ymin},v{SkelettStructure1.zmin}+v{SkelettStructure1.d}*0.33,v{SkelettStructure1.w}*0.25,v{PTVStructure1.ymax}-v{SkelettStructure1.ymin}+v{SkelettStructure1.w}*0.04,v{SkelettStructure1.d}*0.45),FemurRightBoxStructure1
+Structure4=Box(v{SkelettStructure1.xmin}+v{SkelettStructure1.w}*0.75,v{SkelettStructure1.ymin},v{SkelettStructure1.zmin}+v{SkelettStructure1.d}*0.33,v{SkelettStructure1.w}*0.25,v{PTVStructure1.ymax}-v{SkelettStructure1.ymin}+v{SkelettStructure1.w}*0.04,v{SkelettStructure1.d}*0.45),FemurLeftBoxStructure1
+Structure5=CT1Prostata25mmBecken2,Skelett,FemurRightStructure1
+Structure5.PreProcess1=Clip(FemurRightBoxStructure1,1)
+Structure5.PreProcess2=NormalWarp(2.5)
+Structure6=CT1Prostata25mmBecken2,Skelett,FemurLeftStructure1
+Structure6.PreProcess1=Clip(FemurLeftBoxStructure1,1)
+Structure6.PreProcess2=NormalWarp(2.5)
+Structure7=CT1Prostata25mmBecken2,Skelett,SkelettWarpStructure1
+Structure7.PreProcess1=Clip(FemurLeftBoxStructure1,0)
+Structure7.PreProcess2=Clip(FemurRightBoxStructure1,0)
+Structure7.PreProcess3=NormalWarp(6.0)
+Structure8=Box(v{SkelettWarpStructure1.xmin},v{SkelettWarpStructure1.ymin},v{SkelettWarpStructure1.zmin},v{SkelettWarpStructure1.w},v{SkelettWarpStructure1.h}*0.9,v{SkelettWarpStructure1.d}),SkelettBoxLimitedStructure1
+Structure9=CT1Prostata25mmBecken2,Skelett,SkelettStructure2
+Structure9.PreProcess1=Clip(FemurLeftBoxStructure1,0)
+Structure9.PreProcess2=Clip(FemurRightBoxStructure1,0)
+Structure9.PreProcess3=NormalWarp(6.0)
+Structure9.PreProcess4=Clip(SkelettBoxLimitedStructure1,1)
+
+
+; Contains some information on the projection geometry.
+[Geometry]
+
+; Source position specification
+; SourcePosition{x}=<x>,<y>,<z>|FROM-IMAGE(ROTATIONAL)
+; SourcePosition1 relates to FixedImage1 and its projection geometry. There are 
+; 2 different methods for specifying the source position:
+; 1) SourcePosition{x}=<x>,<y>,<z> ... Specify the source position directly by
+;   defining its 3D coordinates in WCS.
+; 2) SourcePosition{x}=FROM-IMAGE(ROTATIONAL) ... Only possible and valid if 
+;   the according image is an ORA RTI (*.rti) specify the source position 
+;   implicitly, assuming a LINAC-mounted rotational ideal system.
+SourcePosition1=FROM-IMAGE(ROTATIONAL)
+xSourcePosition1=0.0,0.0,-1000.0
+SourcePosition2=FROM-IMAGE(ROTATIONAL)
+xSourcePosition2=1000.0,0.0,0.0
+
+; Specification of the plan-specific iso-center (for volume orientation ...).
+; IsoCenter=<BeamInfo-file>|<ViewInfo-file>|<x>,<y>,<z>
+; 1) Specify it either by passing a BeamInfo-file or
+; 2) by specifying a ViewInfo-file or
+; 3) by specifying the iso-center directly via 3 ","-separated values (in cm,
+;   same convention as in BeamInfo-file).
+IsoCenter=W:\TestSite\Patients\DemoPatient-20110101010000-c1ra001\Plans\ProbeT2P1\Beams\vent1\BeamInfo.inf
+xIsoCenter=W:\TestSite\Patients\DemoPatient-20110101010000-c1ra001\Plans\7FprostforwardIT2P1\Views\2251\ViewInfo.inf
+xIsoCenter=1.93,2.25,20.50
+
+
+; Information on structure-based auto-mask generation.
+[Auto-Masking]
+
+; Define the mask generation rules. 
+; Mask{x}.Step{y}=TempMask|Mask|Store|HoleFill|Rect
+; Mask1 relates to FixedImage1 and so on. If no mask is defined, the whole fixed 
+; image is used for iterative metric calculation. Defining a mask here requires 
+; the Geometry to be defined (and at least one source structure being defined)!
+; Masks are generated by sequentially executing defined steps that 
+; aim at constructing a binary mask image. A step is defined by appending 
+; ".Step{y}" to "Mask{x}". A mask is generated by generating submasks if 
+; required and combining them. 
+; Each step executes one of the following operators:
+;
+; TempMask(<term>),<mask-uid> ... Generates a temporary (helper) mask that can
+;   be used for combinations afterwards. The uid <mask-uid> must be unique 
+;   (also w.r.t. struture UIDs!) and <term> is either the UID of a structure 
+;   from  the [Structures] section or a binary (| for OR, & for AND, ^ for XOR) 
+;   or a unary (! for NOT) operator on submasks.
+;   example1: TempMask(PTV),PTVSubMask ... Generates a submask (namely 
+;     PTVSubMask) that is constructed by projecting the structure PTV onto the 
+;     fixed image plane.
+;   example2: TempMask(!PTV),PTVInvSubMask ...Generates a submask (namely
+;     PTVInvSubMask) that is constructured by projecting the structure PTV 
+;     onto the fixed image plane and then inverting the mask. 
+;   example3: TempMask(PTVSubMask|PelvisSubMask),CombinedMask ... Generates
+;     a submask (namely CombinedMask) that is constructured by adding submasks 
+;     PTVSubMask and PelvisSubMask.
+;   example4: TempMask(PelvisSubMask&PTVSubMask),CombinedMask2 ... Generates
+;     a submask (namely CombinedMask2) that is constructured by subtracting 
+;     submask PTVSubMask from PelvisSubMask.
+;   example5: TempMask(!CombinedMask2),CombinedInvMask2 ... Generates a 
+;     submask (namely CombinedInvMask2) by inverting CombinedMask2.
+;   example6: TempMask(CombinedMask2),CombinedMask2Copy ... Generates a
+;     copy of CombinedMask2, namely CombinedMask2Copy.
+;   NOTE: More complex operations can be achieved by continuously generating
+;   temporary submasks and by combining them accordingly (&,|,^,!). It is 
+;   especially NOT possible to combine "&", "|" or "^" with "!". This must be 
+;   achieved via temporary masks!
+; Mask(<term>) ... Generate the final (real) mask by applying a <term> (similar
+;   to the terms in TempMask()-command). 
+;   NOTE: Only one Mask()-command per Mask{x} is allowed! All commands after 
+;   this command won't show any effect (except the Store()-command, see below).
+; Store(<mask-uid>,<file-name>) ... Stores the specified mask to a file (MHD).
+;   NOTE: If you like to store the final mask (generated with the Mask()-command)
+;   you have to apply "-" for <mask-uid>.
+; HoleFill(<mask-uid-in>,<radius-x>,<radius-y>,<invert>,<majority-threshold>,<iterations>),<mask-uid-out>
+;   Performs hole/cavity filling by applying an iterative voting operation until 
+;   no pixels are being changed or until it reaches the maximum number of iterations.
+;   It fills in holes of medium size (tens of pixels in <radius-x/y>).
+;   The size of the neighborhood is related to the curvature of the hole borders 
+;   and therefore the hole size.
+;   NOTE: It may also fill in cavities in the external side of the masks.
+;   NOTE: If you like to manipulate the final mask (generated with the Mask()-command)
+;   you have to apply "-" for <mask-uid-in>. In this case <mask-uid-out> is not required.
+;   <radius-x/y>: Radius in x/y-dimension of the neighborhood used to compute 
+;     the median. The value on each dimension is used as the semi-size of a 
+;     rectangular box (e.g. in 2D a size of (1,2) will result in a 3x5 neighborhood.
+;   <invert>: If set (!=0) foreground and background are swapped and the effect
+;     is an island removal of the foreground.
+;   <majority-threshold>: Defines the number of pixels over 50% that will 
+;     decide whether an OFF pixel will become ON or not (e.g. a pixel has a 
+;     neighborhood of 100 pixels (excluding itself), the 50% will be 50. 
+;     A majority threshold of 5 means that 55 or more neighbor pixels are required 
+;     to be ON in order to switch the current OFF pixel to ON).
+;     Summed up a background pixel will be converted into a foreground pixel if 
+;     the number of foreground neighbors surpass the number of background neighbors 
+;     by the majority value: (width * height - 1)/2 + majority.
+;   <iterations>: Maximum number of iterations to perform. It is executed 
+;     iteratively as long as at least one pixel has changed in a previous iteration, 
+;     or until the specified number of iterations has been reached.
+;     The number of iterations will determine the maximum size of holes and cavities 
+;     that this function will be able to fill-in. The more iterations, the larger 
+;     the cavities that will be filled in.
+; Rect(<mask-uid>,<width>,<height>),<mask-uid-new> ... Generates a temporary mask 
+;   <mask-uid-new> from a temporary mask with <mask-uid> and adds a centered 
+;   rectangular mask region to it with the specified <width> and <height> in [mm]. 
+;   NOTE: The uid <mask-uid-new> must be unique (also w.r.t. struture UIDs)!.
+;   NOTE: To generate a rectangular mask from scratch a dummy structure is required!
+;   e.g. Structure1=Box(0,0,0,0,0,0),DummyBox with Mask1.Step1=TempMask(DummyBox),DummyMask
+;   DummyMask is then used as <mask-uid> for Rect().
+Mask1.Step1=TempMask(SkelettStructure2),SkeletonMask1
+Mask1.Step2=TempMask(!FemurLeftStructure1),FemurLeftInvMask1
+Mask1.Step3=TempMask(!FemurRightStructure1),FemurRightInvMask1
+Mask1.Step4=TempMask(SkeletonMask1 & FemurLeftInvMask1),Temp1
+Mask1.Step5=TempMask(Temp1 & FemurRightInvMask1),Final1
+Mask1.Step6=HoleFill(Final1,4,4,0,3,10),FinalFill1-1
+Mask1.Step7=HoleFill(FinalFill1-1,4,4,1,3,10),FinalFillIsland1-1
+Mask1.Step8=HoleFill(FinalFillIsland1-1,2,2,0,1,10),FinalFill1-2
+Mask1.Step9=HoleFill(FinalFill1-2,2,2,1,1,10),FinalFillIsland1-2
+Mask1.Step10=Mask(FinalFillIsland1-2)
+Mask1.Step11=Store(-,Example1-Mask1.mhd)
+
+Mask2.Step1=TempMask(SkelettStructure2),SkeletonMask2
+Mask2.Step2=TempMask(!FemurLeftStructure1),FemurLeftInvMask2
+Mask2.Step3=TempMask(!FemurRightStructure1),FemurRightInvMask2
+Mask2.Step4=TempMask(SkeletonMask2 & FemurLeftInvMask2),Temp2
+Mask2.Step5=TempMask(Temp2 & FemurRightInvMask2),Final2
+Mask2.Step6=HoleFill(Final2,4,4,0,3,10),FinalFill2-1
+Mask2.Step7=HoleFill(FinalFill2-1,4,4,1,3,10),FinalFillIsland2-1
+Mask2.Step8=HoleFill(FinalFillIsland2-1,2,2,0,1,10),FinalFill2-2
+Mask2.Step9=HoleFill(FinalFill2-2,2,2,1,1,10),FinalFillIsland2-2
+Mask2.Step10=Mask(FinalFillIsland2-2)
+Mask2.Step11=Store(-,Example1-Mask2.mhd)
+
+; Specify whether or not to use mask optimization, i.e. potentially reducing the
+; number of DRR pixel computation by masking the pixels on the GPU directly. 
+; On the other hand, this feature requires to transmit the mask to the GPU 
+; periodically which costs additional time (find a trade-off). 
+UseMaskOptimization=0
+
+
+; Information on DRR computation.
+[DRR]
+
+; Specifies the intensity transfer function (ITF) for each DRR engine (each
+; associated with a fixed image). 
+; ITF{x}=[SCALE|]<itf-num-pairs> <itf-in1> ...|FILE:<ITF-file>|ITF-POOL
+; NOTE: The ITF describes how input (volume) intensities are mapped to output 
+; intensities. Therefore, the input values depend on the pre-processed volume 
+; intensities!!! The output intensities are internally automatically normalized 
+; to [0,1] (if the detected maximum output value is greater than 1.0) in order 
+; to be compatible with the GPU textures. The normalization is accomplished via 
+; dividing each output value by the extracted maxium value! e.g. having these 
+; input-output pairs {(100,1);(300,5);(500,6);(300,8)}, a maximum output value 
+; of 8 results, internally the output values are normalized to [0,1] as follows
+; {(100,1/8);(300,6/8);(500,5/8);(300,8/8)} = {(100,0.125);(300,0.75);(500,0.625);(300,1.0)}. 
+; NOTE: negative output values are not allowed!
+;
+; There are 3 methods how you can specify an ITF:
+; 1) <itf-num-pairs> <itf-in1> <itf-out1> <itf-in2> <itf-out2> ... ... Specify
+;   the number of ITF-pairs and then specify the ITF-pairs (in-value, out-value)
+;   delimited by spaces.
+; 2) FILE:<ITF-file> ... Specify the ITF by specifying a file that contains a
+;   single ITF as shown in 1).
+; 3) ITF-POOL(<section>,<key>) ... Specify the ITF by providing the section and
+;   key of the ITF within a specified "ITF-pool". For this purpose the ITF-pool
+;   must be specified using the "ITF-POOL-File=" key. It is a standard INI file
+;   that contains ITFs (comparable to 1)) in specified sections/keys.
+; 
+; In order to be able to define the ITF independent of the volume image 
+; intensities, the string "SCALE|" can be written before each of the 3 commands
+; above. This means that the in-values are related to the scaled volume image
+; intensities which are computed by using the volume's rescale slope and 
+; intercept (-> scaledIntensity:=volumeIntensity*slope+intercept). ORA-volumes 
+; usually have rescale slope and intercept, other volumes won't define them - 
+; slope 1.0 and intercept 0.0 are assumed! Using the "SCALE|"-term makes for
+; example sense to define an ITF for a CT image in terms of hounsfield units (HU). 
+; The 3 examples mentioned above look like this when using the scale term:
+; 1) SCALE|<itf-num-pairs> <itf-in1> <itf-out1> <itf-in2> <itf-out2>
+; 2) FILE:<ITF-file> ... This command does not change because the "SCALE|"-term
+;   must be located in the specified <ITF-file> if desired.
+; 3) ITF-POOL(<section>,<key>) ... This command does not change because the 
+;   "SCALE|"-term must be located in the specified ITF-POOL-entry if desired.
+ITF-POOL-File=C:\radART-dev\SVN-open-radART-In-Focus\trunk\model\components\registration\nreg2d3d\reg23\ITFpool.ini
+ITF1=10 0 0 464 0 465 56 975 117 976 118 1180 165 1181 166 2400 1416 2401 0 4095 0
+xITF1=SCALE|10 -1024 0 -560 0 -559 56 -49 117 -48 118 156 165 157 166 1376 1416 1377 0 3071 0
+xITF2=FILE:ITF.txt
+xITF2=10 0 0 464 0 465 56 975 117 976 118 1180 165 1181 166 2400 1416 2401 0 4095 0
+ITF2=ITF-POOL(ITFs,DefaultPelvisNoMarkers)
+xITF2=ITF-POOL(ITFs,DefaultPelvis)
+
+; Specifies the ray-casting step size (along volume sampling rays) for each DRR.
+; CastStepSize{x}=<step-size>|AUTO-0|AUTO-1|AUTO-2|AUTO-3
+; It can either be specified directly in mm:
+; 1) <step-size>
+; or by specifying an auto-mode that depends dynamically on the pre-processed
+; volume's spacing:
+; 2) AUTO-0 ... Half of smallest spacing component (Shannon theorem).
+;    AUTO-1 ... Smallest spacing component (empirical, but usually enough).
+;    AUTO-2 ... Largest spacing component (empirical, usually low quality).
+;    AUTO-3 ... Half of largest spacing component (sparse Shannon theorem).
+CastStepSize1=AUTO-1
+CastStepSize2=AUTO-1
+
+
+; Information on the transformation.
+[Transform]
+
+; Specify the initial transformation parameters at the beginning of the 
+; registration. If this keyword is left empty, the previously set parameters
+; are simply applied (at application start up, these parameters are all zero).
+; There are 2 possible ways to define the initial transform:
+; (A) Parameter-based 
+;   InitialParameters=<rx>,<ry>,<rz>,<tx>,<ty>,<tz> ... The first 3 parameters 
+;   are the Euler angles in degrees, and the last 3 parameters are the 
+;   translations in mm (e.g. InitialParameters=0,0,0,-10,16,-11).
+; (B) Transformation-based
+;   InitialRotationMatrix=<a11>,<a12>,<a13>,<a21>,<a22>,<a23>,<a31>,<a32>,<a33>
+;   InitialTranslation=<tx>,<ty>,<tz>
+;   ... BOTH KEYS MUST BE SPECIFIED if the initial transformation should be transform-based!
+;   The <aXX> entries are the rotation matrix coefficients where the column-index 
+;   moves fastest and RELATE to the center of rotation (see CenterOfRotation below). 
+;   The <tx>,<ty>,<tz> are the translations along x/y/z-axes in cm.
+InitialParameters=
+xInitialParameters=0,0,0,-10,16,-11
+yInitialRotationMatrix=0.999975,-0.00658501,-0.00255759,0.00646676,0.99902,-0.0437771,0.00284335,0.0437594,0.999038
+yInitialTranslation=0.4223,0.220321,0.285771
+
+; Specify center of rotation where the transformation relates to (in cm in IEC).
+; If not specified, 0,0,0 is assumed.
+; This transform applies a rotation about a specific coordinate or centre of 
+; rotation followed by a translation (Centered Euler 3D).
+CenterOfRotation=0,0,0
+
+
+; Information on registration in the narrower case, and its main components.
+// FIXME: extend by multi-resolution and component-exchange modes!
+[Registration]
+
+; Specify the metric type.
+; MetricType{x}=SRC|NMI|NCC|MRSD|MS|GD
+; The following metrics are supported:
+;   SRC ... Stochastic rank correlation
+;   NMI ... Normalized mutual information
+;   NCC ... Normalized correlation
+;   MRSD ... Mean reciprocal square differences
+;   MS ... Mean squares
+;   GD ... Gradient difference
+;
+; Specify the metric configuration ("MetricConfig{x}=...").
+; (some metrics need some parameters set, other do not).
+; The number and form of the parameters depend on the MetricType:
+; SRC: <fhist-min> <fhist-max> <fbins> <mhist-min> <mhist-max> <mbins> <coverage>
+;   <fhist-min>: Minimum intensity for histogram extraction of the fixed image
+;     (intensities below are not considered).
+;   <fhist-max>: Maximum intensity for histogram extraction of the fixed image
+;     (intensities above are not considered).
+;   <fbins>: number of bins of the fixed image histogram
+;   <mhist-min>: Minimum intensity for histogram extraction of the moving image (DRR)
+;     (intensities below are not considered).
+;   <mhist-max>: Maximum intensity for histogram extraction of the moving image (DRR)
+;     (intensities above are not considered).
+;   <mbins>: Number of bins of the fixed image (DRR) histogram.
+;   <coverage>: Percentage of pixels to be sampled [0,100] - the "stochastic factor".
+; NMI: <fhist-min> <fhist-max> <fbins> <mhist-min> <mhist-max> <mbins> <pad-value>
+;   <fhist-min>: Minimum intensity for histogram extraction of the fixed image
+;     (intensities below are not considered).
+;   <fhist-max>: Maximum intensity for histogram extraction of the fixed image
+;     (intensities above are not considered).
+;   <fbins>: Number of bins of the fixed image histogram.
+;   <mhist-min>: Minimum intensity for histogram extraction of the moving image (DRR)
+;     (intensities below are not considered).
+;   <mhist-max>: Maximum intensity for histogram extraction of the moving image (DRR)
+;     (intensities above are not considered).
+;   <mbins>: Number of bins of the fixed image (DRR) histogram.
+;   <pad-value>: Intensity value which should be excluded from metric computation
+;     (usually the value of the background, e.g. 0).
+; NCC: <subtract-mean>
+;   <subtract-mean>: Flag (0 or 1) indicating whether or not to subtract the mean
+;     intensity of the pixel values before correlation is computed (normally, 
+;     NCC does not work on projective images if this flag is 0).
+; MRSD: <lambda>
+;   <lambda>: Capture radius of the metric in terms of intensity. 
+; MS: ---
+; GD: ---
+; 
+; NOTE: DRRs are computed by summing weighted voxel intensities along the casted
+; rays. This results in DRR pixel intensities which are not really predictable
+; (especially as the summed intensities are internally normalized by the GPU).
+; In order to cope with metric configurations that require information on the
+; moving image (DRR) intensity range a set of GENERIC VALUES can be used that
+; are computed based on the according INITIAL DRR! 
+; These GENERIC VALUES are:
+;   DRRMIN ... Minimum intensity of the respective initial DRR
+;   DRRMAX ... Maximum intensity of the respective initial DRR
+;   DRRMEAN ... Mean intensity of the respective initial DRR
+;   DRRSTD ... Standard deviation of the respective initial DRR's intensities
+;   DRRMINMASK ... Minimum intensity of the respective initial masked DRR
+;   DRRMAXMASK ... Maximum intensity of the respective initial masked DRR
+;   DRRMEANMASK ... Mean intensity of the respective initial masked DRR
+;   DRRSTDMASK ... Standard deviation of the respective initial masked DRR's intensities
+; NOTE: All *MASK variables are only available when the corresponding mask exists.
+; If no mask is available they have the same values as their non-masked 
+; counterparts (e.g. drrminmask = drrmin).
+; For instance, you can use a MetricConfig like this (for SRC): 
+; MetricConfig1=0 255 100 DRRMIN DRRMAX 100 50.0
+; Moreover, you can combine formulas with them (but no space is allowed within
+; the formulas), e.g.: (example makes no sense)
+; MetricConfig1=0 255 100 10+log(DRRMIN) 5.12*DRRMAX/DRRMIN 100 50.0
+xMetricType1=SRC
+xMetricConfig1=0 255 100 DRRMIN DRRMAX*1.05 100 50.0
+xMetricType2=SRC
+xMetricConfig2=0 255 100 DRRMIN DRRMAX*1.05 100 50.0
+
+xMetricType1=NMI
+xMetricConfig1=0 255 255 DRRMIN DRRMAX*1.05 255 0.0
+xMetricType2=NMI
+xMetricConfig2=0 255 255 DRRMIN DRRMAX*1.05 255 0.0
+xMetricRulePrefix1=-1.0*(
+xMetricRulePostfix1=)
+xMetricRulePrefix2=-1.0*(
+xMetricRulePostfix2=)
+
+MetricType1=NCC
+MetricConfig1=1
+MetricType2=NCC
+MetricConfig2=1
+
+xMetricType1=MRSD
+xMetricConfig1=127
+xMetricType2=MRSD
+xMetricConfig2=127
+xMetricRulePrefix1=-1.0*(
+xMetricRulePostfix1=)
+xMetricRulePrefix2=-1.0*(
+xMetricRulePostfix2=)
+
+xMetricType1=MS
+xMetricType2=MS
+
+xMetricType1=GD
+xMetricType2=GD
+xMetricRulePrefix1=-1.0*(
+xMetricRulePostfix1=)
+xMetricRulePrefix2=-1.0*(
+xMetricRulePostfix2=)
+
+; Give information of the metric rule composition. Basically, all metric outputs
+; are summed. Using the rule prefix and postfix entries, one can modify the
+; rule somewhat, e.g. adding "-1.0 * (" as prefix and ")" as postfix, one can
+; invert the metric value contribution.
+; This is especially important as the overall optimization is always defined as 
+; a MINIMIZATION problem! Original metric value behavior: 
+; SRC->MIN, NMI->MAX, NCC->MIN, MRSD->MAX, MS->MIN, GD->MAX
+; NOTE: Even inline-if statements can be realized!
+xMetricRulePrefix1=-1.0*(
+xMetricRulePostfix1=)
+xMetricRulePrefix2=-1.0*(
+xMetricRulePostfix2=)
+
+; Specify the optimizer type. 
+; OptimizerType=1+1EVOL|AMOEBA|POWELL
+; NOTE: The optimizer ALWAYS MINIMIZES the composite cost function. 
+; The following optimizers are supported:
+;   1+1EVOL ... 1+1 evolutionary optimization.
+;   AMOEBA ... Amoeba (Nelder-Mead) optimization.
+;   POWELL ... Powell optimization.
+xOptimizerType=1+1EVOL
+yOptimizerType=POWELL
+OptimizerType=AMOEBA
+
+; Specify the optimizer configuration ("OptimizerConfig=...").
+; The number and form of the parameters depends on the OptimizerType:
+; 1+1EVOL: <max-iterations> <initial-radius> <growth-factor> <shrink-factor> <epsilon> <seed>
+;   <max-iterations>: Maximum number of iterations (optimizer is guaranteed to 
+;     terminate after this number of iterations).
+;   <initial-radius>: Initial search radius for the stochastic parameter variation
+;     in each dimension. NOTE: The optimizer scales influence the effect on each 
+;     parameter dimension.
+;   <growth-factor>: Search radius growth factor (as reaction on unsuccessful
+;     mutations).
+;   <shrink-factor>: Search radius shrink factor (as reaction on successful
+;     mutations).
+;   <epsilon>: Frobenius norm which causes the optimizer to terminate (convergency).
+;   <seed>: seed for pseudo-random parameter variation; enables the reproduction
+;     of optimizations.
+; AMOEBA: <max-iterations> <parameter-tolerance> <function-value-tolerance> <initial-simplex-delta-0> <initial-simplex-delta-1> ... <initial-simplex-delta-5>
+;   <max-iterations>: Maximum number of iterations (optimizer is guaranteed to 
+;     terminate after APPROXIMATELY this number of iterations).
+;   <parameter-tolerance>: Convergence criterion. If the parameter variation falls
+;     below this value, the optimizer terminates.
+;   <function-value-tolerance>: Convergence criterion. If the cost function 
+;     change falls below this value, the optimizer terminates.
+;   <initial-simplex-delta-{x}>: Values that are used to define the initial simplex
+;     for optimization. NOTE: If at least one of the deltas is 0, 
+;     auto-simplex-initialization is performed (very small simplex around the 
+;     initial position)
+; POWELL: <max-iterations> <max-line-iterations> <step-length> <step-tolerance> <value-tolerance>
+;   <max-iterations>: number of maximum iterations (NOTE: 6*<max-iterations>*<max-line-iterations> cost function evaluations are executed!) 
+;   <max-line-iterations>: number of maximum internal line search iterations (NOTE: 6*<max-iterations>*<max-line-iterations> cost function evaluations are executed!)
+;   <step-length>: (scaled) parameter space sampling distance during bracketing the local optimum (line search)
+;   <step-tolerance>: Convergence criterion. If the parameter variation falls
+;     below this value, the optimizer terminates.
+;   <value-tolerance>: Convergence criterion. If the cost function 
+;     change falls below this value, the optimizer terminates.
+;
+xOptimizerConfig=300 1.2 1.1 0.95 0.3 1234567
+yOptimizerConfig=5 10 1.0 0.1 0.05 
+OptimizerConfig=300 0.1 0.5 1 1 1 1 1 1
+
+; Specify the optimizer scales that enable the optimizer to weight each 
+; transformation parameter independently. This is important since internally we
+; optimize the rotation in radians and the translation in mm. 
+; Six scales are expected (the higher the value, the lower the degree of variation)
+; <s-rx> <s-ry> <s-rz> <s-tx> <s-ty> <s-tz> 
+; If this key is left empty, 57.3 57.3 57.3 1 1 1 is applied as default - these
+; aim at weighting 1 degree equally to 1 mm.
+xOptimizerScales=57.3 57.3 57.3 1 1 1
+
+; Specify whether to use or not to use optimized (threaded) metric evaluation
+; (rather experimental).
+UseOptimizedValueComputation=0
+
+; Specify whether or not to start registration automatically after loading the
+; this configuration and successfully initializing the framework.
+StartRegistrationAutomatically=0
+
+; Specify an optional file that will finally contain the result transform matrix
+; if the "OK" (acceptance) button was pressed. If the "Cancel" (decline) button
+; was pressed, this file will not be generated.
+OutputTransformFile=ResultTransform.ini
+xOutputTransformFile=results\ResultTransform.ini
+xOutputTransformFile=C:\LocalSite\ResultTransform.ini
+
+; Specify the method of sparse pre-registration in order to overcome the capture
+; radius problem if there is a large initial misalignment. The pre-registration
+; is started from the specified initial transform position (see [Transform]/
+; InitialParameters). 
+; There are various options for sparse pre-registration:
+; None() ... No pre-registration will be executed (assuming that the involved
+;   metric and optimizer components are able to cope with the initial 
+;   misalignment).
+; CrossCorrelation(<num-it>,<TRE-max>[,fast][,radius]) ... Pre-registration is 
+;   based on "brute-force" cross correlation of a specified region of each 
+;   POST-PROCESSED view with a patch extracted from the current DRR. This is 
+;   first executed for the 1st view, then for all subsequent and configured views. 
+;   Furthermore, this means that it is an additive procedure - the cross 
+;   correlation of each view with the corresponding initial DRR generates an 
+;   in-plane translation which is back-propagated to 3D space and added to the 
+;   current transformation. Therefore, this procedure can be executed a specified 
+;   number of times (iterations). 
+;   The arguments are defined as follows:
+;   <num-it>: Number of iterations. Defines how often the cross-correlation is
+;     computed for each view. 
+;   <TRE-max>: Specify the maximum of the absolute target registration error 
+;     (related to iso-center) in mm. If the resultant transformation after 
+;     <num-it> iterations exceeds this value, the sparse registration result is 
+;     declined and NOT APPLIED, which means that the auto-registration starts 
+;     directly from the initial transformation. If a value <=0 is applied, the 
+;     resultant transformation is not limited.
+;   <fast>: Activate a fast pre-registration scheme based on downsampling the 
+;     original images (X-ray, DRR) to a spacing of 2mm. Furthermore, the 
+;     configured patch region (see CrossCorrelationView below) is extended by 40 mm.
+;     If the fast mode is not successful the 'conventional' configuration is used.
+;   <radius>: Activate a region based search around the projected volume center 
+;     or structure center. The parameters <f-x->,<f-x+>,<f-y->,<f-y+> (see 
+;     CrossCorrelationView below) are then used as search radius around the 
+;     configured patch region. This mode is mask independent, hence the mask is 
+;     not used to define the search radius.
+;   Furthermore, we need an individual configuration for the views which should 
+;   be involved. NOTE: not all views must be included! We can leave the 
+;   CrossCorrelationView-key of an arbitrary number of views empty provided that 
+;   there is at least one configured view). The index {x} correlates with the 
+;   fixed image index:
+;   CrossCorrelationView{x}=<usharp>,<p-off-x>,<p-off-y>,<p-sz-x>,<p-sz-y>,<f-x->,<f-x+>,<f-y->,<f-y+>,<structure-uid>
+;     <usharp>: Flag (0 or 1) that determines whether or not unsharp-masking should
+;       be executed on the DRR before computing the correlation (this depends 
+;       really on what you're going to do. NOTE: The post-processed fixed image 
+;       is considered!
+;     <p-off-x>,<p-off-y>,<p-sz-x>,<p-sz-y>: Basically, the rectangular patch 
+;       from the current DRR is extracted around the projection of the respective 
+;       3D volume center or structure center. In order to define its position, 
+;       offsets in x/y direction and its size must be specified (in [mm]). 
+;       NOTE: If the resultant patch region is outside the largest possible DRR 
+;       image region, the region is auto-cropped in the respective direction(s)!
+;       NOTE: If <fast> is set in CrossCorrelation the patch region is extended
+;       (see above).
+;     <f-x->,<f-x+>,<f-y->,<f-y+>: The considered fixed image region is based on
+;       the bounding box of the generated mask (Auto-Masking!). If there is no mask 
+;       computed, the whole fixed image region is used. In order being able to 
+;       vary this region, the margins can be extended or cropped in x-direction 
+;       (x-,x+) and in y-direction (y-,y+) in [mm]. 
+;       NOTE: If the resultant region is outside the largest possible fixed 
+;       image region, the region is auto-cropped in the respective direction(s)!
+;       NOTE: If <radius> is set in CrossCorrelation these values are the search 
+;       radius around the configured patch region (see above).
+;     <structure-uid>: If set to 'VOLUMECENTER' the extracted patch is placed 
+;       relative to the projected CT volume center. If a structure-uid is provided 
+;       the center of the structure is projected onto the image plane and used 
+;       to place the DRR patch. If set to a string of the form '(<x>|<y>|<z>)',
+;       this explicit 3D coordinate in the WCS is projected onto the image plane. 
+; NOTE: if this key is left empty, None() is automatically assumed!
+SparsePreRegistration=CrossCorrelation(2,25,fast)
+CrossCorrelationView1=
+CrossCorrelationView2=1,-40,-40,81,81,30,-30,30,30,SkelettStructure1
+
+
+; Some aspects of registration visualization.
+[Visualization]
+
+; Optionally specify which window style to use (default: plastique). 
+; The following entries are applicable:
+;  plastique
+;  windows
+;  motif
+;  cleanlooks
+GraphicsStyle=plastique
+
+; Flag indicating whether or not the costfunction should be rendered in the 
+; control window (main GUI):
+; 0 ... Do not render the cost function.
+; 1 ... Render the composite cost function (i.e. the function that is optimized).
+RenderCostFunction=1
+
+; Overlay image rendering ratio (modulo value). If the value is 10, each 10-th
+; overlay is visualized. If the value is <=1, each image is rendered.
+OverlayRenderingModulo=0
+
+; Flag indicating that the overlay image should be updated and rendered as soon
+; as the cost function value gets better (smaller - as we are generally facing
+; a minimization problem). If the flag is set (1), the OverlayRenderingModulo
+; will be ignored.
+OverlayRenderingBetter=1
+
+; Optional maximum frame rate (in frames per second) of overlay rendering 
+; (for better performance). Works with both OverlayRenderingModulo and 
+; OverlayRenderingBetter. If this values is set to <=0 (default) the rate is 
+; not limited.
+OverlayRenderingMaxFrameRate=100.0
+
+; Optionally specify how to initialize window/level of the fixed image {x}. 
+; The following modes are available (if this entry is not specified for a fixed 
+; image, the initial window/level will simply span the whole image range!):
+; <w>,<l> ... Hardcoded settings (window <w> and level <l>). NOTE: As the 
+;   pre-processed fixed image is visualized (not the post-processed one), some
+;   pre-processing commands (RescaleMinMax, RescaleShiftScale, RescaleWindowing, 
+;   Resample, Crop) obviously change the intensity range, and therefore, the 
+;   specified <w> and <l> settings would in general relate to a 'wrong' 
+;   intensity range. BUT: the pre-processing operations ACCOUNT FOR THIS, and 
+;   adapt the <w> and <l> settings internally as good as possible in order to 
+;   fit the final image scale! 
+;   More precisely, this means: 
+;     - A RESAMPLE()-pre-processing command adapts <w>,<l> relative to the 
+;       previous mean and standard deviation as resampling potentially removes
+;       or generates outliers and, therefore, generates different intensity
+;       ranges.
+;     - A RESCALEMINMAX()-pre-processing command adapts <w>,<l> simply by 
+;       mapping window and level to the new intensity range (defined by min and
+;       max).
+;     - A RESCALESHIFTSCALE()-pre-processing command adapts <w>,<l> simply by 
+;       mapping window and level to the new intensity range (defined by shift
+;       and scale).
+;     - A RESCALEWINDOWING()-pre-processing command adapts <w>,<l> simply by 
+;       setting window and level to the WHOLE new intensity range (as this
+;       command does windowing by itself!).
+;     - A CROP()-pre-processing command adapts <w>,<l> relative to the 
+;       previous mean and standard deviation as cropping is likely to modify the
+;       intensity range significantly - this adaption may not make sense in 
+;       general.
+; MEAN-STD,<f1>,<f2> ... Mean and standard deviation of the fixed image are 
+;   extracted, subsequently the level is virtually set to MEAN and the window 
+;   spans from (MEAN - <f1> * STD) to (MEAN + <f2> * STD); e.g. "MEAN-STD,1.0,1.0" 
+;   will generate a centered window around mean with width 2*STD.
+; MIN-MAX-REL,<f1>,<f2> ... Min and max values of the fixed image are searched,
+;   subsequently the min is increased by <f1>*(max-min) and max is decreased
+;   by <f2>*(max-min); e.g. "MIN-MAX-REL,0.05,0.1" will generate a window/level
+;   pair with min_new=min+0.05*(max-min) and max_new=max-0.1*(max-min) (a span 
+;   width of 0.85*(max-min)
+InitialFixedImageWindowLevel1=MEAN-STD,1.0,1.0
+xInitialFixedImageWindowLevel1=50,150
+xInitialFixedImageWindowLevel1=MIN-MAX-REL,0.3,0.1
+InitialFixedImageWindowLevel2=MEAN-STD,1.0,1.0
+
+; Specify whether or not the manual transform widgets help lines button is
+; initially checked or not (which guides the user a bit during manual 
+; registration). This is a flag: (default value is 0).
+ManualTransformWidgetsVisible=1
+
+; Specify whether or not the nature of the manual transform (rotation OR 
+; translation) should be determined based on the region where the initial 
+; mouse click (left button) occurred. The region is identical to the initial 
+; rectangle that is displayed when the transform help lines button is activated.
+; Even if this flag is set, the rotation can though be forced within the inner 
+; region by pressing CTRL in addition to clicking the left mouse button. The 
+; translation can also be forced outside the region by pressing SHIFT in 
+; addition to clicking the left mouse button! 
+EnableRegionSensitiveTransformOnLeftMouseClick=1
+
+; Specify whether or not the "display masks" button is initially checked or
+; not (which blends the underlying registration mask as contour). This is a
+; flag: (default value is 0).
+MasksVisible=0
+
+; Specify the color of the contour mask in HSV color space (default is 
+; 0,0,1.0 ; WHITE).
+MasksContourColor=0.6666,1.0,1.0
+
+; Specify whether intensity windowing on the images (X-rays, DRRs, overlays)
+; should imply a 'real-time-adaptive' mouse sensitivity adjustment (during
+; windowing). If this flag (0 or 1) is deactivated (0), the sensitivity will 
+; solely be adapted when a new windowing operation is started (mouse down).
+; Basically, the windowing sensitivity depends on the contrast (sensitivity is
+; increasing, the closer we reach contrast 1.0). Default value for this flag is 
+; 1.
+RealTimeAdaptiveWindowing=1
+
+; Modify the mouse sensitivity belonging windowing operations; a sensitivity
+; factor <1.0 decreases sensitivity, whereas a factor >1.0 increases 
+; sensitivity. Default value is 1.0.
+WindowingMouseSensitivity=1.0
+
+; Enable/disable the 'unsharp masking' tool button on the i-th render view
+; (enabling this feature makes sense if native X-rays are displayed, but the
+; contrast is bad. Unsharp masking locally enhances the contrast and enables
+; the user to interpret the overlay better).
+EnableUnsharpMasking1=1
+EnableUnsharpMasking2=1
+
+; Determine whether the unsharp masking button of the i-th render view should be
+; initially checked (activated) or not (deactivated). This is a flag (0 or 1).
+UnsharpMasking1=1
+UnsharpMasking2=1
+
+; Determine the initial window/level which is automatically adjusted as soon as
+; unsharp masking is activated the first time. The notation is the same as for 
+; the InitialFixedImageWindowLevel{i} keys.
+UnsharpMaskingWindowLevel1=MEAN-STD,2.0,2.0
+UnsharpMaskingWindowLevel2=MEAN-STD,2.0,2.0
+
+
+; Contains settings that are relevant for quality assurance.
+[Quality-Assurance]
+
+; Flag indicating whether or not a safety question dialog is shown if the user
+; presses the cancel ("decline") button instead of the OK ("accept") button.
+; This is a flag: (default value is 1).
+ShowWarningOnCancel=0
+
+; Flag indicating whether or not a safety warning dialog is shown if the fixed
+; images have acquisition date/times that diverge more than 
+; MaxFixedImageAcquisitionDivergingTimeMin. This is a flag: (default value is 1).
+ShowWarningOnDivergingFixedImageAcquisitionTimes=1
+
+; A time value (in fractions of a minute) that defines the maximum fixed image
+; acquisiton time difference over all fixed images. Default: 1.1. 
+MaxFixedImageAcquisitionDivergingTimeMin=1.1
+
+
+; information for open-radART connectivity (required if e.g. rti-files are 
+; specified as fixed images or ora.xml-files as volume).
+[ORA]
+
+; Multi-platform translation between UNIX mount-points and UNC shares. 
+; Format: UnixUNC{x}=<mount-point>,<UNC-share>
+; e.g. UnixUNC1=/media/myshare,\\165.123.12.32\MyShare 
+UnixUNC1=/raserver,\\192.168.141.15\RAServer
+UnixUNC2=
+
+; Specification of the open-radART site info file (SiteInfo.inf).
+SiteInfo=W:/TestSite/SiteInfo.ini
+
+; Specification of the patient's UID.
+PatientUID=Anonymous
+
+
+; Settings for 'scientific mode' (advanced stuff that may not be relevant for
+; routine usage of REG23).
+[Science]
+
+; Activate the scientific mode (this may present new buttons on GUI and change
+; the behaviour of REG23): beyond the implications are:
+; - The reference transformation-button will be visible.
+; - Reference transform will be supported.
+; - Result file will contain relative 3D transform vectors (TRE) w.r.t. the 
+;   initial transform as well as to the reference transform (if specified) 
+;   related to the absolute 0-point in WCS (mechanical isocenter).
+; - Additional cost-function visualization modes.
+; - A manual button to perform sparse-preregistration on each view.
+; This is a flag: (default value is 0).
+ScientificMode=1
+
+; Specify the reference transform by means of a set of entries from typical ORA
+; SetupErrors- or StudySetupErrors-files. 
+; NOTE: The reference transform is formed by taking the initial transform 
+; (see above) and concatenating the specified setup errors in the listed order!
+; NOTE: if the DoNotAddInitialTransform-flag is set, the initial transform is
+; NOT prepended (Default value of this flag is 1)!
+; An entry looks like:
+; ReferenceTransformByORASetupError{n}=<mode>*<(study)-setup-error-entry>
+; <mode> can be: NO-ROTATION or ROTATION. This is because rotation is currently 
+; only supported for abIGRT-patients, BUT in the setup errors files you will 
+; though find rotation matrices!.
+; e.g.:
+; DoNotAddInitialTransform=1
+; ReferenceTransformByORASetupError1=ROTATION*MarkerDetection(2/3) jk 2010-12-27 13:40:00=-0.34,-0.34,-0.64|0.993373,0.068015,0.094108,-0.081938,0.983571,0.159881,-0.081938,-0.166769,0.982613|1.019,1.019,1.019|-0.30,-0.40,0.00|0.87,-2.71,16.36|9.40,-5.10,4.30|0.00,0.00,0.00
+; ReferenceTransformByORASetupError2=NO-ROTATION*\\192.168.141.15\RAServer\Patients\StrohmeierJohann-20100913112826-c1ra047\Plans\S1BoxProstataT2P1\Views\Sicht180\kVi27.rti RigidTransformation racma 2011-01-05 22:08:32=0.20,0.50,1.30|1.000000,-0.000000,-0.000000,-0.000000,1.000000,-0.000000,-0.000000,-0.000000,1.000000|1.000,1.000,1.000|0.00,0.00,0.00|1.11,5.44,21.89|0.00,0.00,0.00|0.00,0.00,0.00 
+;
+DoNotAddInitialTransform=1
+ReferenceTransformByORASetupError1=
+
+; Relevant for ITF-Optimizer config generation. If specified, this EXE-path is
+; used in the batch-files, otherwise only a static name will be used which 
+; assumes that the optimizer is added to the PATH environment variable.
+ITFOptimizerEXE=

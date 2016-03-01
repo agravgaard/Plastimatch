@@ -1,0 +1,83 @@
+<RCC>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/zoomfull.png" >img/zoomfull.png</file>
+    </qresource> 
+    <qresource prefix="/u23rvd" >
+        <file alias="img/windowlevelfull.png" >img/windowlevelfull.png</file>
+    </qresource>     
+    <qresource prefix="/u23rvd" > 
+        <file alias="img/pan-cursor.png" >img/pan-cursor.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" > 
+        <file alias="img/pan-cursor-mask.png" >img/pan-cursor-mask.png</file>
+    </qresource>    
+    <qresource prefix="/u23rvd" > 
+        <file alias="img/zoom-cursor.png" >img/zoom-cursor.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" > 
+        <file alias="img/zoom-cursor-mask.png" >img/zoom-cursor-mask.png</file>
+    </qresource>            
+    <qresource prefix="/u23rvd" >
+        <file alias="img/translate-cursor.png" >img/translate-cursor.png</file> 
+    </qresource>        
+    <qresource prefix="/u23rvd" >
+        <file alias="img/translate-cursor-mask.png" >img/translate-cursor-mask.png</file>
+    </qresource>               
+    <qresource prefix="/u23rvd" >
+        <file alias="img/rotate-cursor.png" >img/rotate-cursor.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >  
+        <file alias="img/rotate-cursor-mask.png" >img/rotate-cursor-mask.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" > 
+        <file alias="img/window-level-cursor-mask.png" >img/window-level-cursor-mask.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" > 
+        <file alias="img/window-level-cursor.png" >img/window-level-cursor.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/transformationwidgets.png" >img/transformationwidgets.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/fixed-image.png" >img/fixed-image.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/moving-image.png" >img/moving-image.png</file>
+    </qresource>        
+    <qresource prefix="/u23rvd" >
+        <file alias="img/fixed-image-wl.png" >img/fixed-image-wl.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/moving-image-wl.png" >img/moving-image-wl.png</file>
+    </qresource>    
+    <qresource prefix="/u23rvd" >
+        <file alias="img/imagemask.png" >img/imagemask.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/unsharp-masking.png" >img/unsharp-masking.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/hand-icon.png" >img/hand-icon.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/sparse-registration.png" >img/sparse-registration.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/rotate-cursor1.png" >img/rotate-cursor1.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/rotate-cursor1-mask.png" >img/rotate-cursor1-mask.png</file>
+    </qresource>    
+    <qresource prefix="/u23rvd" >
+        <file alias="img/translate-cursor1.png" >img/translate-cursor1.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/translate-cursor1-mask.png" >img/translate-cursor1-mask.png</file>
+    </qresource>            
+    <qresource prefix="/u23rvd" >
+        <file alias="img/window-level-cursor1.png" >img/window-level-cursor1.png</file>
+    </qresource>
+    <qresource prefix="/u23rvd" >
+        <file alias="img/window-level-cursor1-mask.png" >img/window-level-cursor1-mask.png</file>
+    </qresource>                                                                                     
+</RCC> 

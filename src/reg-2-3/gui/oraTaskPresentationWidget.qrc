@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/u23tpw" >
+        <file alias="img/stop-cross.png" >img/stop-cross.png</file>
+    </qresource>            
+</RCC> 

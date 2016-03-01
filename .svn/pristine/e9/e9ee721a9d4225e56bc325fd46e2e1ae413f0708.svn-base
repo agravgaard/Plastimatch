@@ -1,0 +1,40 @@
+##############################################################################
+# template.plm - For use with auto4d.sh
+#
+##############################################################################
+
+# --------------------------------------------
+# Populated by auto4d.sh
+# --------------------------------------------
+[GLOBAL]
+fixed=<REF>
+moving=<PHASE>
+vf_out=<VF>
+xform_out=<XFORM>
+img_out=<WARP>
+# --------------------------------------------
+
+
+
+# --------------------------------------------
+# Setup your stages below as desired
+# --------------------------------------------
+[STAGE]
+xform=bspline
+optim=lbfgsb
+impl=plastimatch
+threading=cuda
+max_its=20
+grid_spac=100 100 100
+res=4 4 1
+regularization_lambda=0.00001
+
+[STAGE]
+xform=bspline
+optim=lbfgsb
+impl=plastimatch
+threading=cuda
+max_its=20
+grid_spac=50 50 50
+res=2 2 1
+regularization_lambda=0.00001

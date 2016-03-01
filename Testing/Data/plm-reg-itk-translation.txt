@@ -1,0 +1,17 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
+moving=@PLM_BUILD_TESTING_DIR@/gauss-2.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-translation-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-translation-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-translation-img.mha
+
+[STAGE]
+xform=translation
+optim=rsg
+impl=itk
+max_its=5
+convergence_tol=3
+grad_tol=0.1
+res=2 2 2
+max_step=10

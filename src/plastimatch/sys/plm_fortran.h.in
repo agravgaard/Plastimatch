@@ -1,0 +1,77 @@
+/* -----------------------------------------------------------------------
+   See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
+   ----------------------------------------------------------------------- */
+#ifndef _plm_fortran_h_
+#define _plm_fortran_h_
+
+#cmakedefine PLM_USE_F2C
+#cmakedefine PLM_USE_INCLUDED_F2C
+
+#if defined (PLM_USE_F2C)
+  #if defined (PLM_USE_INCLUDED_F2C)
+    /* Included f2c. */
+    #include "@CMAKE_SOURCE_DIR@/libs/libf2c/f2c.h"
+  #else 
+    /* System or self-built f2c.
+       If you try to compile and link against a self-built f2c library 
+       without installing, you can't include the f2c directory because 
+       f2c includes a broken "ctype.h" which conflicts with the system one. 
+       Therefore, we use a full path here.
+       */
+    #include "@F2C_INCLUDE_DIR@/f2c.h"
+  #endif
+#else
+
+  /* We're using a real fortran compiler.  Use defines from f2c.h.
+     When possible, this should be replaced by a configure-time check */
+  #if defined(__alpha__) || defined(__sparc64__) || defined(__x86_64__) || defined(__ia64__)
+    typedef int integer;
+    typedef unsigned int uinteger;
+  #else
+    typedef long int integer;
+    typedef unsigned long int uinteger;
+  #endif
+    typedef char *address;
+    typedef short int shortint;
+    typedef float real;
+    typedef double doublereal;
+    typedef struct { real r, i; } complex;
+    typedef struct { doublereal r, i; } doublecomplex;
+  #if defined(__alpha__) || defined(__sparc64__) || defined(__x86_64__) || defined(__ia64__)
+    typedef int logical;
+  #else
+    typedef long int logical;
+  #endif
+    typedef short int shortlogical;
+    typedef char logical1;
+    typedef char integer1;
+  #ifdef INTEGER_STAR_8	/* Adjust for integer*8. */
+    #if defined(__alpha__) || defined(__sparc64__) || defined(__x86_64__) || defined(__ia64__)
+      typedef long longint;		/* system-dependent */
+      typedef unsigned long ulongint;	/* system-dependent */
+    #else
+      typedef long long longint;              /* system-dependent - oh yeah*/
+      typedef unsigned long long ulongint;    /* system-dependent - oh yeah*/
+    #endif
+    #define qbit_clear(a,b)	((a) & ~((ulongint)1 << (b)))
+    #define qbit_set(a,b)	((a) |  ((ulongint)1 << (b)))
+  #endif
+  #ifdef f2c_i2
+    /* for -i2 */
+    typedef short flag;
+    typedef short ftnlen;
+    typedef short ftnint;
+  #else
+    #if defined(__alpha__) || defined(__sparc64__) || defined(__x86_64__) || defined(__ia64__)
+      typedef int flag;
+      typedef int ftnlen;
+      typedef int ftnint;
+    #else
+      typedef long int flag;
+      typedef long int ftnlen;
+      typedef long int ftnint;
+    #endif
+  #endif
+#endif
+
+#endif

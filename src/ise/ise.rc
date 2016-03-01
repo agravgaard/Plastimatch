@@ -1,0 +1,248 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "ise_rsc.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "ise_rsc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "ise_rsc.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Japanese resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""ise_rsc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SUPER_DIALOG DIALOG  0, 0, 389, 330
+STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "ISE Software"
+MENU IDC_ISE
+FONT 9, "Arial"
+BEGIN
+    CONTROL         "Slider1",IDC_SLIDER_BOT,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,7,73,17,250
+    CONTROL         "Slider1",IDC_SLIDER_TOP,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,28,73,17,250
+    CONTROL         "",IDC_PICTURE_WINDOW,"Static",SS_BLACKFRAME,54,73,328,250
+    CONTROL         "Slider1",IDC_SLIDER_FRAME,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,111,43,271,21
+    PUSHBUTTON      "|<",IDC_BUTTON_REWBEG,268,7,27,26
+    PUSHBUTTON      "||",IDC_BUTTON_PAUSE,297,7,27,26
+    PUSHBUTTON      ">>",IDC_BUTTON_FF,355,7,27,26
+    PUSHBUTTON      "RST",IDC_BUTTON_RESET,144,7,27,27
+    CONTROL         "AWL",IDC_BUTTON_AWL,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,7,7,27,27
+    CONTROL         "TRK",IDC_BUTTON_TRACK,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,62,7,27,27
+    CONTROL         "GAT",IDC_BUTTON_GATE,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,91,7,27,27
+    CONTROL         "STOP",IDC_BUTTON_STOP,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,228,7,27,27
+    CONTROL         "GRAB",IDC_BUTTON_GRAB,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,200,7,27,27
+    CONTROL         "REC",IDC_BUTTON_REC,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,172,7,27,27
+    CONTROL         ">",IDC_BUTTON_REPLAY,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,326,7,27,26
+    LTEXT           "QX:   0   0   0   0",IDC_QUEUE_STATUS,7,46,95,13
+    LTEXT           "WL:  (%d,%d)",IDC_WL_STATUS,8,59,95,11
+END
+
+IDD_ABOUTBOX DIALOG  22, 17, 230, 75
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "System"
+BEGIN
+    ICON            IDI_ISE,IDC_MYICON,14,9,20,20
+    LTEXT           "ise Version 1.0",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2005",IDC_STATIC,49,20,119,8
+    DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
+END
+
+IDD_SOURCE_DIALOG DIALOG  0, 0, 219, 153
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Image source settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,119,132,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,48,132,50,14
+    CONTROL         "Panel 1",IDC_RADIO_PANEL1,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,20,25,40,10
+    CONTROL         "Panel 2",IDC_RADIO_PANEL2,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,20,40,40,10
+    CONTROL         "Both panels",IDC_RADIO_BOTH_PANELS,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,20,55,53,10
+    GROUPBOX        "Panel Selection",IDC_STATIC,7,7,83,70
+    CONTROL         "Panel 1",IDC_RADIO_SYNC_PANEL_1,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,142,25,40,10
+    CONTROL         "Panel 2",IDC_RADIO_SYNC_PANEL_2,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,142,40,40,10
+    CONTROL         "Neither",IDC_RADIO_SYNC_NEITHER_PANEL,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,142,55,39,10
+    GROUPBOX        "Sync Relay",IDC_STATIC,129,7,83,70
+    EDITTEXT        IDC_EDIT1,27,97,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Frames to buffer per panel",IDC_STATIC,7,84,83,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_SUPER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 382
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 323
+    END
+
+    IDD_SOURCE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 212
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 146
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ISE                 ICON                    "ise_32.ICO"
+IDI_SMALL               ICON                    "ise_16.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_ISE MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open",                       IDM_FILE_OPEN
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Source"
+    BEGIN
+        MENUITEM "&Matrox",                     IDM_SOURCE_MATROX
+        MENUITEM "&BitFlow",                    IDM_SOURCE_BITFLOW
+        MENUITEM "S&ynthetic",                  IDM_SOURCE_SYNTHETIC
+        MENUITEM "&File",                       IDM_SOURCE_FILE
+        MENUITEM "&Internal",                   IDM_SOURCE_INTERNAL
+        MENUITEM SEPARATOR
+        MENUITEM "&Settings",                   IDM_SOURCE_SETTINGS
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "&Hold bright frame",          IDM_OPTIONS_HOLD_BRIGHT
+        MENUITEM "&Drop dark frames",           IDM_OPTIONS_DROP_DARK
+        MENUITEM "&Write dark frames",          IDM_OPTIONS_WRITE_DARK
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ...",                  IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDC_ISE ACCELERATORS 
+BEGIN
+    "?",            IDM_ABOUT,              ASCII,  ALT
+    "/",            IDM_ABOUT,              ASCII,  ALT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_APP_TITLE           "ise"
+    IDS_HELLO               "Hello World!"
+    IDC_ISE                 "ISE"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

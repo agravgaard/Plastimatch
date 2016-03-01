@@ -1,0 +1,22 @@
+# James Shackleford
+# 2012.08.11
+#   Example water equivalent volume configuration file <EXPERIMENTAL>
+
+[SETTINGS]
+patient=t0.mha
+dose=dose.mha
+patient_wed=pwed.mha
+dose_wed=dwed.mha
+
+[BEAM]
+pos=400 0 -30
+isocenter=0 0 -30
+res=1
+
+# center: center of aperture (mm)
+# offset: distance from beam nozzle (mm)
+# resolution: size of aperture/# of pencil beams
+[APERTURE]
+center=100 100
+offset=100
+resolution=200 200

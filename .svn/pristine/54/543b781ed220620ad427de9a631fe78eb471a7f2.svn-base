@@ -1,0 +1,20 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
+moving=@PLM_BUILD_TESTING_DIR@/gauss-2.mha
+img_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@.mha
+
+[STAGE]
+xform=translation
+impl=plastimatch
+optim=grid_search
+metric=mi
+gridsearch_strategy=global
+gridsearch_min_overlap=0.8 0.8 0.8
+res=1 1 1
+
+[STAGE]
+xform=translation
+impl=plastimatch
+optim=grid_search
+gridsearch_strategy=local
+res=1 1 1

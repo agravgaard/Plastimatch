@@ -1,0 +1,19 @@
+[INPUT SETTINGS]
+ct=@PLM_BUILD_TESTING_DIR@/lung-1.mha
+target=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Tumor.mha
+skin=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Body.mha
+
+[OUTPUT SETTINGS]
+proj_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-ct.mha
+proj_wed=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-wed.mha
+wed_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-wed-ct.mha
+
+[BEAM]
+pos=-2270.5 0 0
+isocenter=0 0 0
+res=1
+
+[APERTURE]
+offset=1700
+center=49.5 49.5
+resolution=100 100

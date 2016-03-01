@@ -1,0 +1,33 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rect-2s.mha
+moving=@PLM_BUILD_TESTING_DIR@/rect-2.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-similarity-a-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-similarity-a-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/plm-reg-itk-similarity-a-img.mha
+
+[STAGE]
+xform=similarity
+optim=oneplusone
+impl=itk
+translation_scale_factor=1
+rotation_scale_factor=0.003
+scaling_scale_factor=0.1
+min_its=5
+max_its=10
+grad_tol=0.001
+res=2 2 2
+img_out=plm-reg-itk-similarity-intermediate-img.mha
+
+[STAGE]
+xform=similarity
+optim=oneplusone
+impl=itk
+rotation_scale_factor=0.005
+translation_scale_factor=1
+scaling_scale_factor=0.1
+min_its=5
+max_its=10
+grad_tol=0.001
+res=1 1 1
+img_out=plm-reg-itk-similarity-img.mha

@@ -1,0 +1,52 @@
+2.0
+
+Features
+*  All registration parameters have auto defaults
+*  Dataclasp for scripting
+*  Multi-planar registration
+*  Multi-similarity registration
+*  Overlap fraction penalty for native registration methods
+*  Full support for irregular slice spacing
+*  Superbuild
+*  Non-aligned B-spline LUT
+
+Backward incompatible changes
+*  Remove short options
+*  DRR/FDK/dose calc use IEC coordinates
+*  GDCM becomes deprecated
+*  Standalone executables will no longer be available, instead 
+   they are merged into plastimatch executable:
+   vf-invert, landmark-warp, drr, fdk, wed
+*  Metric mi will default to Mattes for ITK methods (done)
+*  Automatic tuning of regularization lambda as default (?)
+*  xform=align_center -> xform=translation, optim=align_center
+
+Documentation
+*  Registration tutorial based on NA-MIC case library
+*  MABS tutorial
+
+Cleanup
+*  Remove Pstring/bstring (done)
+*  Remove unnecessary third party libraries (f2c, nocedal, sqlite?, lua?)
+*  Evaluate if duplication between Stage_parms and Bspline_parms 
+   can be removed
+*  Re-evaluate B-spline loop template
+*  DICOM uses module system
+
+Wishlist
+
+*  Autolabel (la,tsv1,tsv2)
+*  Copy-free conversion between itk and native volumes
+*  RTK wrapping
+*  DRR/FDK dicom
+*  Evaluate native vs itk jacobian
+*  MSVC express multicore strategy (done, MSVC 2013 and higher)
+*  Native rigid registration
+*  Normalized MI
+*  patient mask to support MRI
+*  plastimatch gradient magnitude (done)
+*  Proton/photon/electron dose calculation
+** Add multi-beam to command file (done)
+** Remove duplication of code for photons
+*  RTPLAN support
+*  Standalone GUI

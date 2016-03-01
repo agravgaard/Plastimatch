@@ -1,0 +1,17 @@
+[GLOBAL]
+fixed=rect-3.mha
+moving=sphere-2.mha
+vf_out=plm-bsp-regularize-none-vf.mha
+xform_out=plm-bsp-regularize-none-xf.txt
+img_out=plm-bsp-regularize-none-img.mha
+
+[STAGE]
+xform=bspline
+optim=lbfgsb
+impl=plastimatch
+max_its=5
+convergence_tol=3
+grad_tol=0.1
+regularization=none
+grid_spac=30 30 30
+res=1 1 1

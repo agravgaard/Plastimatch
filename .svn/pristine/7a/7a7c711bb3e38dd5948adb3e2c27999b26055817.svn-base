@@ -1,0 +1,64 @@
+.TH proton_dose 7 "16 May 2010" "1.4-beta" "Plastimatch User Manual"
+
+.SH NAME
+proton_dose - performs proton dose calculation
+
+.SH SYNOPSIS
+
+.B proton_dose [options]... -p [profile] [ct volume] [output]
+
+.SH DESCRIPTION
+This utility performs the proton dose calculation given a CT volume
+of the patient anatomy and a file containing the character of the
+proton beam.
+
+.SH OPTIONS
+.TP
+.B -A hardware
+Either "cpu" or "cuda".  If not specified, proton_dose will perform the
+proton dose computation using the CPU.  If your system is equipped
+with an NVIDIA GPU and CUDA has been installed, specifying "cuda"
+will accelerate the computation by utilizing your graphics card.
+
+.TP
+.B -src "x y z"
+Add description of this feature here.
+
+.TP
+.B -iso "x y z"
+Add description of this feature here.
+
+.TP
+.B -vup "x y z"
+Add description of this feature here.
+
+.TP
+.B -s scale
+Scale the intensity of the output file
+
+.TP
+.B -d detail
+0 = full detail. Calculates the dose everywhere in the volume.
+
+1 = beam path only. Only calculates the dose along the beam path.
+This means that dose received by tissue exclusively from protons
+that have scattered outside the beam path will be neglected.  Because
+this method is much faster than full detail, it can be used to
+obtain a rough estimate before performing the full dose computation.
+
+.TP
+.B -u step
+Defines the resolution of the ray trace used to perform the dose
+calculation.  This quantity is in millimeters (mm).
+
+.TP
+.B -p file
+Required.  Used to specify the file describing the
+character of the proton beam.
+
+.TP
+.B --debug
+Dumps various debug files to the current directory.
+
+.SH EXAMPLES
+proton_dose -d pdd.59 ct_vol.mha dose.mha

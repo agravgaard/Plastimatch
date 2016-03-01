@@ -1,0 +1,13 @@
+ObjectType = Image
+NDims = 2
+BinaryData = True
+BinaryDataByteOrderMSB = False
+CompressedData = False
+TransformMatrix = 1 0 0 1
+Offset = 0 0 
+CenterOfRotation = 0 0
+AnatomicalOrientation =
+ElementSpacing = 1 1
+DimSize = 283 262
+ElementType = MET_FLOAT
+ElementDataFile = 2dimage_float.raw

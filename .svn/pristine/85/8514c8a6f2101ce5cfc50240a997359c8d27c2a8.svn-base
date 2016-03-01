@@ -1,0 +1,45 @@
+Revision 4030, gelato, mini.cfg
+-------------------------------
+Rasterization time:          0.9 seconds
+I/O time:                   18.2 seconds
+
+Registration time:           6.6 seconds
+Warping time (img):         10.8 seconds
+Warping time (str):         80.4 seconds
+Extraction time:             3.2 seconds
+Voting time:               305.6 seconds
+I/O time:                   21.6 seconds
+
+Revision 4031, gelato, mini.cfg
+-------------------------------
+** Convert to multithreaded warper for structures **
+Registration time:           6.4 seconds
+Warping time (img):         10.8 seconds
+Warping time (str):         13.4 seconds
+Extraction time:             3.2 seconds
+Voting time:               306.1 seconds
+I/O time:                   21.5 seconds
+
+Revision 4032, gelato, mini.cfg
+-------------------------------
+** Additional logic to save warped structures and distance maps **
+Registration time:           6.8 seconds
+Warping time (img):         10.9 seconds
+Warping time (str):         13.6 seconds
+Extraction time:             3.2 seconds
+Distance map time:         264.0 seconds
+Voting time:                40.0 seconds
+I/O time:                  215.2 seconds
+Total time:                572.1 seconds
+
+Revision 4033, gelato, mini.cfg
+-------------------------------
+** Turn off thread selection for dmap filter */
+Registration time:           6.5 seconds
+Warping time (img):         10.8 seconds
+Warping time (str):         13.4 seconds
+Extraction time:             3.2 seconds
+Distance map time:         202.1 seconds
+Voting time:                40.5 seconds
+I/O time:                  212.4 seconds
+Total time:                507.0 seconds

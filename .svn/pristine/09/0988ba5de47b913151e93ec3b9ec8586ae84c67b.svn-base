@@ -1,0 +1,26 @@
+# Fiducial List file /home/gsharp/fiducials-rect-3.fcsv
+# version = 2
+# name = fiducials-rect-3
+# numPoints = 8
+# symbolScale = 5
+# symbolType = 12
+# visibility = 1
+# textScale = 4.5
+# color = 0.4,1,1
+# selectedColor = 1,0.5,0.5
+# opacity = 1
+# ambient = 0
+# diffuse = 1
+# specular = 0
+# power = 1
+# locked = 0
+# numberingScheme = 0
+# columns = label,x,y,z,sel,vis
+rect-3-0,51.7821,52.1629,46.0528,1,1
+rect-3-1,-52.5439,52.1629,46.053,1,1
+rect-3-2,-53.3054,-53.6862,46.053,1,1
+rect-3-3,52.5436,-52.9247,46.053,1,1
+rect-3-4,52.5436,52.1629,-46.0525,1,1
+rect-3-5,-53.3054,51.7821,-46.053,1,1
+rect-3-6,-52.1632,-53.3054,-46.053,1,1
+rect-3-7,52.9244,-53.3054,-46.053,1,1

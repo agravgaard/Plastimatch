@@ -1,0 +1,15 @@
+[STAGE]
+xform=bspline
+optim=lbfgsb
+impl=plastimatch
+threading=openmp
+max_its=10
+res=1 1 1
+grid_spac=50 50 50
+
+# Note:
+# This 2nd stage is the same as the 1st stage, but has
+# a different grid spacing.
+
+[STAGE]
+grid_spac=30 30 30
