@@ -931,16 +931,29 @@ The *resample* command can be used to change the geometry of an image.
 The command line usage is given as follows::
 
   Usage: plastimatch resample [options]
-  Required:   --input=file
-              --output=file
-  Optional:   --subsample="x y z"
-              --fixed=file
-              --origin="x y z"
-              --spacing="x y z"
-              --size="x y z"
-              --output_type={uchar,short,ushort,float,vf}
-              --interpolation={nn, linear}
-              --default_val=val
+  Options:
+      --default-value <arg>   value to set for pixels with unknown value, 
+                               default is 0 
+      --dim <arg>             size of output image in voxels "x [y z]" 
+      --direction-cosines <arg>   
+                              oriention of x, y, and z axes; Specify either 
+                               preset value, 
+                               {identity,rotated-{1,2,3},sheared}, or 9 digit 
+                               matrix string "a b c d e f g h i" 
+  -F, --fixed <arg>           fixed image (match output size to this image) 
+  -h, --help                  display this help message 
+      --input <arg>           input directory or filename; can be an image or 
+                               vector field 
+      --interpolation <arg>   interpolation type, either "nn" or "linear", 
+                               default is linear 
+      --origin <arg>          location of first image voxel in mm "x y z" 
+      --output <arg>          output image or vector field 
+      --output-type <arg>     type of output image, one of {uchar, short, 
+                               float, ...} 
+      --spacing <arg>         voxel spacing in mm "x [y z]" 
+      --subsample <arg>       bin voxels together at integer subsampling rate 
+                               "x [y z]" 
+      --version               display the program version 
 
 Example
 ^^^^^^^

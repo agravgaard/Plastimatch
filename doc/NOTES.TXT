@@ -1,4 +1,70 @@
 ******************************************************************************
+cmake upgrade
+2016-05-16
+
+The cmake infrastructure will benefit from using the new tools for
+creating packages.  New tools are available with CMake 2.8.11,
+available since May 2013.  Here is my understanding of how this stuff
+is supposed to work.
+
+1) Create target 
+
+add_library (libr src.cxx)
+
+2) Assign property to library target
+
+target_include_directories (libr INTERFACE
+    $<INSTALL_INTERFACE:include/libr>)
+
+I think you can also set target_link_libraries, which
+would track library dependencies.
+
+3) Install target with EXPORT option
+
+install (TARGETS libr
+    EXPORT LibrTargets
+    )
+
+It seems step 2 can be omitted by using the INCLUDES DESTINATION
+option in install(TARGETS).  
+
+4) Install export set
+
+install (EXPORT LibrTargets
+  DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
+  )
+
+Do I need to specify the DESTINATION?  Will it do the right thing regardless?
+
+5) Using the library
+
+No need to do anything.  By creating an executable which depends on a
+library target, the include directories are set appropriately.
+
+
+******************************************************************************
+xvi archive
+2016-04-13
+
+1) Handle multiple Rx (done)
+2) Handle HFP/FFS/FFP
+3) Handle rotations
+4) Some form of series description and study description (done)
+5) Correct dates (done)
+6) Mark as CBCT (done)
+7) Some form of window/level (not supported by MIM?)
+
+
+******************************************************************************
+WED
+2016-03-09
+
+Temporarily (?) removed functionality
+- Computing aperture and range compensator (mode 2)
+- Looping through angles (mode 3)
+
+
+******************************************************************************
 Proj_volume coordinates
 2016-02-08
 
@@ -6,15 +72,43 @@ The main issue with the proj volume is that its coordinates are
 both difficult to understand and poorly documented.
 
 What makes it difficult?
-- ires vs image_dim
+- ires vs image_dim vs dim
+-- use image_dim
+- is first index row or column?
+-- dim[0] = cols, dim[1] = rows
+-- loop (j=0;j<dim[1]-1;j++) {
+--   loop (i=0;i<dim[0]-1;i++) { } }
 - image_center vs image_origin
+-- both are potentially useful
+-- either should be specified, but internal storage as image origin
 - location of first data point (at clipping plane or inside volume?)
+-- ?
+- different code for drr and wed
+-- need to unify
 
 What does ray_data contain?
 - ray_data is computed from reference volume
 - Includes test if ray intersects volume, front and back intersection 
   points, aperture intersection point, and ray norm
+- compute_ray_data also sets the clipping planes
 
+What files might the wed program create?
+- proj_ct = HU in proj coordinates
+- proj_wed = WED in proj coordinates
+- proj_dose = dose in proj coordinates
+- wed_ct = HU in WED coordinates
+- wed_dose = dose in WED coordinates
+- dew_ct = HU in proj coordinates
+- dew_dose = dose in proj coordinates
+
+What conversions are important?
+- Convert ct to proj_wed
+-- rpl.compute_rpl_PrSTRP_no_rgc
+- Convert ct to proj_ct
+- Convert proj_wed to ct
+
+This thing needs removal
+- compute_target_distance_limits_slicerRt
 
 ******************************************************************************
 Rpl_volume
@@ -32,11 +126,6 @@ Main functions:
   get_rgdepth - lookup values in volume
   compute_ray_data - this is called internally, but also by dose code;
        
-  compute_rpl_ct_density - 
-  compute_rpl_HU 
-  compute_rpl_void 
-  compute_rpl_range_length_rgc
-  compute_rpl_PrSTRP_no_rgc
 
   compute_farthest_penetrating_ray_on_nrm
 
@@ -53,14 +142,29 @@ Main functions:
 
   rpl_ray_trace - call ray_trace_uniform on a single ray
 
-  Why are there so many of these?
-  (For now, fine.  In future, replace with LUT.)
-  rpl_ray_trace_callback_ct_density
-  rpl_ray_trace_callback_ct_HU
-  rpl_ray_trace_callback_PrSTPR
-  rpl_ray_trace_callback_PrSTPR_XiO_MGH
-  rpl_ray_trace_callback_range_length
+  Why are there so many of these
+  ------------------------------
+  compute_rpl_void 
+    -> No ray tracing performed
+    -> WTF ?
+  compute_rpl_ct_density
+    -> rpl_ray_trace_callback_ct_density
+    -> Schneider density, not accumulated
+  compute_rpl_HU 
+    -> rpl_ray_trace_callback_ct_HU
+    -> HU, not accumulated
+  compute_rpl_PrSTRP_no_rgc
+    -> rpl_ray_trace_callback_PrSTPR
+    -> Schneider stopping power, not accumulated
+  compute_rpl_range_length_rgc
+    -> rpl_ray_trace_callback_range_length
+    -> Schneider stopping power, accumulated
+  rpl_ray_trace_callback_PrSTPR_XiO_MGH (not called)
 
+  Answer.  There are limitations in the ray tracing design which limit 
+  reusability.
+    -> May accumulate or not
+    -> No real world coordinates / li_values
 
 ******************************************************************************
 ITK Origin and Index
@@ -76,7 +180,6 @@ Either, use the region and the (ITK) origin:
     const typename ImageType::SpacingType& sp = input->GetSpacing();
 
 Or, use the dimension and the (plastimatch) origin:
-
 
 
 ******************************************************************************
@@ -115,8 +218,8 @@ Bspline_parms
    stage_parms.
 
 ******************************************************************************
-Proj_volume, Rpl_volume, and dose calculation
-2015-05-06
+Proj_volume, Proj_image, Rpl_volume, and dose calculation
+2015-05-06, 2016-03-16
 
 :: Proj_volume
 
@@ -150,8 +253,25 @@ Proj_volume, Rpl_volume, and dose calculation
    - Can be used by Siddon approach, does not depend on uniform steps
    - Has no knowledge of projection plane dimension, spacing
 
-:: Aperture
+:: Proj_image
+    int dim[2];              /* dim[0] = cols, dim[1] = rows */
+    double xy_offset[2];     /* Offset of center pixel */
+    Proj_matrix *pmat;
+      double ic[2];
+      double matrix[12];
+      double sad;
+      double sid;
+      double cam[3];
+      double nrm[3];
+      double extrinsic[16];
+      double intrinsic[12];
+    float* img;		     /* Pixel data */
 
+* Note use of raw pixel data
+* Spacing gets encoded in pmat
+* Proj_image could be a 1D Proj_vol
+
+:: Aperture
    Private:
     Plm_image::Pointer aperture_image;
     Plm_image::Pointer range_compensator_image;
@@ -170,8 +290,11 @@ Proj_volume, Rpl_volume, and dose calculation
     double prt[3];        /* unit vec: right */
     double tmp[3];
 
-* Conflates projection plane geometry and proton artifacts
-* Duplications with Proj_matrix and Proj_volume
+* Projection plane geometry and proton hardware
+* Maybe two separate distances would be helpful
+* Reimplements concepts of Proj_matrix
+* Why not two separate Proj_image with same Proj_matrix?
+* Why pdn instead of pup?
 
 :: Projection
     Canonical
@@ -198,7 +321,6 @@ Proj_volume, Rpl_volume, and dose calculation
       double ul_room[3];     // ic_room - ic[0] * incr_c - ic[1] * incr_r
 
 * Replaces Proj_matrix and Aperture
-* Why pdn instead of pup ?
 
 :: IEC
       double gantry_angle;
@@ -240,6 +362,16 @@ Proj_volume, Rpl_volume, and dose calculation
 * Strangely, no Image Plane module seems required (or even allowed?), 
   which would define Image Position Patient, Image Orientation Patient
 
+:: Other thoughts
+
+* The Aperture class demonstrates that you may have multiple 
+proj_image with same proj_matrix.  A few mild assumptions are used:
+image pixels are matched and clipping plane is same.
+Backprojection will map voxels correctly in both proj_image.
+
+Alternative implementation as master-slave, using Proj_image 
+for aperture_image and Volume for range_compensator_image could also 
+be considered.
 
 ******************************************************************************
 Older stuff
@@ -467,7 +599,6 @@ To convert an index into a position, you do this:
   pos[0] = origin[0] + idx[0]*step[0] + idx[1]*step[1] + idx[2]*step[2]
   pos[1] = origin[1] + idx[0]*step[3] + idx[1]*step[4] + idx[2]*step[5]
   pos[2] = origin[2] + idx[0]*step[6] + idx[1]*step[7] + idx[2]*step[8]
-
 
 ***** How to delete items from conquest *****
 

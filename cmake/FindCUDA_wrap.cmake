@@ -26,6 +26,12 @@ else ()
   find_package (CUDA QUIET)
 endif ()
 
+# 14-5-2016 PAOLO: WORKAROUND GCC 6.1 AND CUDA 7.5 INCOMPATIBILITY
+if (CMAKE_COMPILER_IS_GNUCC
+      AND (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0))
+    set (CUDA_CXX_FLAGS "${CUDA_CXX_FLAGS},-std=c++98")
+endif ()
+
 # ITK headers cannot be processed by nvcc, so we define
 # PLM_CUDA_COMPILE for the purpose of guarding
 # (see base/plmbase.h)

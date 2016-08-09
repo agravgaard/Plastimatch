@@ -9,11 +9,12 @@ project (plastimatch)
 set (PLM_VERSION_MAJOR "1")
 set (PLM_VERSION_MINOR "6")
 set (PLM_VERSION_PATCH "3")
+set (PLM_RELEASE_VERSION FALSE)
 
 ##-----------------------------------------------------------------------------
 ##  Set up CMake defaults
 ##-----------------------------------------------------------------------------
-cmake_minimum_required (VERSION 2.6.0)
+cmake_minimum_required (VERSION 2.8.12)
 
 # CMP0003: Libraries linked via full path no longer produce linker search
 #  paths.
@@ -28,9 +29,7 @@ endif ()
 # Note: it is ok to use CMake FindZLIB for 2.8.4.  Therefore setting 
 # policy CMP0017 to NEW is safe.  But we do want the OLD policy for 
 # older CMake versions.
-if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} VERSION_LESS 2.8.4)
-  cmake_policy (SET CMP0017 NEW)
-endif ()
+cmake_policy (SET CMP0017 NEW)
 
 # Default to release
 if (NOT CMAKE_BUILD_TYPE)
@@ -39,6 +38,68 @@ if (NOT CMAKE_BUILD_TYPE)
       RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
+##-----------------------------------------------------------------------------
+##  Define plastimatch configuration variables
+##-----------------------------------------------------------------------------
+option (PLM_CONFIG_DISABLE_CUDA "Set to ON to build without CUDA" OFF)
+option (PLM_CONFIG_DISABLE_DCMTK "Set to ON to build without DCMTK" OFF)
+option (PLM_CONFIG_DISABLE_FATM "Set to ON to build without FATM" ON)
+option (PLM_CONFIG_DISABLE_ISE "Build ISE fluoro program" ON)
+option (PLM_CONFIG_DISABLE_MONDOSHOT "Disable building mondoshot" ON)
+option (PLM_CONFIG_DISABLE_OPENCL "Set to ON to build without OpenCL" OFF)
+option (PLM_CONFIG_DISABLE_OPENMP "Set to ON to build without OpenMP" OFF)
+option (PLM_CONFIG_DISABLE_PLASTIMATCH "Disable building plastimatch" OFF)
+option (PLM_CONFIG_DISABLE_QT "Set to ON to build without QT" OFF)
+option (PLM_CONFIG_DISABLE_REG23 "Disable building REG-2-3" OFF)
+option (PLM_CONFIG_DISABLE_SSE2 "Set to ON to build without SSE" OFF)
+option (PLM_CONFIG_ENABLE_MATLAB "Set to ON to build Matlab plugins" OFF)
+
+option (PLM_CONFIG_BUILD_QT_PLUGINS "Build QT4 Designer Plugins?" OFF)
+option (PLM_CONFIG_DEBIAN_BUILD "Set to ON to configure build for debian" OFF)
+option (PLM_CONFIG_LIBRARY_BUILD "Set to ON to build only libraries" OFF)
+option (PLM_CONFIG_NOMANIFEST "Set to ON to build windows DLLs without manifests" OFF)
+
+# Compile and link options
+option (PLM_SUPERBUILD "Download missing external libraries" OFF)
+option (PLM_PREFER_EXTERNAL_ITK "Prefer external ITK to local one" OFF)
+option (BUILD_SHARED_LIBS "Build plastimatch as shared library" OFF)
+
+# GCS 2012-03-15: We prefer f2c over fortran because bspline optimization
+# fails when compiling fortran in debug mode with gcc 4.5.0
+option (PLM_PREFER_F2C "Prefer using f2c over native fortran compiler" ON)
+option (PLM_PREFER_SYSTEM_F2C "Prefer the system f2c over the included f2c" ON)
+option (PLM_PREFER_NO_FORTRAN_NO_F2C "Prefer no fortran, no f2c" ON)
+
+# Testing
+option (PLM_BUILD_TESTING "Enable regression testing" ON)
+
+# Installer Options
+option (PLM_INSTALL_RPATH "Add full RPATH to install" OFF)
+option (PLM_CONFIG_INSTALL_LIBRARIES "Include libraries in install" ON)
+
+# Packaging
+option (PLM_PACKAGE_32BIT
+    "Set this when building 32-bit packages on a 64-bit machine" OFF)
+option (PLM_PACKAGE_NSIS "Set to ON when packaging binaries with NSIS" OFF)
+option (PLM_PACKAGE_WIX "Set to ON when packaging binaries with WIX" OFF)
+option (PLM_PACKAGE_LEGACY_CMAKE_CONFIG
+  "Use the old code for creating PlastimatchConfig.cmake and friends" OFF)
+
+# Use legacy packaging if cmake version is < 3.0
+if (CMAKE_VERSION VERSION_LESS "3.0")
+  set (PLM_PACKAGE_LEGACY_CMAKE_CONFIG ON CACHE BOOL)
+endif ()
+
+# Override some options if library build is selected
+if (PLM_CONFIG_LIBRARY_BUILD)
+  set (PLM_CONFIG_DISABLE_ISE ON)
+  set (PLM_CONFIG_DISABLE_FATM ON)
+  set (PLM_CONFIG_DISABLE_MONDOSHOT ON)
+  set (PLM_CONFIG_DISABLE_REG23 ON)
+  set (PLM_CONFIG_PREFER_F2C ON)
+  set (PLM_PREFER_SYSTEM_F2C OFF)
+endif ()
+  
 ##-----------------------------------------------------------------------------
 ##  SETUP IMPORTANT LOCATIONS
 ##-----------------------------------------------------------------------------
@@ -50,7 +111,7 @@ set (PLM_INSTALL_LIB_DIR lib CACHE PATH
   "Installation directory for libraries")
 set (PLM_INSTALL_BIN_DIR bin CACHE PATH 
   "Installation directory for executables")
-set (PLM_INSTALL_INCLUDE_DIR include CACHE PATH
+set (PLM_INSTALL_INCLUDE_DIR include/plastimatch CACHE PATH
   "Installation directory for header files")
 if (WIN32 AND NOT CYGWIN)
   set (DEF_INSTALL_CMAKE_DIR CMake)
@@ -75,12 +136,14 @@ mark_as_advanced (
 # Needs further investigation
 
 # Make relative install paths absolute (needed later on)
+if (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
 foreach (p LIB BIN INCLUDE CMAKE)
   set (var PLM_INSTALL_${p}_DIR)
   if (NOT IS_ABSOLUTE "${${var}}")
     set (${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
   endif ()
 endforeach ()
+endif ()
 
 ##-----------------------------------------------------------------------------
 ##  CMake include files
@@ -108,7 +171,7 @@ endif ()
 include (cmake/language_support.cmake)
 
 # Superbuild
-if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 2.8)
+if (PLM_SUPERBUILD)
   include (ExternalProject)
 endif ()
 
@@ -117,83 +180,6 @@ include (cmake/CheckEpsilon)
 
 # Is char signed or unsigned?
 include (cmake/CheckCharSign)
-
-##-----------------------------------------------------------------------------
-##  Plastimatch configuration variables
-##-----------------------------------------------------------------------------
-option (PLM_CONFIG_DISABLE_CUDA "Set to ON to build without CUDA" OFF)
-option (PLM_CONFIG_DISABLE_DCMTK "Set to ON to build without DCMTK" OFF)
-option (PLM_CONFIG_DISABLE_FATM "Set to ON to build without FATM" OFF)
-option (PLM_CONFIG_DISABLE_MONDOSHOT "Disable building mondoshot" ON)
-option (PLM_CONFIG_DISABLE_OPENCL "Set to ON to build without OpenCL" OFF)
-option (PLM_CONFIG_DISABLE_OPENMP "Set to ON to build without OpenMP" OFF)
-option (PLM_CONFIG_DISABLE_PLASTIMATCH "Disable building plastimatch" OFF)
-option (PLM_CONFIG_DISABLE_QT "Set to ON to build without QT" OFF)
-option (PLM_CONFIG_DISABLE_REG23 "Disable building REG-2-3" OFF)
-option (PLM_CONFIG_DISABLE_SSE2 "Set to ON to build without SSE" OFF)
-option (PLM_CONFIG_ENABLE_MATLAB "Set to ON to build Matlab plugins" OFF)
-set (PLM_CONFIG_VERSION_STRING "" CACHE STRING "Version string")
-option (PLM_CONFIG_LIBRARY_BUILD "Set to ON to build only libraries" OFF)
-option (PLM_CONFIG_DEBIAN_BUILD "Set to ON to configure build for debian" OFF)
-option (PLM_CONFIG_BUILD_QT_PLUGINS "Build QT4 Designer Plugins?" OFF)
-
-# Optional components
-option (PLM_BUILD_ISE "Build ISE fluoro program" OFF)
-
-# Compile and link options
-option (PLM_SUPERBUILD
-  "Download missing external libraries" OFF)
-option (PLM_PREFER_EXTERNAL_ITK
-  "Prefer external ITK to local one" OFF)
-option (BUILD_SHARED_LIBS 
-  "Build plastimatch as shared library" OFF)
-# GCS 2012-03-15: We prefer f2c over fortran because bspline optimization
-# fails when compiling fortran in debug mode with gcc 4.5.0
-option (PLM_PREFER_F2C 
-  "Prefer using f2c over native fortran compiler" ON)
-option (PLM_PREFER_SYSTEM_F2C 
-  "Prefer the system f2c over the included f2c" ON)
-option (PLM_PREFER_NO_FORTRAN_NO_F2C
-  "Prefer no fortran, no f2c" ON)
-
-# Testing
-option (PLM_BUILD_TESTING 
-  "Enable regression testing" ON)
-
-# Installer Options
-option (PLM_INSTALL_RPATH 
-  "Add full RPATH to install" OFF)
-option (PLM_CONFIG_INSTALL_LIBRARIES 
-  "Include libraries in install" ON)
-option (PLM_PACKAGE_32BIT 
-  "Set this when building 32-bit packages on a 64-bit machine" OFF)
-option (PLM_PACKAGE_NSIS 
-  "Set to ON when packaging binaries with NSIS" OFF)
-
-# Update options if library build is selected  
-if (PLM_CONFIG_LIBRARY_BUILD)
-  set (PLM_BUILD_ISE OFF)
-  set (PLM_CONFIG_DISABLE_FATM ON)
-  set (PLM_CONFIG_DISABLE_MONDOSHOT ON)
-  set (PLM_CONFIG_DISABLE_REG23 ON)
-  set (PLM_CONFIG_PREFER_F2C ON)
-  set (PLM_PREFER_SYSTEM_F2C OFF)
-endif ()
-  
-##-----------------------------------------------------------------------------
-##  Figure out plastimatch version number
-##-----------------------------------------------------------------------------
-# For ordinary versions from svn, use the version number at the 
-# top of the file
-set (PLM_DEFAULT_VERSION_STRING
-  "${PLM_VERSION_MAJOR}.${PLM_VERSION_MINOR}.${PLM_VERSION_PATCH}")
-
-# For official releases, a special file gets included, which contains 
-# the version number
-if (EXISTS "${CMAKE_SOURCE_DIR}/src/plastimatch/plastimatch_version.txt")
-  file (READ "${CMAKE_SOURCE_DIR}/src/plastimatch/plastimatch_version.txt"
-    PLM_RELEASE_VERSION_STRING)
-endif ()
 
 ##-----------------------------------------------------------------------------
 ##  Processor and OS characteristics
@@ -372,6 +358,7 @@ find_package (Dlib)
 find_package (Etags)
 #find_package (Fann)
 find_package (FFTW)
+find_package (Git)
 find_package (Liblbfgs)
 find_package (NLopt)
 if (PLM_CONFIG_ENABLE_MATLAB)
@@ -397,7 +384,6 @@ if (NOT PLM_CONFIG_DISABLE_SSE2)
 else ()
   set (SSE2_FOUND false)
 endif ()
-find_package (Subversion)
 find_package (TR1)
 find_package (wxWidgets)
 
@@ -591,32 +577,32 @@ else ()
 endif ()
 
 ##-----------------------------------------------------------------------------
-##  Get build number from subversion 
+##  Set version string
 ##-----------------------------------------------------------------------------
-set (PLASTIMATCH_SVN_VERSION "EXPERIMENTAL")
-if (EXISTS "${CMAKE_SOURCE_DIR}/.svn")
-  if (Subversion_FOUND)
-    set (PLASTIMATCH_HAVE_BUILD_NUMBER TRUE)
-    #Subversion_WC_INFO(${CMAKE_SOURCE_DIR} "svn")
-    execute_process (
-      COMMAND 
-      ${Subversion_SVNVERSION_EXECUTABLE} "--no-newline" 
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      RESULT_VARIABLE svn_result
-      OUTPUT_VARIABLE svn_version
-      ERROR_VARIABLE svn_error
-      )
-    if (${svn_result} EQUAL 0)
-      message (STATUS "Looking for version in svn - found ${svn_version}")
-      set (PLASTIMATCH_SVN_VERSION ${svn_version})
-    else ()
-      message (STATUS "Looking for version in svn - can't connect")
-    endif ()
+set (PLM_BASIC_VERSION_STRING
+  "${PLM_VERSION_MAJOR}.${PLM_VERSION_MINOR}.${PLM_VERSION_PATCH}")
+set (PLASTIMATCH_VERSION_STRING
+  "${PLM_VERSION_MAJOR}.${PLM_VERSION_MINOR}.${PLM_VERSION_PATCH}")
+if (NOT PLM_RELEASE_VERSION)
+  set (PLASTIMATCH_VERSION_STRING "${PLASTIMATCH_VERSION_STRING}-dev")
+endif ()
+if (EXISTS "${CMAKE_SOURCE_DIR}/.git" AND GIT_FOUND)
+  execute_process (
+    COMMAND 
+    #${GIT_EXECUTABLE} rev-list --first-parent --count HEAD
+    ${GIT_EXECUTABLE} describe --always
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    RESULT_VARIABLE git_result
+    OUTPUT_VARIABLE git_version
+    ERROR_VARIABLE git_error
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  if (${git_result} EQUAL 0)
+    message (STATUS "Looking for version in git - found ${git_version}")
+    set (PLASTIMATCH_VERSION_STRING "${PLASTIMATCH_VERSION_STRING} (${git_version})")
   else ()
-    message (STATUS "Looking for version in svn - svn not found")
+    message (STATUS "Looked for version in git but failed")
   endif ()
-else ()
-  set (PLASTIMATCH_HAVE_BUILD_NUMBER FALSE)
 endif ()
 
 ##-----------------------------------------------------------------------------
@@ -812,11 +798,6 @@ find_package (LibYAML)
 ##  Configure include files
 ##-----------------------------------------------------------------------------
 set (PLM_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-#configure_file (${CMAKE_CURRENT_SOURCE_DIR}/src/plastimatch/plm_config.h.in
-#  ${CMAKE_CURRENT_BINARY_DIR}/plm_config.h)
-
-#configure_file (${CMAKE_CURRENT_SOURCE_DIR}/src/plastimatch/plm_fortran.h.in
-#  ${CMAKE_CURRENT_BINARY_DIR}/plm_fortran.h)
 
 ##-----------------------------------------------------------------------------
 ##  Subdirectories
@@ -827,9 +808,10 @@ add_subdirectory (src)
 ##  Additional install files
 ##-----------------------------------------------------------------------------
 if (ITK_FOUND)
-  if (EXISTS "${ITK_DIR}/bin/release/ITKCommon.dll")
-    install (FILES "${ITK_DIR}/bin/release/ITKCommon.dll" DESTINATION bin)
-  endif ()
+    file (GLOB DLLFILES "${ITK_DIR}/bin/release/*.dll")
+    if (DLLFILES)
+      install (FILES ${DLLFILES} DESTINATION bin)
+    endif ()
 endif ()
 
 if (CUDA_FOUND)
@@ -863,15 +845,25 @@ if (CUDA_FOUND)
       )
     endif ()
   else ()
-    set (CUDART_WIN32 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart32_30_14.dll")
-    set (CUDART_WIN64 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_30_14.dll")
+#    set (CUDART_WIN32 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart32_30_14.dll")
+#    set (CUDART_WIN64 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_30_14.dll")
+#05/27/2016 YKP (for window users only): will copy dll files to bin for packaging.
+    set (CUDART_WIN32 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart32_65.dll")
+    set (CUDART_WIN64 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_65.dll")
+    set (CUFFT_WIN32 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cufft32_65.dll")
+    set (CUFFT_WIN64 "${CUDA_TOOLKIT_ROOT_DIR}/bin/cufft64_65.dll")
 
     if (MACHINE_IS_32_BIT AND EXISTS "${CUDART_WIN32}")
       set (CUDART_FILE "${CUDART_WIN32}")
     endif ()
-
-    if (MACHINE_IS_64_BIT AND EXISTS "${CUDART_WIN64}")
-      set (CUDART_FILE "${CUDART_WIN64}")
+    if (MACHINE_IS_32_BIT AND EXISTS "${CUFFT_WIN32}")
+      set (CUFFT_FILE "${CUFFT_WIN32}")
+    endif ()
+    if (MACHINE_IS_64_BIT AND EXISTS "${CUDART_WIN64}")	
+      set (CUDART_FILE "${CUDART_WIN64}")	  
+    endif ()
+    if (MACHINE_IS_64_BIT AND EXISTS "${CUFFT_WIN64}")		
+      set (CUFFT_FILE "${CUFFT_WIN64}")	  
     endif ()
 
     # Override for packagers building 32-bit packages on 64-bit machine
@@ -887,12 +879,47 @@ if (CUDA_FOUND)
       install (FILES "${CUDART_FILE}" DESTINATION bin)
     endif ()
   endif ()
+
+  if (EXISTS "${CUFFT_FILE}")
+    if (UNIX)
+      install (FILES "${CUFFT_FILE}" DESTINATION lib)
+    else ()
+      install (FILES "${CUFFT_FILE}" DESTINATION bin)
+    endif ()
+  endif ()
 endif ()
 
+#Add QT dlls to Install
+if (QT4_FOUND)
+  if (UNIX)
+    # YKP: should be implemented soon
+  else ()	
+    set (QT4_CORE_DLL_WIN "${QT_LIBRARY_DIR}/QtCore4.dll")
+    set (QT4_GUI_DLL_WIN "${QT_LIBRARY_DIR}/QtGui4.dll")
+    if (EXISTS "${QT4_CORE_DLL_WIN}")
+		install (FILES "${QT4_CORE_DLL_WIN}" DESTINATION bin)
+    endif ()
+	if (EXISTS "${QT4_GUI_DLL_WIN}")
+		install (FILES "${QT4_GUI_DLL_WIN}" DESTINATION bin)
+    endif ()
+  endif ()
+endif ()
+
+#Add FFT dlls to Install
 if (FFTW_FOUND)
   if (EXISTS "${FFTW_DIR}/libfftw3-3.dll")
-    install (FILES "${FFTW_DIR}/libfftw3-3.dll" DESTINATION bin)
+    install (FILES "${FFTW_DIR}/libfftw3-3.dll" DESTINATION bin)	
   endif ()
+    #YKP 05/27/2016: no need of libfftw3f-3.dll and libfftw3l-3.dll?
+endif ()
+
+# Add sample directory/files to Install Only for windows users
+if (WIN32 OR WIN64)
+  set (PLM_WINDOWS_INSTALL_DIR "${CMAKE_SOURCE_DIR}/extra/windows-install")
+  install (DIRECTORY "${PLM_WINDOWS_INSTALL_DIR}/sample" DESTINATION bin)
+  install (FILES "${PLM_WINDOWS_INSTALL_DIR}/colormap_customgamma.txt" DESTINATION bin)
+  install (FILES "${PLM_WINDOWS_INSTALL_DIR}/colormap_jet.txt" DESTINATION bin)
+  install (FILES "${PLM_WINDOWS_INSTALL_DIR}/launch_cmd_prompt.bat" DESTINATION bin)
 endif ()
 
 # JAS 2011.01.24
@@ -944,6 +971,7 @@ endif ()
 ##    avoid this (i.e. no good suggestions on CMake/CTest email list.  
 ##    This is the purpose of the PATH_HACK code below.
 ##-----------------------------------------------------------------------------
+if (ITK_FOUND)
 if (WIN32 AND NOT CYGWIN AND NOT MINGW)
   set (PLM_PLASTIMATCH_PATH 
     ${CMAKE_CURRENT_BINARY_DIR}/Release)
@@ -973,6 +1001,7 @@ else ()
   set (PLM_ITK_LIBRARY_PATH_HACK "")
   set (PLM_PLASTIMATCH_PATH_HACK "")
   set (PLM_FFTW_PATH_HACK "")
+endif ()
 endif ()
 
 macro (PLM_ADD_TEST PLM_TEST_NAME PLM_TEST_COMMAND PARMS)
@@ -1034,65 +1063,53 @@ endif ()
 ##    ...from within your build directory
 ##-----------------------------------------------------------------------------
 # Choose generator
-if (PLM_PACKAGE_NSIS)
+if (PLM_PACKAGE_WIX)
+  set (CPACK_GENERATOR "WIX")
+elseif (PLM_PACKAGE_NSIS)
   set (CPACK_GENERATOR "NSIS")
 else ()
   set (CPACK_GENERATOR "ZIP")
 endif ()
 set (CPACK_SOURCE_GENERATOR "TBZ2")
 
+# For WiX install, and possibly for debian -dev targets,
+# we should properly set up the install components.
+# Until then, let's just kill it
+set (CPACK_MONOLITHIC_INSTALL 1)
+
 # General stuff
+set (CPACK_INSTALL_PREFIX "")
 set (CPACK_PACKAGE_CONTACT "plastimatch@googlegroups.com")
 set (CPACK_PACKAGE_NAME "plastimatch")
+set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Plastimatch - A Medical Imaging Application")
 set (CPACK_PACKAGE_VENDOR "Plastimatch Dev Team")
 set (CPACK_PACKAGE_VERSION_MAJOR "${PLM_VERSION_MAJOR}")
 set (CPACK_PACKAGE_VERSION_MINOR "${PLM_VERSION_MINOR}")
 set (CPACK_PACKAGE_VERSION_PATCH "${PLM_VERSION_PATCH}")
-set (CPACK_PACKAGE_VERSION_TWEAK ${PLASTIMATCH_SVN_VERSION})
+set (CPACK_PACKAGE_VERSION_TWEAK ${PLASTIMATCH_REPOSITORY_VERSION})
 set (CPACK_SOURCE_IGNORE_FILES
-  "/.svn"
+  "/\\\\.git"
+  "/\\\\.svn"
   "~$"
 )
 
 # NSIS stuff
 #set(CPACK_NSIS_INSTALLED_ICON_NAME "${APP_LOW_NAME}.ico")
-set(CPACK_NSIS_HELP_LINK "http://plastimatch.org")
-set(CPACK_NSIS_URL_INFO_ABOUT "http://plastimatch.org")
-set(CPACK_NSIS_CONTACT "plastimatch@googlegroups.com")
+set (CPACK_NSIS_HELP_LINK "http://plastimatch.org")
+set (CPACK_NSIS_URL_INFO_ABOUT "http://plastimatch.org")
+set (CPACK_NSIS_CONTACT "plastimatch@googlegroups.com")
+set (PLM_NSIS_VERSION_STRING "${PLM_VERSION_MAJOR}.${PLM_VERSION_MINOR}.${PLM_VERSION_PATCH} (${PLASTIMATCH_REPOSITORY_VERSION})")
 
-set (PLM_NSIS_VERSION_STRING "${PLM_VERSION_MAJOR}.${PLM_VERSION_MINOR}.${PLM_VERSION_PATCH} (${PLASTIMATCH_SVN_VERSION})")
+# WIX stuff
+set (CPACK_WIX_HELP_LINK "http://plastimatch.org")
+set (CPACK_WIX_UPGRADE_GUID "AA7C7964-14D7-4890-9CD1-EA1D80E4DC8C")
+set (CPACK_WIX_LICENSE_RTF  "${PLM_WINDOWS_INSTALL_DIR}/License.rtf")
+set (CPACK_WIX_UI_BANNER  "${PLM_WINDOWS_INSTALL_DIR}/plm_logo.jpg")
+set (CPACK_WIX_UI_DIALOG  "${PLM_WINDOWS_INSTALL_DIR}/plm_logo_GUI.jpg")
 
-# Write files to extra_stuff directory.  These is sets the release date 
-# and version number correctly into the changelog, without needing 
-# to commit these changes into the svn repository.
-file (WRITE "${CMAKE_BINARY_DIR}/extra_stuff/plastimatch_version.txt" 
-  "${PLM_VERSION_MAJOR}.${PLM_VERSION_MINOR}.${PLM_VERSION_PATCH} (${PLASTIMATCH_SVN_VERSION})")
-execute_process (COMMAND date
-  RESULT_VARIABLE DATE_RESULT
-  OUTPUT_VARIABLE DATE_OUTPUT
-  ERROR_VARIABLE DATE_ERROR
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-if (DATE_RESULT EQUAL 0)
-  set (TIMESTAMP ${DATE_OUTPUT})
-else ()
-  set (TIMESTAMP "Unknown")
-endif ()
-configure_file (
-  ${CMAKE_SOURCE_DIR}/src/plastimatch/CHANGELOG.TXT
-  ${CMAKE_BINARY_DIR}/extra_stuff/CHANGELOG.TXT
-  @ONLY)
-set (CPACK_SOURCE_INSTALLED_DIRECTORIES
-  "${CMAKE_SOURCE_DIR};/;${CMAKE_BINARY_DIR}/extra_stuff;/src/plastimatch")
-
-## GCS 2012-09-27 Trying to fix "make package" under linux.
-## c.f. http://www.cmake.org/pipermail/cmake/2011-July/045602.html
-#set (CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
-#set (CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-#set (CPACK_PACKAGING_INSTALL_PREFIX "")
-
-if (NOT CPACK_GENERATOR STREQUAL "NSIS")
+# ZIP stuff
+if (CPACK_GENERATOR STREQUAL "ZIP")
   set (CPACK_SET_DESTDIR ON)
 endif ()
-set (CPACK_INSTALL_PREFIX "")
 
 include (CPack)

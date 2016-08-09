@@ -12,7 +12,7 @@ and then reconstruct them using the fdk program.
 
 Download the sample data
 ^^^^^^^^^^^^^^^^^^^^^^^^
-http://forge.abcd.harvard.edu/gf/download/frsrelease/85/1018/headphantom.mha.zip
+https://sourceforge.net/projects/plastimatch/files/Sample%20Data/headphantom.mha.zip/download
 
 The sample data is a 3D volume of a CT scan of an acrylic head phantom. 
 You can see what the original image looks below.

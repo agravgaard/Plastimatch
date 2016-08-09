@@ -2,7 +2,7 @@
 
 Features
 *  All registration parameters have auto defaults
-*  Dataclasp for scripting
+*  Long option alias
 *  Multi-planar registration
 *  Multi-similarity registration
 *  Overlap fraction penalty for native registration methods

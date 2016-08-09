@@ -1,7 +1,7 @@
 .. _registration_command_file_reference:
 
-Registration command file reference
------------------------------------
+Image registration command file reference
+-----------------------------------------
 The registration 
 command file uses the "ini file" format.  There are two 
 possible sections: GLOBAL, and STAGE.  There should be exactly 

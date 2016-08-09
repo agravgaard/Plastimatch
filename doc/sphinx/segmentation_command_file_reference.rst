@@ -1,7 +1,7 @@
 .. _segmentation_command_file_reference:
 
-Segmentation command file reference
-===================================
+Image segmentation (MABS) command file reference
+================================================
 
 The mabs parameter file can have seven sections: PREALIGNMENT, ATLAS-SELECTION, 
 TRAINING, REGISTRATION, STRUCTURES, LABELING and OPTIMIZATION_RESULT.

@@ -5,6 +5,7 @@ Technical reference
    :maxdepth: 2
 
    utility_programs
+   making_a_tarball
    debian_packaging
    windows_packaging
    special_builds
@@ -18,5 +19,4 @@ Technical reference
    proj_geometry_15
    cxt_file_format
    proj_mat_file_format
-   gsoc_2012
    Project dashboard (regression testing) <http://cdash.tshack.net/index.php?project=Plastimatch>

@@ -13,7 +13,7 @@ tutorial without one of these.
 
 Download the sample data
 ^^^^^^^^^^^^^^^^^^^^^^^^
-http://forge.abcd.harvard.edu/gf/download/frsrelease/85/1446/micro-ct-projections.zip
+https://sourceforge.net/projects/plastimatch/files/Sample%20Data/micro-ct-projections.zip/download
 
 The data for this tutorial was generously donated by Ming Chao (Howard).
 The images show a calibration plate, and were taken with the CBCT scanner 

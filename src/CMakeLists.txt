@@ -80,17 +80,21 @@ if (UNIX AND NOT PLM_PREFER_NO_FORTRAN_NO_F2C AND NOT PLM_USE_INCLUDED_F2C)
   set (PLASTIMATCH_LDFLAGS "${PLASTIMATCH_LDFLAGS} -u MAIN__")
 endif ()
 
+if (PLM_CONFIG_NOMANIFEST AND WIN32)
+  set (PLASTIMATCH_LDFLAGS "${PLASTIMATCH_LDFLAGS} /MANIFEST:NO")
+endif ()
+
 ##-----------------------------------------------------------------------------
 ##  Add subdirectories
 ##-----------------------------------------------------------------------------
 if (PLM_CONFIG_DEBIAN_BUILD)
-  set (PLM_BUILD_ISE OFF)
+  set (PLM_CONFIG_DISABLE_ISE ON)
   set (PLM_CONFIG_DISABLE_FATM ON)
   set (PLM_CONFIG_DISABLE_MONDOSHOT ON)
   set (PLM_CONFIG_DISABLE_REG23 ON)
 endif ()
 
-if (PLM_BUILD_ISE)
+if (NOT PLM_CONFIG_DISABLE_ISE)
   add_subdirectory (ise)
 endif ()
 
@@ -105,7 +109,11 @@ if (WIN32 AND NOT CYGWIN AND wxWidgets_FOUND AND DCMTK_FOUND
 endif ()
 
 if (NOT PLM_CONFIG_DISABLE_PLASTIMATCH)
-  add_subdirectory (plastimatch)
+  if (NOT ITK_FOUND)
+    message (STATUS "Plastimatch will not be built (ITK not found)")
+  else ()
+    add_subdirectory (plastimatch)
+  endif ()
 endif ()
 
 set (PLM_BUILD_ORAIFUTILS 1)

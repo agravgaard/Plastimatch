@@ -181,7 +181,9 @@ get_region_offset (plm_long i, plm_long j, plm_long k, const Bspline_xform *bxf)
     } while (0);
 
 /* Get real-space coordinates from a set of volume indices */
+#if defined (commentout)
 #define GET_WORLD_COORDS(xyz_vol, ijk_vol, vol, bxf)                    \
-        VOXEL_COORDS (xyz_vol, ijk_vol, bxf->img_origin, vol->step)
+    VOXEL_COORDS (xyz_vol, ijk_vol, bxf->img_origin, vol->step)
+#endif
 
 #endif /* _bspline_macros_h_ */

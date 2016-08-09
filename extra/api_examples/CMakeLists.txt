@@ -1,5 +1,9 @@
 project (plastimatch_api_example)
-cmake_minimum_required (VERSION 2.8)
+
+cmake_minimum_required (VERSION 2.8.12)
+if (COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 NEW)
+endif ()
 
 find_package (Plastimatch)
 
@@ -8,10 +12,13 @@ find_package (Plastimatch)
 set (ITK_DIR "${PLASTIMATCH_ITK_DIR}")
 find_package (ITK)
 
-if (PLASTIMATCH_FOUND)
+if (Plastimatch_FOUND)
   include (${ITK_USE_FILE})
-  include_directories (AFTER ${PLASTIMATCH_INCLUDE_DIRS})
 
+  ## Legacy method requires this
+  ## New method uses target dependencies
+  include_directories (${PLASTIMATCH_INCLUDE_DIRS})
+  
   add_executable (plastimatch_example_01 example_01.cxx)
   target_link_libraries (plastimatch_example_01 ${PLASTIMATCH_LIBRARIES})
 
@@ -22,5 +29,5 @@ if (PLASTIMATCH_FOUND)
   target_link_libraries (plastimatch_example_03 ${PLASTIMATCH_LIBRARIES})
 
 else ()
-  message (STATUS "Warning: plastimatch not found")
+  message (WARNING "Warning: plastimatch not found")
 endif ()

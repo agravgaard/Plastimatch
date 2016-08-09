@@ -15,9 +15,9 @@
 #include "acquire_4030e_window.h"
 #include "YKOptionSetting.h"
 
-#define SVN_VERSION "$Rev: 4320 $"
-#define SVN_DATE "$Date: 2013-06-27 22:40:29 +0200 (Thu, 27 Jun 2013) $"
-#define SVN_AUTHOUR "$Author: ykpark $"
+#define SVN_VERSION "$Rev$"
+#define SVN_DATE "$Date$"
+#define SVN_AUTHOUR "$Author$"
 
 class Advantech;
 class QTimer;

@@ -8,6 +8,7 @@ User guide
    image_registration_guidebook
    registration_command_file_reference
    mabs_guidebook
+   mabs_commands
    segmentation_command_file_reference
    fdk_tutorial_i
    fdk_tutorial_ii

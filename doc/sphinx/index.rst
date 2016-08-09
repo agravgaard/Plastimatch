@@ -75,9 +75,10 @@ Acknowledgments:
 
 For more information:
 
-* `Download page (svn) <http://forge.abcd.harvard.edu/gf/project/plastimatch/scmsvn/?action=AccessInfo>`_
-* `Plastimatch license (BSD-style) <http://forge.abcd.harvard.edu/gf/project/plastimatch/scmsvn/?action=browse&path=%2F*checkout*%2Fplastimatch%2Ftrunk%2Fsrc%2Fplastimatch%2FLICENSE.TXT&revision=2388>`_
-* `Reg-2-3 license (BSD) <http://forge.abcd.harvard.edu/gf/project/plastimatch/scmsvn/?action=browse&path=%2F*checkout*%2Fplastimatch%2Ftrunk%2Fsrc%2Freg-2-3%2FLICENSE.txt>`_
+* `Gitlab project page (for git) <https://gitlab.com/plastimatch/plastimatch>`_
+* `Sourceforge project page (for files) <https://sourceforge.net/projects/plastimatch/>`_
+* `Plastimatch license (BSD-style) <https://gitlab.com/plastimatch/plastimatch/blob/master/LICENSE.TXT>`_
+* `Reg-2-3 license (BSD) <https://gitlab.com/plastimatch/plastimatch/blob/master/src/reg-2-3/LICENSE.txt>`_
 * `Doxygen </doxygen>`_
 * `E-mail list <http://groups.google.com/group/plastimatch>`_
 

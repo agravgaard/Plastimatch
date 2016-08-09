@@ -18,22 +18,17 @@ The recommended method for downloading plastimatch is to use subversion
 to download the source code, and then compile the source.
 To download using subversion, use the following command::
 
-  $ svn co https://forge.abcd.harvard.edu/svn/plastimatch/plastimatch/trunk plastimatch
+  $ git clone https://gitlab.com/plastimatch/plastimatch.git
 
-You will need to supply the user name and password::
-
-  User: anonymous
-  Password: <empty>
-
-If you are using Windows, you will need a subversion client.  
+If you are using Windows, you will need a git client.
 We recommend cygwin (http://cygwin.com) for command-line users, 
-and TortoiseSVN (http://tortoisesvn.tigris.org) for graphical users.
+and TortoiseGit (http://tortoisegit.org) for graphical users.
 
 If you have already downloaded a previous version, 
 you can update to the latest version by executing the following command 
 from within the plastimatch source directory::
 
-  $ svn update
+  $ git pull
 
 Build dependencies
 ------------------
@@ -52,8 +47,7 @@ before you can build plastimatch.  Download from here:
 
   http://cmake.org/
 
-Cmake 2.6 or higher is required.  Cmake 2.8 is required if you 
-want to compile reg-2-3.
+Cmake 2.8.12 or higher is required.
 
 C/C++ Compiler (required)
 ^^^^^^^^^^^^^^^^^^^^^^^^^

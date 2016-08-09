@@ -158,6 +158,10 @@ return type:
 
 Variable naming for indexing  [Proposed, not implemented]
 ---------------------------------------------------------
+idx	index		one dimensional index
+ijk	coords		three dimensional index
+xyz	position	three dimensional position
+
 Fixed image voxel                   fijk[3], fidx <currently (fi,fj,fk),fv>
 Fixed world coord                   fxyz[3]
 Moving image voxel                  mijk[3], midx < ditto >
