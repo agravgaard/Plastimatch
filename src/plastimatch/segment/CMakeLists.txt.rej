@@ -1,8 +1,0 @@
---- Plastimatch/src/plastimatch/segment/CMakeLists.txt	2016-08-10 00:01:45.599993857 +0200
-+++ GitLabPlastimatch/src/plastimatch/segment/CMakeLists.txt	2016-08-10 00:54:10.303292979 +0200
-@@ -58,4 +58,5 @@
-   "${PLMSEGMENT_LIBRARY_SRC}" 
-   "${PLMSEGMENT_LIBRARY_DEPENDENCIES}"
-   "${PLMSEGMENT_LIBRARY_LDFLAGS}"
-+  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
-   "")
