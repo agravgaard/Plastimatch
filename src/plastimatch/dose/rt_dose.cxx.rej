@@ -1,0 +1,227 @@
+--- Plastimatch/src/plastimatch/dose/rt_dose.cxx	2016-08-10 00:01:45.579993857 +0200
++++ GitLabPlastimatch/src/plastimatch/dose/rt_dose.cxx	2016-08-10 00:54:10.279959646 +0200
+@@ -318,16 +318,16 @@
+     plm_long idx_lower_left = 0;
+     float li_frac1[3];
+     float li_frac2[3];
+-    plm_long ct_dim[3] = {ct_vol->dim[0], ct_vol->dim[1], ct_vol->dim[2]};
++    const plm_long *dim_ct = ct_vol->dim;
+     plm_long dose_bev_dim[3] = { dose_volume->dim[0], dose_volume->dim[1], dose_volume->dim[2]};
+ 
+-    for (ijk[0] = 0; ijk[0] < ct_dim[0]; ijk[0]++)
++    for (ijk[0] = 0; ijk[0] < dim_ct[0]; ijk[0]++)
+     {
+-        for (ijk[1] = 0; ijk[1] < ct_dim[1]; ijk[1]++)
++        for (ijk[1] = 0; ijk[1] < dim_ct[1]; ijk[1]++)
+         {
+-            for (ijk[2] = 0; ijk[2] < ct_dim[2]; ijk[2]++)
++            for (ijk[2] = 0; ijk[2] < dim_ct[2]; ijk[2]++)
+             {
+-                idx = ijk[0] + ct_dim[0] *(ijk[1] + ijk[2] * ct_dim[1]);
++                idx = ijk[0] + dim_ct[0] *(ijk[1] + ijk[2] * dim_ct[1]);
+                 if ( ct_img[idx] >= -1000) // in air we have no dose, we let the voxel number at 0!
+                 {   
+                     final_dose_volume->get_xyz_from_ijk(xyz_room, ijk);
+@@ -369,36 +369,36 @@
+     int ap_ij_sm[2] = {0,0};
+     int dim_lg[3] = {0,0,0};
+     int dim_sm[3] = {0,0,0};
+-    int dim_ct[3] = {ct_vol->dim[0], ct_vol->dim[1], ct_vol->dim[2]};
+-	int idx2d_sm = 0;
++    const plm_long *dim_ct = ct_vol->dim;
++    int idx2d_sm = 0;
+     int idx2d_lg = 0;
+     int idx3d_sm = 0;
+     int idx3d_lg = 0;
+     int idx3d_travel = 0;
+     int idx_ct = 0;
+     int ijk_ct[3] = {0,0,0};
+-	int i_min = 0;
++    int i_min = 0;
+     int i_max = 0;
+     int j_min = 0;
+     int j_max = 0;
+ 
+     float ct_density = 0;
+     float WER = 0;
+-	float DENSITY = 0;
++    float DENSITY = 0;
+     float STPR = 0;
+     double sigma = 0;
+     double sigma_x3 = 0;
+     double rg_length = 0;
+-	float central_axis_dose = 0;
++    float central_axis_dose = 0;
+     float off_axis_factor = 0;
+-	double minimal_lateral = 0;
++    double minimal_lateral = 0;
+     double lateral_step[2] = {0,0};
+     double central_ray_xyz[3] = {0.0, 0.0, 0.0};
+     double travel_ray_xyz[3] = {0.0, 0.0, 0.0};
+     double xyz_room[4] = {0.0, 0.0, 0.0, 1.0};
+     double PB_density = 1 / ( beam->rpl_vol->get_aperture()->get_spacing(0) *  beam->rpl_vol->get_aperture()->get_spacing(1));
+ 
+-	dim_lg[0] = rpl_dose_volume->get_vol()->dim[0];
++    dim_lg[0] = rpl_dose_volume->get_vol()->dim[0];
+     dim_lg[1] = rpl_dose_volume->get_vol()->dim[1];
+     dim_lg[2] = rpl_dose_volume->get_vol()->dim[2];
+     dim_sm[0] = beam->rpl_vol->get_vol()->dim[0];
+@@ -457,7 +457,7 @@
+         lateral_step_y[k] = (beam->rpl_vol->get_front_clipping_plane() + beam->rpl_vol->get_aperture()->get_distance() + (double) k) *beam->get_aperture()->get_spacing(1) / beam->rpl_vol->get_aperture()->get_distance();
+     }
+ 
+-	std::vector<float> num_part = beam->get_mebs()->get_num_particles();
++    std::vector<float> num_part = beam->get_mebs()->get_num_particles();
+ 
+     /* calculation of the dose in the rpl_volume */
+     for (ap_ij_lg[0] = margins[0]; ap_ij_lg[0] < rpl_dose_volume->get_vol()->dim[0]-margins[0]; ap_ij_lg[0]++){
+@@ -470,7 +470,7 @@
+ 
+             if (beam->get_aperture()->have_aperture_image())
+             {
+-				if((float) ap_img[idx2d_sm] == 0 || num_part[beam_index * beam->get_aperture()->get_dim(0) * beam->get_aperture()->get_dim(1) + idx2d_sm] == 0)
++                if((float) ap_img[idx2d_sm] == 0 || num_part[beam_index * beam->get_aperture()->get_dim(0) * beam->get_aperture()->get_dim(1) + idx2d_sm] == 0)
+                 {
+                     continue;
+                 }
+@@ -548,19 +548,19 @@
+                         if (ijk_ct[0] < 0 || ijk_ct[0] >= dim_ct[0] || ijk_ct[1] < 0 || ijk_ct[1] >= dim_ct[1] || ijk_ct[2] < 0 || ijk_ct[2] >= dim_ct[2] )
+                         {
+                             WER = PROTON_WER_AIR;
+-							DENSITY = AIR_DENSITY;
++                            DENSITY = AIR_DENSITY;
+                         }
+                         else
+                         {
+                             WER = compute_PrWER_from_HU(ct_img[ijk_ct[2] * dim_ct[0]*dim_ct[1] + ijk_ct[1] * dim_ct[0] + ijk_ct[0] ] );
+-							DENSITY = compute_density_from_HU(ct_img[ijk_ct[2] * dim_ct[0]*dim_ct[1] + ijk_ct[1] * dim_ct[0] + ijk_ct[0] ] );
++                            DENSITY = compute_density_from_HU(ct_img[ijk_ct[2] * dim_ct[0]*dim_ct[1] + ijk_ct[1] * dim_ct[0] + ijk_ct[0] ] );
++                        }
++                        if (DENSITY > 0.8)
++                        {
++                            rpl_dose_img[idx3d_travel] += central_axis_dose 
++                                * WER / DENSITY
++                                * off_axis_factor ;
+                         }
+-						if (DENSITY > 0.8)
+-						{
+-							rpl_dose_img[idx3d_travel] += central_axis_dose 
+-								* WER / DENSITY
+-								* off_axis_factor ;
+-						}
+                     } //for j1
+                 } //for i1
+             } // for k
+@@ -584,7 +584,7 @@
+     double tmp_xy[4] = {0,0,0,1};
+     double tmp_cst = 0;
+     int idx = 0;
+-    int ct_dim[3] = {dose_vol->dim[0], dose_vol->dim[1], dose_vol->dim[2]};
++    const plm_long *dose_dim = dose_vol->dim;
+     double vec_ud[4] = {0,0,0,1};
+     double vec_rl[4] = {0,0,0,1};
+     float* ct_img = (float*) plan->get_patient_volume()->img;
+@@ -600,12 +600,12 @@
+     double theta = 0;
+     double dr = 0;
+ 
+-	double idx_ap[2] = {0,0};
+-	int idx_ap_int[2] = {0,0};
+-	double rest[2] = {0,0};
+-	float particle_number = 0;
++    double idx_ap[2] = {0,0};
++    int idx_ap_int[2] = {0,0};
++    double rest[2] = {0,0};
++    float particle_number = 0;
+ 
+-	unsigned char *ap_img = 0;	
++    unsigned char *ap_img = 0;	
+     if (beam->get_aperture()->have_aperture_image()) {
+         Volume::Pointer ap_vol = beam->get_aperture()->get_aperture_volume();
+         ap_img = (unsigned char*) ap_vol->img;
+@@ -621,11 +621,11 @@
+     vec3_copy(vec_rl, beam->rpl_vol->get_proj_volume()->get_incr_r());
+     vec3_normalize1(vec_rl);
+ 
+-    for (ijk[0] = 0; ijk[0] < ct_dim[0]; ijk[0]++){
+-		printf("%d ", ijk[0]);
+-        for (ijk[1] = 0; ijk[1] < ct_dim[1]; ijk[1]++){
+-            for (ijk[2] = 0; ijk[2] < ct_dim[2]; ijk[2]++){
+-                idx = ijk[0] + ct_dim[0] * (ijk[1] + ct_dim[1] * ijk[2]);
++    for (ijk[0] = 0; ijk[0] < dose_dim[0]; ijk[0]++){
++        printf("%d ", ijk[0]);
++        for (ijk[1] = 0; ijk[1] < dose_dim[1]; ijk[1]++){
++            for (ijk[2] = 0; ijk[2] < dose_dim[2]; ijk[2]++){
++                idx = ijk[0] + dose_dim[0] * (ijk[1] + dose_dim[1] * ijk[2]);
+ 
+                 /* calculation of the pixel coordinates in the room coordinates */
+                 xyz[0] = (double) dose_vol->origin[0] + ijk[0] * dose_vol->spacing[0];
+@@ -652,28 +652,28 @@
+ 							
+                         rg_length = beam->rpl_vol->get_rgdepth(xyz_travel);
+                         HU = beam->rpl_ct_vol_HU_lg->get_rgdepth(xyz_travel);
+-						if (beam->get_intersection_with_aperture(idx_ap, idx_ap_int, rest, xyz_travel) == false)
+-						{
+-							continue;
+-						}
+-
+-						/* Check that the ray cross the aperture */
+-						if (idx_ap[0] < 0 || idx_ap[0] > (double) beam->rpl_ct_vol_HU->get_proj_volume()->get_image_dim(0)-1
+-							|| idx_ap[1] < 0 || idx_ap[1] > (double) beam->rpl_ct_vol_HU->get_proj_volume()->get_image_dim(1)-1)
+-						{
+-							continue;
+-						}
+-						/* Check that the ray cross the active part of the aperture */
+-						if (beam->get_aperture()->have_aperture_image() && beam->is_ray_in_the_aperture(idx_ap_int, ap_img) == false)
+-						{
+-							continue;
+-						}
+-						/* Check that the spot map is positive for this ray */
+-						particle_number = beam->get_mebs()->get_particle_number_xyz(idx_ap_int, rest, beam_index, beam->get_aperture()->get_dim());
+-						if (particle_number <= 0)
+-						{
+-							continue;
+-						}
++                        if (beam->get_intersection_with_aperture(idx_ap, idx_ap_int, rest, xyz_travel) == false)
++                        {
++                            continue;
++                        }
++
++                        /* Check that the ray cross the aperture */
++                        if (idx_ap[0] < 0 || idx_ap[0] > (double) beam->rpl_ct_vol_HU->get_proj_volume()->get_image_dim(0)-1
++                            || idx_ap[1] < 0 || idx_ap[1] > (double) beam->rpl_ct_vol_HU->get_proj_volume()->get_image_dim(1)-1)
++                        {
++                            continue;
++                        }
++                        /* Check that the ray cross the active part of the aperture */
++                        if (beam->get_aperture()->have_aperture_image() && beam->is_ray_in_the_aperture(idx_ap_int, ap_img) == false)
++                        {
++                            continue;
++                        }
++                        /* Check that the spot map is positive for this ray */
++                        particle_number = beam->get_mebs()->get_particle_number_xyz(idx_ap_int, rest, beam_index, beam->get_aperture()->get_dim());
++                        if (particle_number <= 0)
++                        {
++                            continue;
++                        }
+                         ct_density = compute_density_from_HU(HU);
+                         STPR = compute_PrSTPR_from_HU(HU);
+ 							
+@@ -712,7 +712,7 @@
+ 
+ void add_rcomp_length_to_rpl_volume (Rt_beam* beam)
+ {
+-    int dim[3] = {beam->rpl_vol->get_vol()->dim[0], beam->rpl_vol->get_vol()->dim[1], beam->rpl_vol->get_vol()->dim[2]};
++    const plm_long *dim = beam->rpl_vol->get_vol()->dim;
+     float* rpl_img = (float*) beam->rpl_vol->get_vol()->img;
+     float* rc_img = (float*) beam->rpl_vol->get_aperture()->get_range_compensator_volume()->img;
+     int idx = 0;
+@@ -722,7 +722,7 @@
+         for (int k = 0; k < dim[2]; k++)
+         {
+             idx = i + k * dim[0] * dim[1];
+-			rpl_img[idx] += rc_img[i] * PMMA_DENSITY*PMMA_STPR; // Lucite material : d * rho * WER
++            rpl_img[idx] += rc_img[i] * PMMA_DENSITY*PMMA_STPR; // Lucite material : d * rho * WER
+         }
+     }
+ }

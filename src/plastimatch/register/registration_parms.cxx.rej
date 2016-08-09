@@ -1,0 +1,55 @@
+--- Plastimatch/src/plastimatch/register/registration_parms.cxx	2016-08-10 00:01:45.596660523 +0200
++++ GitLabPlastimatch/src/plastimatch/register/registration_parms.cxx	2016-08-10 00:54:10.299959644 +0200
+@@ -339,6 +339,10 @@
+             goto key_not_allowed_in_section_process;
+         }
+     }
++    else if (key == "valid_roi_out") {
++        if (section_process) goto key_not_allowed_in_section_process;
++        shared->valid_roi_out_fn = val;
++    }
+     else if (key == "fixed_landmarks") {
+         if (section_process) goto key_not_allowed_in_section_process;
+         shared->fixed_landmarks_fn = val;
+@@ -519,6 +523,12 @@
+             goto error_exit;
+         }
+     }
++    else if (key == "gpuid") {
++        if (!section_stage) goto key_only_allowed_in_section_stage;
++        if (sscanf (val.c_str(), "%d", &stage->gpuid) != 1) {
++            goto error_exit;
++        }
++    }
+     else if (key == "metric" || key == "smetric") {
+         if (!section_stage) goto key_only_allowed_in_section_stage;
+         std::vector<std::string> metric_vec = string_split (val, ',');
+@@ -641,6 +651,12 @@
+             goto error_exit;
+         }
+     }
++    else if (key == "lbfgsb_mmax") {
++        if (!section_stage) goto key_only_allowed_in_section_stage;
++        if (sscanf (val.c_str(), "%d", &stage->lbfgsb_mmax) != 1) {
++            goto error_exit;
++        }
++    }
+     else if (key == "max_step") {
+         if (!section_stage) goto key_only_allowed_in_section_stage;
+         if (sscanf (val.c_str(), "%g", &stage->max_step) != 1) {
+@@ -861,6 +877,15 @@
+             goto error_exit;
+         }
+     }
++    else if (key == "gridsearch_min_steps") {
++        if (!section_stage) goto key_only_allowed_in_section_stage;
++        if (sscanf (val.c_str(), "%d %d %d", 
++                &(stage->gridsearch_min_steps[0]), 
++                &(stage->gridsearch_min_steps[1]), 
++                &(stage->gridsearch_min_steps[2])) != 3) {
++            goto error_exit;
++        }
++    }
+     else if (key == "gridsearch_strategy") {
+         if (!section_stage) goto key_only_allowed_in_section_stage;
+         if (val == "global") {

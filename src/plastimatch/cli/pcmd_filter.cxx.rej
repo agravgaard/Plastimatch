@@ -1,0 +1,41 @@
+--- Plastimatch/src/plastimatch/cli/pcmd_filter.cxx	2016-08-10 00:01:45.576660524 +0200
++++ GitLabPlastimatch/src/plastimatch/cli/pcmd_filter.cxx	2016-08-10 00:54:10.273292979 +0200
+@@ -15,6 +15,7 @@
+ #include "synthetic_mha.h"
+ #include "volume_conv.h"
+ #include "volume_gaussian.h"
++#include "volume_grad.h"
+ 
+ static Plm_image::Pointer
+ create_gabor_kernel (const Filter_parms *parms, const Plm_image::Pointer& img)
+@@ -101,6 +102,11 @@
+             parms->gauss_width, 
+             2.0);
+     }
++    else if (parms->filter_type == Filter_parms::FILTER_TYPE_GRADIENT_MAGNITUDE)
++    {
++        volume_out = volume_gradient_magnitude (
++            img->get_volume_float());
++    }
+     else if (parms->filter_type == Filter_parms::FILTER_TYPE_KERNEL)
+     {
+         /* Not yet implemented */
+@@ -161,7 +167,7 @@
+     /* Main pattern */
+     parser->add_long_option ("", "pattern",
+         "filter type: {"
+-        "gabor, gauss, kernel"
++        "gabor, gauss, gm, kernel"
+         "}, default is gauss", 
+         1, "gauss");
+ 
+@@ -207,6 +213,9 @@
+     else if (arg == "gauss") {
+         parms->filter_type = Filter_parms::FILTER_TYPE_GAUSSIAN_SEPARABLE;
+     }
++    else if (arg == "gm") {
++        parms->filter_type = Filter_parms::FILTER_TYPE_GRADIENT_MAGNITUDE;
++    }
+     else if (arg == "kernel") {
+         parms->filter_type = Filter_parms::FILTER_TYPE_KERNEL;
+     }

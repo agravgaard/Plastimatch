@@ -1,0 +1,19 @@
+--- Plastimatch/src/plastimatch/base/plm_image.h	2016-08-10 00:01:45.563327191 +0200
++++ GitLabPlastimatch/src/plastimatch/base/plm_image.h	2016-08-10 00:54:10.259959645 +0200
+@@ -16,7 +16,6 @@
+ class Plm_image;
+ class Plm_image_private;
+ class Rt_study_metadata;
+-class Slice_index;
+ 
+ /*! \brief 
+  * The Plm_image class represents a three-dimensional volume.  
+@@ -91,7 +90,7 @@
+     void init ();
+     void free ();
+     bool have_image ();
+-    Plm_image* clone (void);
++    Plm_image::Pointer clone (void);
+     void create (Plm_image_type type, const Plm_image_header& pih);
+ 
+     /* Loading */

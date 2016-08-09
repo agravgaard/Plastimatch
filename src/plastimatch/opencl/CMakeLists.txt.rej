@@ -1,0 +1,56 @@
+--- Plastimatch/src/plastimatch/opencl/CMakeLists.txt	2016-08-10 00:01:45.583327191 +0200
++++ GitLabPlastimatch/src/plastimatch/opencl/CMakeLists.txt	2016-08-10 00:54:10.283292978 +0200
+@@ -1,26 +1,27 @@
+-##-----------------------------------------------------------------------------
+-##  See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
+-##-----------------------------------------------------------------------------
+-project (src_plastimatch_opencl)
+-
+-include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
+-
+-set (PLMOPENCL_LIBRARY_SRC
+-  opencl_util.cxx
+-  )
+-
+-##-----------------------------------------------------------------------------
+-##  BUILD TARGETS
+-##-----------------------------------------------------------------------------
+-if (OPENCL_FOUND)
+-  set (PLMOPENCL_LIBRARY_DEPENDENCIES
+-    plmsys
+-    ${OPENCL_LIBRARIES}
+-    )
+-  plm_add_library (
+-    plmopencl
+-    "${PLMOPENCL_LIBRARY_SRC}" 
+-    "${PLMOPENCL_LIBRARY_DEPENDENCIES}"
+-    "${PLMOPENCL_LIBRARY_LDFLAGS}"
+-    "")
+-endif ()
++##-----------------------------------------------------------------------------
++##  See COPYRIGHT.TXT and LICENSE.TXT for copyright and license information
++##-----------------------------------------------------------------------------
++project (src_plastimatch_opencl)
++
++include_directories (BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
++
++set (PLMOPENCL_LIBRARY_SRC
++  opencl_util.cxx
++  )
++
++##-----------------------------------------------------------------------------
++##  BUILD TARGETS
++##-----------------------------------------------------------------------------
++if (OPENCL_FOUND)
++  set (PLMOPENCL_LIBRARY_DEPENDENCIES
++    plmsys
++    ${OPENCL_LIBRARIES}
++    )
++  plm_add_library (
++    plmopencl
++    "${PLMOPENCL_LIBRARY_SRC}" 
++    "${PLMOPENCL_LIBRARY_DEPENDENCIES}"
++    "${PLMOPENCL_LIBRARY_LDFLAGS}"
++    "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
++    "")
++endif ()

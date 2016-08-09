@@ -1,0 +1,12 @@
+--- Plastimatch/src/plastimatch/dose/rt_beam.h	2016-08-10 00:01:45.579993857 +0200
++++ GitLabPlastimatch/src/plastimatch/dose/rt_beam.h	2016-08-10 00:54:10.279959646 +0200
+@@ -56,6 +56,9 @@
+     /*! \brief Set the position of the beam isocenter in world coordinates. */
+     void set_isocenter_position (const double position[3]);
+ 
++    /*! \brief Get the source distance. */
++    double get_source_distance () const;
++    
+     /*! \brief Get "flavor" parameter of dose calculation algorithm */
+     char get_flavor () const;
+     /*! \brief Set "flavor" parameter of dose calculation algorithm */

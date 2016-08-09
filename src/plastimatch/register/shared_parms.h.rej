@@ -1,0 +1,10 @@
+--- Plastimatch/src/plastimatch/register/shared_parms.h	2016-08-10 00:01:45.599993857 +0200
++++ GitLabPlastimatch/src/plastimatch/register/shared_parms.h	2016-08-10 00:54:10.299959644 +0200
+@@ -19,6 +19,7 @@
+     bool moving_roi_enable;
+     std::string fixed_roi_fn;
+     std::string moving_roi_fn;
++    std::string valid_roi_out_fn;
+ 
+     /* Stiffness map */
+     bool fixed_stiffness_enable;

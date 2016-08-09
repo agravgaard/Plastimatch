@@ -1,0 +1,24 @@
+--- Plastimatch/src/plastimatch/dose/rt_beam.cxx	2016-08-10 00:01:45.579993857 +0200
++++ GitLabPlastimatch/src/plastimatch/dose/rt_beam.cxx	2016-08-10 00:54:10.279959646 +0200
+@@ -250,6 +250,12 @@
+     }
+ }
+ 
++double 
++Rt_beam::get_source_distance () const
++{
++    return vec3_dist (d_ptr->isocenter, d_ptr->source);
++}
++
+ char
+ Rt_beam::get_flavor (void) const
+ {
+@@ -899,7 +905,7 @@
+ 
+     float min = FLT_MAX;
+     int idx = 0;
+-    int dim[3] = {target_vol->dim[0], target_vol->dim[1], target_vol->dim[2]};
++    const plm_long *dim = target_vol->dim;
+     float target_image_origin[3] = {target_vol->origin[0], target_vol->origin[1], target_vol->origin[2]};
+     float target_image_spacing[3] = {target_vol->spacing[0], target_vol->spacing[1], target_vol->spacing[2]};
+     float source[3] = {(float) this->get_source_position(0), (float) this->get_source_position(1), (float) this->get_source_position(2)};

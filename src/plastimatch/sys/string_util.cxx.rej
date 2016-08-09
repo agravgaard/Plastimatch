@@ -1,0 +1,34 @@
+--- Plastimatch/src/plastimatch/sys/string_util.cxx	2016-08-10 00:01:45.616660524 +0200
++++ GitLabPlastimatch/src/plastimatch/sys/string_util.cxx	2016-08-10 00:54:10.323292977 +0200
+@@ -376,8 +376,20 @@
+ std::string PLM_to_string(T value)
+ {
+     std::ostringstream os ;
+-    os << value ;
+-    return os.str() ;
++    os << value;
++    return os.str();
++}
++
++// fancy version for arrays
++template <typename T>
++std::string PLM_to_string(T* value, int n)
++{
++    std::ostringstream os ;
++    for (int i = 0; i < n; i++) {
++        if (i > 0) os << " ";
++        os << value[i];
++    }
++    return os.str();
+ }
+ 
+ /* http://stackoverflow.com/questions/236129/split-a-string-in-c
+@@ -422,3 +434,8 @@
+     val = string_trim (s.substr (loc + 1));
+     return true;
+ }
++
++/* Explicit instantiations */
++template PLMSYS_API std::string PLM_to_string(double value);
++template PLMSYS_API std::string PLM_to_string(int *value, int n);
++template PLMSYS_API std::string PLM_to_string(double *value, int n);

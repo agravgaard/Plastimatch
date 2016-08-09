@@ -1,0 +1,10 @@
+--- Plastimatch/src/plastimatch/base/xio_ct.h	2016-08-10 00:01:45.573327191 +0200
++++ GitLabPlastimatch/src/plastimatch/base/xio_ct.h	2016-08-10 00:54:10.269959646 +0200
+@@ -7,7 +7,6 @@
+ #include "plmbase_config.h"
+ 
+ class Plm_image;
+-class Slice_index;
+ class Xio_ct_transform;
+ class Xio_studyset;
+ 

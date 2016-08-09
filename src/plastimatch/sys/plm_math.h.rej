@@ -1,0 +1,14 @@
+--- Plastimatch/src/plastimatch/sys/plm_math.h	2016-08-10 00:01:45.616660524 +0200
++++ GitLabPlastimatch/src/plastimatch/sys/plm_math.h	2016-08-10 00:54:10.319959645 +0200
+@@ -235,5 +235,11 @@
+     return 1;
+ }
+ 
++template<class T> T 
++clamp (T value, T min_value, T max_value) {
++    if (value < min_value) return min_value;
++    if (value > max_value) return max_value;
++    return value;
++}
+ 
+ #endif

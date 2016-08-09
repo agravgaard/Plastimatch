@@ -1,0 +1,25 @@
+--- Plastimatch/src/plastimatch/test/itk_test.cxx	2016-08-10 00:01:45.619993857 +0200
++++ GitLabPlastimatch/src/plastimatch/test/itk_test.cxx	2016-08-10 00:54:10.323292977 +0200
+@@ -4,6 +4,7 @@
+ #include "itkImageFileWriter.h"
+ 
+ #include "file_util.h"
++#include "itk_metadata.h"
+ #include "itk_image_save.h"
+ #include "logfile.h"
+ #include "path_util.h"
+@@ -94,7 +95,13 @@
+ //    itk_image_save (image, "foo.mha");
+ //    itk_image_save (tmp, "foo.mha");
+ //    itk_image_save_float (tmp, "foo.mha");
+-    my_itk_image_save (tmp, "foo.mha");
++//    my_itk_image_save (tmp, "foo.mha");
++
++    itk::MetaDataDictionary& dict = tmp->GetMetaDataDictionary();
++    itk_metadata_set (&dict, "Hello", "World");
++    itk_image_save (tmp, "img_with_meta.nrrd");
++    itk_image_save (tmp, "img_with_meta.mha");
++    itk_image_save (tmp, "img_with_meta.hd5");
+ 
+     Plm_image::Pointer pli = Plm_image::New (image);
+     Rt_study_metadata rsm;

@@ -1,0 +1,57 @@
+--- Plastimatch/src/plastimatch/standalone/gamma_gui.h	2016-08-10 00:01:45.606660524 +0200
++++ GitLabPlastimatch/src/plastimatch/standalone/gamma_gui.h	2016-08-10 00:54:10.309959646 +0200
+@@ -1,4 +1,4 @@
+-#ifndef GAMMA_GUI_H
++﻿#ifndef GAMMA_GUI_H
+ #define GAMMA_GUI_H
+ 
+ #include <QtGui/QMainWindow>
+@@ -23,6 +23,7 @@
+ class qyklabel;
+ class QStandardItemModel;
+ 
++
+ class gamma_gui : public QMainWindow
+ {
+     Q_OBJECT
+@@ -47,6 +48,7 @@
+     void SaveCurrentGammaWorkSpace(QString& strPathGammaWorkSpace);
+ 
+     bool LoadGammaWorkSpace(QString& strPathGammaWorkSpace);
++    bool ReadProtonDoseSet(QString& strPathProtonDoseSet, ProtonSetFileMGH& protonSetInfo);
+ 
+     void SaveBatchGamma3DSimpleReport(QString& strFilePath);
+ 
+@@ -54,6 +56,8 @@
+ 
+     QString ReplaceUpperDirOnly(QString& strOriginalPath, QString& strCurrDirPath, QString& strDelim);
+ 
++    QString ConvertMGHProtonDoseToMha(QString& strPathBinnary, VEC3D& fDim, VEC3D& fOrigin, VEC3D& fSpacing);
++
+     public slots:        
+         void SLT_Load_RD_Ref();
+         void SLT_Load_RD_Comp();        
+@@ -127,11 +131,13 @@
+ 
+         void SLTM_ExportBatchReport();
+ 
++        void SLTM_LoadProtonDoseSetFile();       
++
+ public:    
+-    QStringList m_strlistPath_RD_Original_Ref;
++    QStringList m_strlistPath_RD_Original_Ref; //RD files, before the conversion
+     QStringList m_strlistPath_RD_Original_Comp;
+ 
+-    QStringList m_strlistPath_RD_Read_Ref;
++    QStringList m_strlistPath_RD_Read_Ref; //mha files, after the conversion
+     QStringList m_strlistPath_RD_Read_Comp;
+ 
+     QStringList m_strlistFileBaseName_Ref;
+@@ -187,7 +193,6 @@
+ 
+     int m_iLastLoadedIndex;
+ 
+-
+ private:
+     Ui::gamma_guiClass ui;
+ };

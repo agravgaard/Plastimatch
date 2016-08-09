@@ -1,0 +1,10 @@
+--- Plastimatch/src/plastimatch/reconstruct/CMakeLists.txt	2016-08-10 00:01:45.586660524 +0200
++++ GitLabPlastimatch/src/plastimatch/reconstruct/CMakeLists.txt	2016-08-10 00:54:10.283292978 +0200
+@@ -77,6 +77,7 @@
+   "${PLMRECONSTRUCT_LIBRARY_SRC}" 
+   "${PLMRECONSTRUCT_LIBRARY_DEPENDENCIES}"
+   "${PLMRECONSTRUCT_LIBRARY_LDFLAGS}"
++  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
+   "")
+ 
+ 

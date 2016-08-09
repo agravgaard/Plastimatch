@@ -1,0 +1,24 @@
+--- Plastimatch/src/plastimatch/register/bspline_loop.txx	2016-08-10 00:01:45.589993858 +0200
++++ GitLabPlastimatch/src/plastimatch/register/bspline_loop.txx	2016-08-10 00:54:10.289959645 +0200
+@@ -253,8 +253,8 @@
+                     // Compute physical coordinates of fixed image voxel
+                     /* To remove DCOS support, switch to 
+                        GET_REAL_SPACE_COORDS (fxyz, fijk, bxf); */
+-                    GET_WORLD_COORDS (fxyz, fijk, 
+-                        fixed, bxf);
++                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
++                        fixed->step);
+ 
+                     // Construct the image volume index
+                     fidx = volume_index (fixed->dim, fijk);
+@@ -462,8 +462,8 @@
+                     // Compute physical coordinates of fixed image voxel
+                     /* To remove DCOS support, switch to 
+                        GET_REAL_SPACE_COORDS (fxyz, fijk, bxf); */
+-                    GET_WORLD_COORDS (fxyz, fijk, 
+-                        fixed, bxf);
++                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
++                        fixed->step);
+ 
+                     // Construct the image volume index
+                     fidx = volume_index (fixed->dim, fijk);

@@ -1,0 +1,30 @@
+--- Plastimatch/src/plastimatch/util/rt_study_warp.cxx	2016-08-10 00:01:45.623327190 +0200
++++ GitLabPlastimatch/src/plastimatch/util/rt_study_warp.cxx	2016-08-10 00:54:10.329959644 +0200
+@@ -228,13 +228,16 @@
+ 
+     /* Set user-supplied metadata also prior to loading files,
+        because the user supplied patient position is needed to load XiO data */
+-    rt_study->set_study_metadata (parms->m_metadata);
++    rt_study->set_study_metadata (parms->m_study_metadata);
+ 
+     /* Load input file(s) */
+     load_input_files (rt_study, file_type, parms);
+ 
+     /* Set user-supplied metadata (overrides metadata in input files) */
+-    rt_study->set_study_metadata (parms->m_metadata);
++    rt_study->set_study_metadata (parms->m_study_metadata);
++    rt_study->set_image_metadata (parms->m_image_metadata);
++    rt_study->set_dose_metadata (parms->m_dose_metadata);
++    rt_study->set_rtss_metadata (parms->m_rtss_metadata);
+ 
+     /* Load transform */
+     if (parms->xf_in_fn != "") {
+@@ -395,7 +398,7 @@
+             parms->output_xio_dirname.c_str(), "dose");
+         xio_dose_save (
+             rt_study->get_dose(),
+-            rt_study->get_metadata(), 
++            rt_study->get_study_metadata(), 
+             rt_study->get_xio_ct_transform(),
+             fn.c_str(), 
+             rt_study->get_xio_dose_filename().c_str());

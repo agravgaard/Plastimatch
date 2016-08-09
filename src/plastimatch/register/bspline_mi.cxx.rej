@@ -1,0 +1,22 @@
+--- Plastimatch/src/plastimatch/register/bspline_mi.cxx	2016-08-10 00:01:45.589993858 +0200
++++ GitLabPlastimatch/src/plastimatch/register/bspline_mi.cxx	2016-08-10 00:54:10.289959645 +0200
+@@ -1624,7 +1624,8 @@
+                     if (fijk[2] >= bxf->roi_offset[2] + bxf->roi_dim[2]) { continue; }
+ 
+                     /* Compute space coordinates of fixed image voxel */
+-                    GET_WORLD_COORDS (fxyz, fijk, fixed, bxf);
++                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
++                        fixed->step);
+ 
+                     /* JAS 2012.03.26: Tends to break the optimizer (PGTOL)   */
+                     /* Check to make sure the indices are valid (inside roi) */
+@@ -1870,7 +1871,8 @@
+                     if (fijk[2] >= bxf->roi_offset[2] + bxf->roi_dim[2]) { continue; }
+ 
+                     /* Compute space coordinates of fixed image voxel */
+-                    GET_WORLD_COORDS (fxyz, fijk, fixed, bxf);
++                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
++                        fixed->step);
+ 
+                     /* Compute deformation vector (dxyz) for voxel */
+                     bspline_interp_pix_c (dxyz, bxf, pidx, q);

@@ -1,0 +1,10 @@
+--- Plastimatch/src/plastimatch/cli/pcmd_filter.h	2016-08-10 00:01:45.576660524 +0200
++++ GitLabPlastimatch/src/plastimatch/cli/pcmd_filter.h	2016-08-10 00:54:10.273292979 +0200
+@@ -13,6 +13,7 @@
+         FILTER_TYPE_GABOR,
+         FILTER_TYPE_GAUSSIAN_COMBINED,
+         FILTER_TYPE_GAUSSIAN_SEPARABLE,
++        FILTER_TYPE_GRADIENT_MAGNITUDE,
+         FILTER_TYPE_KERNEL
+     };
+ 

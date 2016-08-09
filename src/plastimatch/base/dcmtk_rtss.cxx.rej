@@ -1,0 +1,108 @@
+--- Plastimatch/src/plastimatch/base/dcmtk_rtss.cxx	2016-08-10 00:01:45.556660524 +0200
++++ GitLabPlastimatch/src/plastimatch/base/dcmtk_rtss.cxx	2016-08-10 00:54:10.246626313 +0200
+@@ -63,7 +63,7 @@
+ Dcmtk_loader::rtss_load (void)
+ {
+     Dcmtk_series *ds_rtss = d_ptr->ds_rtss;
+-    d_ptr->cxt = Rtss::New();
++    d_ptr->rtss = Rtss::New();
+ 
+     /* Modality -- better be RTSTRUCT */
+     std::string modality = ds_rtss->get_modality();
+@@ -101,7 +101,7 @@
+             val = 0;
+             orc = seq->getItem(i)->findAndGetString (DCM_ROIName, val);
+             lprintf ("Adding structure (%d), %s\n", structure_id, val);
+-            d_ptr->cxt->add_structure (
++            d_ptr->rtss->add_structure (
+                 std::string (val), std::string(), structure_id);
+         }
+     }
+@@ -131,7 +131,7 @@
+             lprintf ("Structure %d has color %s\n", structure_id, val);
+ 
+             /* Look up the structure for this id and set color */
+-            curr_structure = d_ptr->cxt->find_structure_by_id (structure_id);
++            curr_structure = d_ptr->rtss->find_structure_by_id (structure_id);
+             if (!curr_structure) {
+                 lprintf ("Couldn't reference structure with id %d\n", 
+                     structure_id);
+@@ -247,7 +247,7 @@
+ Dcmtk_rt_study::save_rtss (const char *dicom_dir)
+ {
+     OFCondition ofc;
+-    Rtss::Pointer& cxt = d_ptr->cxt;
++    Rtss::Pointer& rtss = d_ptr->rtss;
+     Metadata::Pointer rtss_metadata;
+     if (d_ptr->rt_study_metadata) {
+         rtss_metadata = d_ptr->rt_study_metadata->get_rtss_metadata ();
+@@ -255,7 +255,7 @@
+ 
+     /* Prepare structure set with slice uids */
+     const Slice_list *slice_list = d_ptr->rt_study_metadata->get_slice_list ();
+-    cxt->apply_slice_list (slice_list);
++    rtss->apply_slice_list (slice_list);
+ 
+     /* Prepare dcmtk */
+     DcmFileFormat fileformat;
+@@ -277,6 +277,9 @@
+         d_ptr->rt_study_metadata->get_study_date());
+     dataset->putAndInsertOFStringArray (DCM_StudyTime, 
+         d_ptr->rt_study_metadata->get_study_time());
++    dcmtk_copy_from_metadata (dataset, rtss_metadata, 
++        DCM_StudyDescription, "");
++
+     dataset->putAndInsertOFStringArray (DCM_AccessionNumber, "");
+     dataset->putAndInsertOFStringArray (DCM_Modality, "RTSTRUCT");
+     dataset->putAndInsertString (DCM_Manufacturer, "Plastimatch");
+@@ -305,7 +308,7 @@
+     dataset->putAndInsertString (DCM_SeriesInstanceUID, 
+         d_ptr->rt_study_metadata->get_rtss_series_uid());
+     dcmtk_copy_from_metadata (dataset, rtss_metadata, DCM_StudyID, "10001");
+-    dataset->putAndInsertString (DCM_SeriesNumber, "103");
++    dcmtk_copy_from_metadata (dataset, rtss_metadata, DCM_SeriesNumber, "1");
+     dataset->putAndInsertString (DCM_InstanceNumber, "1");
+     dataset->putAndInsertString (DCM_StructureSetLabel, "AutoSS");
+     dataset->putAndInsertString (DCM_StructureSetName, "AutoSS");
+@@ -353,25 +356,25 @@
+     /* ----------------------------------------------------------------- */
+     /*     Part 3  -- Structure info                                     */
+     /* ----------------------------------------------------------------- */
+-    for (size_t i = 0; i < cxt->num_structures; i++) {
++    for (size_t i = 0; i < rtss->num_structures; i++) {
+         DcmItem *ssroi_item = 0;
+         std::string tmp;
+         dataset->findOrCreateSequenceItem (
+             DCM_StructureSetROISequence, ssroi_item, -2);
+-        tmp = string_format ("%d", cxt->slist[i]->id);
++        tmp = string_format ("%d", rtss->slist[i]->id);
+         ssroi_item->putAndInsertString (DCM_ROINumber, tmp.c_str());
+         ssroi_item->putAndInsertString (DCM_ReferencedFrameOfReferenceUID,
+             d_ptr->rt_study_metadata->get_frame_of_reference_uid());
+         ssroi_item->putAndInsertString (DCM_ROIName, 
+-            cxt->slist[i]->name.c_str());
++            rtss->slist[i]->name.c_str());
+         ssroi_item->putAndInsertString (DCM_ROIGenerationAlgorithm, "");
+     }
+ 
+     /* ----------------------------------------------------------------- */
+     /*     Part 4  -- Contour info                                       */
+     /* ----------------------------------------------------------------- */
+-    for (size_t i = 0; i < cxt->num_structures; i++) {
+-	Rtss_roi *curr_structure = cxt->slist[i];
++    for (size_t i = 0; i < rtss->num_structures; i++) {
++	Rtss_roi *curr_structure = rtss->slist[i];
+         DcmItem *roic_item = 0;
+         dataset->findOrCreateSequenceItem (
+             DCM_ROIContourSequence, roic_item, -2);
+@@ -440,8 +443,8 @@
+     /* ----------------------------------------------------------------- */
+     /*     Part 5  -- More structure info                                */
+     /* ----------------------------------------------------------------- */
+-    for (size_t i = 0; i < cxt->num_structures; i++) {
+-	Rtss_roi *curr_structure = cxt->slist[i];
++    for (size_t i = 0; i < rtss->num_structures; i++) {
++	Rtss_roi *curr_structure = rtss->slist[i];
+         std::string tmp;
+ 
+         /* RTROIObservationsSequence */

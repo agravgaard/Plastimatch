@@ -1,0 +1,11 @@
+--- Plastimatch/src/plastimatch/standalone/nki2mha_converter.cpp	2016-08-10 00:01:45.609993857 +0200
++++ GitLabPlastimatch/src/plastimatch/standalone/nki2mha_converter.cpp	2016-08-10 00:54:10.313292978 +0200
+@@ -436,7 +436,7 @@
+     if ( v->pix_size != 2)//USHORT or short only
+     {		
+         cout << "not supported file format. only USHORT 16 bit is compatible" << endl;
+-        return false;
++        return "";
+     }
+ 
+     int img2DSize = imgWidth*imgHeight;	

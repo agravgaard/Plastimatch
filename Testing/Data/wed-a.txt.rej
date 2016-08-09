@@ -1,0 +1,13 @@
+--- Plastimatch/Testing/Data/wed-a.txt	2016-08-10 00:01:45.119993862 +0200
++++ GitLabPlastimatch/Testing/Data/wed-a.txt	2016-08-10 00:54:09.819959651 +0200
+@@ -4,8 +4,8 @@
+ skin=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Body.mha
+ 
+ [OUTPUT SETTINGS]
+-proj_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-ct.mha
+-proj_wed=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-wed.mha
++proj_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-ct.rpl
++proj_wed=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-wed.rpl
+ wed_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-wed-ct.mha
+ 
+ [BEAM]

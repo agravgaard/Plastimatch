@@ -1,0 +1,40 @@
+--- Plastimatch/Testing/Data/wed-b.txt	2016-08-10 00:01:45.119993862 +0200
++++ GitLabPlastimatch/Testing/Data/wed-b.txt	2016-08-10 00:54:09.819959651 +0200
+@@ -1,18 +1,19 @@
+-[INPUT SETTINGS]
+-ct=@PLM_BUILD_TESTING_DIR@/lung-1.mha
+-proj_wed=@PLM_BUILD_TESTING_DIR@/wed-a-proj-wed.mha
+-target=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Tumor.mha
+-skin=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Body.mha
+-
+-[OUTPUT SETTINGS]
+-dew_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-dew-ct.mha
+-
+-[BEAM]
+-pos=-2270.5 0 0
+-isocenter=0 0 0
+-res=1
+-
+-[APERTURE]
+-offset=1700
+-center=49.5 49.5
+-resolution=100 100
++[INPUT SETTINGS]
++ct=@PLM_BUILD_TESTING_DIR@/lung-1.mha
++proj_wed=@PLM_BUILD_TESTING_DIR@/wed-a-proj-wed.rpl
++target=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Tumor.mha
++skin=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Body.mha
++
++[OUTPUT SETTINGS]
++proj_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-ct.rpl
++wed_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-wed-ct.mha
++
++[BEAM]
++pos=-2270.5 0 0
++isocenter=0 0 0
++res=1
++
++[APERTURE]
++offset=1700
++center=49.5 49.5
++resolution=100 100

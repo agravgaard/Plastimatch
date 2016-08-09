@@ -1,0 +1,11 @@
+--- Plastimatch/src/plastimatch/standalone/hnd_to_pfm.cxx	2016-08-10 00:01:45.609993857 +0200
++++ GitLabPlastimatch/src/plastimatch/standalone/hnd_to_pfm.cxx	2016-08-10 00:54:10.313292978 +0200
+@@ -40,7 +40,7 @@
+     }
+ 
+     /* Write image and header */
+-    proj_image_save (proj, pfm_fn, mat_fn);
++    proj->save (pfm_fn, mat_fn);
+ 
+     delete proj;
+     return 0;

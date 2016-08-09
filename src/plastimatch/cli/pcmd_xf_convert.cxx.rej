@@ -1,0 +1,101 @@
+--- Plastimatch/src/plastimatch/cli/pcmd_xf_convert.cxx	2016-08-10 00:01:45.579993857 +0200
++++ GitLabPlastimatch/src/plastimatch/cli/pcmd_xf_convert.cxx	2016-08-10 00:54:10.276626311 +0200
+@@ -25,8 +25,10 @@
+ 
+     std::string fixed_image;
+     std::string moving_image;
+-    std::string registered_rcs;
+-    std::string source_rcs;
++    std::string fixed_rcs;
++    std::string moving_rcs;
++
++    std::string series_description;
+ 
+     /* Geometry options */
+     bool m_have_dim;
+@@ -140,8 +142,8 @@
+     if (!parms->output_dicom_dir.empty()) {
+         /* Load referenced image sets */
+ #if PLM_DCM_USE_DCMTK
+-        Rt_study_metadata::Pointer rtm_reg;
+-        Rt_study_metadata::Pointer rtm_src;
++        Rt_study_metadata::Pointer rtm_fixed;
++        Rt_study_metadata::Pointer rtm_moving;
+ 
+         /* Fixed image */
+         if (!parms->fixed_image.empty()) {
+@@ -150,30 +152,30 @@
+             rtds->load_image (parms->fixed_image);
+             std::string fixed_path = parms->output_dicom_dir + "/fixed";
+             rtds->save_dicom (fixed_path);
+-            rtm_reg = rtds->get_rt_study_metadata();
++            rtm_fixed = rtds->get_rt_study_metadata();
+         }
+-        else if (!parms->registered_rcs.empty()) {
+-            lprintf ("Loading registered...\n");
+-            rtm_reg = Rt_study_metadata::load (parms->registered_rcs);
++        else if (!parms->moving_rcs.empty()) {
++            lprintf ("Loading fixed...\n");
++            rtm_fixed = Rt_study_metadata::load (parms->fixed_rcs);
+         }
+ 
+         /* Moving image */
+         if (!parms->moving_image.empty()) {
+             lprintf ("Loading moving...\n");
+             Rt_study::Pointer rtds = Rt_study::New ();
+-            rtds->load_image (parms->fixed_image);
++            rtds->load_image (parms->moving_image);
+             std::string moving_path = parms->output_dicom_dir + "/moving";
+             rtds->save_dicom (moving_path);
+-            rtm_src = rtds->get_rt_study_metadata();
++            rtm_moving = rtds->get_rt_study_metadata();
+         }
+-        else if (!parms->source_rcs.empty()) {
+-            lprintf ("Loading source...\n");
+-            rtm_src = Rt_study_metadata::load (parms->source_rcs);
++        else if (!parms->fixed_rcs.empty()) {
++            lprintf ("Loading moving...\n");
++            rtm_moving = Rt_study_metadata::load (parms->moving_rcs);
+         }
+ 
+         lprintf ("Saving sro\n");
+         Dcmtk_sro::save (
+-            xf_out, rtm_src, rtm_reg, parms->output_dicom_dir, true);
++            xf_out, rtm_fixed, rtm_moving, parms->output_dicom_dir, true);
+         lprintf ("Done saving sro\n");
+ #endif
+     }
+@@ -225,13 +227,16 @@
+         "Fixed image, to be converted to dicom", 1, "");
+     parser->add_long_option ("", "moving-image",
+         "Moving image, to be converted to dicom", 1, "");
+-    parser->add_long_option ("", "registered-rcs", 
+-        "Directory containing DICOM image with registered reference "
+-        "(i.e. fixed image) coordinate system", 
++    parser->add_long_option ("", "fixed-rcs", 
++        "Directory containing DICOM image with reference "
++        "coordinate system of fixed image", 
++        1, "");
++    parser->add_long_option ("", "moving-rcs", 
++        "Directory containing DICOM image with reference "
++        "coordinate system of moving image", 
+         1, "");
+-    parser->add_long_option ("", "source-rcs", 
+-        "Directory containing DICOM image with source reference "
+-        "(i.e. moving image) coordinate system", 
++    parser->add_long_option ("", "series-description",
++        "DICOM Series Description",
+         1, "");
+ 
+     /* Parse options */
+@@ -259,8 +264,8 @@
+     /* DICOM spatial registration */
+     parms->fixed_image = parser->get_string("fixed-image");
+     parms->moving_image = parser->get_string("moving-image");
+-    parms->registered_rcs = parser->get_string("registered-rcs");
+-    parms->source_rcs = parser->get_string("source-rcs");
++    parms->fixed_rcs = parser->get_string("fixed-rcs");
++    parms->moving_rcs = parser->get_string("moving-rcs");
+ 
+     Xform_convert *xfc = &parms->xfc;
+ 

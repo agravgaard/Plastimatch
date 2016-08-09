@@ -1,0 +1,11 @@
+--- Plastimatch/src/plastimatch/base/itk_image.h	2016-08-10 00:01:45.559993858 +0200
++++ GitLabPlastimatch/src/plastimatch/base/itk_image.h	2016-08-10 00:54:10.253292980 +0200
+@@ -5,7 +5,7 @@
+ #define _itk_image_h_
+ 
+ #include "plmbase_config.h"
+-#include "sys/plm_int.h"
++#include "plm_int.h"
+ 
+ #include "itk_image_type.h"
+ 

@@ -1,0 +1,33 @@
+--- Plastimatch/src/plastimatch/base/volume.cxx	2016-08-10 00:01:45.569993857 +0200
++++ GitLabPlastimatch/src/plastimatch/base/volume.cxx	2016-08-10 00:54:10.266626312 +0200
+@@ -215,12 +215,20 @@
+ }
+ 
+ const float*
+-Volume::get_origin ()
++Volume::get_origin () const
+ {
+     return this->origin;
+ }
+ 
+ void
++Volume::get_origin (float *origin) const
++{
++    for (int d = 0; d < 3; d++) {
++        origin[d] = this->origin[d];
++    }
++}
++
++void
+ Volume::set_origin (const float origin[3])
+ {
+     for (int d = 0; d < 3; d++) {
+@@ -848,7 +856,7 @@
+ Volume::move_origin_to_idx (const plm_long ijk[3])
+ {
+     float new_origin[3];
+-    this->coords (new_origin, ijk);
++    this->position (new_origin, ijk);
+     this->set_origin (new_origin);
+ }
+ 

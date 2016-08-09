@@ -1,0 +1,925 @@
+--- Plastimatch/src/plastimatch/standalone/register_gui.cpp	2016-08-10 00:01:45.613327191 +0200
++++ GitLabPlastimatch/src/plastimatch/standalone/register_gui.cpp	2016-08-10 00:54:10.319959645 +0200
+@@ -1,4 +1,4 @@
+-#include "plm_config.h"
++﻿#include "plm_config.h"
+ #include "register_gui.h"
+ #include <QString>
+ #include <QFileDialog>
+@@ -18,6 +18,8 @@
+ #include <QUrl>
+ #include <QClipboard>
+ #include <QProcess>
++#include <QInputDialog>
++#include <QMessageBox>
+ 
+ #include "qt_util.h"
+ 
+@@ -59,28 +61,74 @@
+     connect(m_timerRunSequential, SIGNAL(timeout()), this, SLOT(SLT_TimerRunSEQ()));
+     connect(m_timerRunMultiThread, SIGNAL(timeout()), this, SLOT(SLT_TimerRunMT()));   
+ 
++    //Set m_strPathCommandTemplateDir in ~/ AppData / Roaming / plastimatch
++    InitConfig();
++
++    //Write default templates there
++    WriteDefaultTemplateFiles(m_strPathCommandTemplateDir);
++
++    // Read config file.  Save it, to create if the first invokation.
++    ReadDefaultConfig ();
++    WriteDefaultConfig ();
++
++    UpdateCommandFileTemplateList(m_strPathCommandTemplateDir); //from the folder
++}
++
++//make and set m_strPathCommandTemplateDir in ~/AppData/Roaming/plastimatch
++void register_gui::InitConfig()
++{
+     // Set up application configuration location
+-    QCoreApplication::setOrganizationName ("Plastimatch");
+-    QCoreApplication::setOrganizationDomain ("plastimatch.org");
+-    QCoreApplication::setApplicationName ("register_gui");
++    QCoreApplication::setOrganizationName("Plastimatch");
++    QCoreApplication::setOrganizationDomain("plastimatch.org");
++    QCoreApplication::setApplicationName("register_gui");
+ 
+     // Find location for command file templates.
+     // QT doesn't seem to have an API for getting the
+     // user's application data directory.  So we construct
+     // a hypothetical ini file name, then grab the directory.
+-    QSettings tmp (
+-	QSettings::IniFormat, /* Make sure we get path, not registry */
+-	QSettings::UserScope, /* Get user directory, not system direcory */
+-	"Plastimatch",        /* Orginazation name (subfolder within path) */
+-	"register_gui"        /* Application name (file name with subfolder) */
+-    );
+-    m_strPathCommandTemplateDir = QFileInfo(tmp.fileName()).absolutePath();
++    QSettings tmpSetting(
++        QSettings::IniFormat, /* Make sure we get path, not registry */
++        QSettings::UserScope, /* Get user directory, not system direcory */
++        "Plastimatch",        /* Orginazation name (subfolder within path) */
++        "register_gui"        /* Application name (file name with subfolder) */
++        );
+ 
+-    // Read config file.  Save it, to create if the first invokation.
+-    ReadDefaultConfig ();
+-    WriteDefaultConfig ();
++    QString strPathTemplateBase = QFileInfo(tmpSetting.fileName()).absolutePath();//C:\Users\ykp1\AppData\Roaming/plastimatch. however, the directory was not found
++    m_strPathCommandTemplateDir = strPathTemplateBase + "/" + "CommandTemplate";    
++    
++    QDir plm_setting_dir(m_strPathCommandTemplateDir);
++
++    if (!plm_setting_dir.exists())
++    {
++        //plm_setting_dir.mkdir(m_strPathCommandTemplateDir);
++        if (!plm_setting_dir.mkpath(m_strPathCommandTemplateDir)) //The function will create all parent directories necessary to create the directory.
++        {
++            cout << "Error! Cannot make a directory for command file templates. You may not able to use templates for command file." << endl;
++            m_strPathCommandTemplateDir = "";
++        }
++        else
++        {
++            cout << "Command template path: " << m_strPathCommandTemplateDir.toLocal8Bit().constData() << endl;
++        }        
++    }
++}
++
++void register_gui::WriteDefaultTemplateFiles(QString& targetDirPath)
++{
++    QDir curDir(targetDirPath);
++    if (!curDir.exists())
++    {
++        cout << "Error! Target dir doesn't exist: " << targetDirPath.toLocal8Bit().constData() << endl;
++        return;
++    }
++    CreateDefaultCommandFile(PLAST_RIGID);
++    CreateDefaultCommandFile(PLAST_AFFINE);
++    CreateDefaultCommandFile(PLAST_BSPLINE);
++    CreateDefaultCommandFile(PLAST_GRADIENT);
+ }
+ 
++
++
+ register_gui::~register_gui()
+ { 
+     if (m_pTableModelMain != NULL)
+@@ -118,19 +166,18 @@
+ 
+ void register_gui::SLT_SetDefaultViewer()
+ {
+-    QString dirPath = QFileDialog::getOpenFileName (
++    QString strPathExecutable = QFileDialog::getOpenFileName (
+         this, "Open executable file", "",
+ #if WIN32
+-        "executable files (*.exe);;"
++        "executable file (*.exe);;"
+ #endif
+-        "all files (*)",
++        "all file (*)",
+         0, 0);
+ 
+-    if (dirPath.length() < 1)
++    if (strPathExecutable.length() < 1)
+         return;
+ 
+-    SetReadImageApp(dirPath);
+-
++    SetReadImageApp(strPathExecutable);
+     WriteDefaultConfig();
+ }
+ 
+@@ -154,6 +201,19 @@
+     ui.lineEditDefaultViewerPath->setText(m_strPathReadImageApp);
+ }
+ 
++
++void register_gui::SetCommandTemplateDir(const QString& strDirPath)
++{
++    QDir dir(strDirPath);
++    
++    if (!dir.exists())
++        return;
++
++    m_strPathCommandTemplateDir = strDirPath;
++
++    //ui.lineEditDefaultViewerPath->setText(m_strPathReadImageApp);
++}
++
+ void register_gui::InitTableQue(int rowCnt, int columnCnt)
+ {
+     if (m_pTableModelQue != NULL)
+@@ -179,7 +239,7 @@
+     ui.tableView_que->resizeColumnsToContents();
+ 
+     QItemSelectionModel *select = ui.tableView_que->selectionModel();
+-    connect(select, SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(SLT_SelectionChangedQue(QItemSelection, QItemSelection)));   
++    //connect(select, SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(SLT_SelectionChangedQue(QItemSelection, QItemSelection)));   
+ }
+ 
+ void register_gui::InitTableMain(int rowCnt, int columnCnt)
+@@ -204,12 +264,9 @@
+     ui.tableView_main->resizeColumnsToContents();
+ 
+     QItemSelectionModel *select = ui.tableView_main->selectionModel();
+-    connect(select, SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(SLT_SelectionChangedMain(QItemSelection, QItemSelection)));
+-
+-  
++    //connect(select, SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(SLT_SelectionChangedMain(QItemSelection, QItemSelection)));  
+ }
+ 
+-
+ void register_gui::SLT_LoadFixedFiles()
+ {
+     QFileDialog w;    
+@@ -745,24 +802,34 @@
+ 
+     //Read the text file and display it
+     QString strPathCommand = m_strlistPath_Command.at(row);
++    ReadCommandFile(strPathCommand, listCurCommand);
++
++    //Update command file viewer
++    SetCommandViewerText_Main(listCurCommand);
++    QString strDisp = curStr + ".txt";
++    ui.label_CurCommandFile->setText(strDisp);
++
++    //ui.plainTextEdit->setEnabled(true);
++    EnableUIForCommandfile(true);
++}
++
++void register_gui::ReadCommandFile(QString& strPathCommandFile, QStringList& strListOutput)
++{   
++    strListOutput.clear();
+ 
+-    QFile file(strPathCommand);
++    QFile file(strPathCommandFile);
+     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+-        return;    
++        return;
+ 
+     QTextStream in(&file);
+     while (!in.atEnd())
+     {
+         QString line = in.readLine();
+-        listCurCommand.push_back(line);
++        strListOutput.push_back(line);
+     }
+     file.close();
+-
+-    //Update command file viewer
+-    SetCommandViewerText_Main(listCurCommand);
+ }
+ 
+-
+ void register_gui::SLT_ReadCommandFile_Que(QModelIndex index)
+ {
+     int row = index.row();
+@@ -784,17 +851,20 @@
+     //QString strPathCommand = m_strlistPath_Command.at(row);
+     QString strPathCommand = m_vRegiQue.at(row).m_quePathCommand;
+ 
+-    QFile file(strPathCommand);
+-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
++    ReadCommandFile(strPathCommand, listCurCommand);
++
++    /*
++        QFile file(strPathCommand);
++        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+         return;
+ 
+-    QTextStream in(&file);
+-    while (!in.atEnd())
+-    {
++        QTextStream in(&file);
++        while (!in.atEnd())
++        {
+         QString line = in.readLine();
+         listCurCommand.push_back(line);
+-    }
+-    file.close();
++        }
++        file.close();*/
+ 
+     //Update command file viewer
+     SetCommandViewerText_Que(listCurCommand);
+@@ -827,9 +897,22 @@
+ 
+     if (mIdx.column() == 2)
+         SLT_ReadCommandFile_Main(mIdx);   
++}
++
+ 
++void register_gui::SLT_ItemClickedMain() //single clicked
++{
++    QModelIndex mIdx = ui.tableView_main->currentIndex();
++
++    m_iCurSelRow_Main = mIdx.row();
++    m_iCurSelCol_Main = mIdx.column();
++
++    if (mIdx.column() == 2)
++        SLT_ReadCommandFile_Main(mIdx);
+ }
+ 
++//void register_gui::SLT_TableItemSelectedMain()
++
+ void register_gui::SLT_SelectionChangedQue(QItemSelection curItem, QItemSelection prevItem)
+ {    
+     QModelIndexList listModelIndexCur = curItem.indexes();
+@@ -846,6 +929,17 @@
+ }
+ 
+ 
++void register_gui::SLT_ItemClickedQue() //single clicked
++{
++    QModelIndex mIdx = ui.tableView_que->currentIndex();
++    
++    m_iCurSelRow_Que = mIdx.row();
++    m_iCurSelCol_Que = mIdx.column();
++
++    SLT_ReadCommandFile_Que(mIdx);
++}
++
++
+ void register_gui::SetCommandViewerText_Main(QStringList& strList)
+ {
+     int iCntLines = strList.count();
+@@ -881,17 +975,90 @@
+ 
+ void register_gui::SLT_SaveCommandText()
+ {    
+-    QStringList strList = GetCommandViewerText();
++    QStringList strList = GetCommandViewerText();//from main
+ 
+     QString strPath;
+     if (m_iCurSelRow_Main >= 0 && m_iCurSelRow_Main < m_strlistPath_Command.count() && m_iCurSelCol_Main == 2)
+     {
+         strPath = m_strlistPath_Command.at(m_iCurSelRow_Main);
+         SaveCommandText(strPath, strList);
+-        SetCommandViewerText_Main(strList);
++        SetCommandViewerText_Main(strList); //Check, is this needed??
+         cout << strPath.toLocal8Bit().constData() << ": Text file was saved." << endl;
+     }
+ }
++
++void register_gui::SLT_SaveCommandFileAsTemplate() //should not be called when click template list
++{
++    QStringList strList = GetCommandViewerText();//from main editor
++
++    if (strList.count() < 1)
++    {
++        cout << "Error! No text exists." << endl;
++        return;
++    }
++    //1) Popup input box to ask the template name. no need of "Default" prefix
++    //Cancel if no name is input
++    QInputDialog inputDlg;
++    bool ok;
++    QString templateName = QInputDialog::getText(this, "Save a new Template", "Input Command Template Name", QLineEdit::Normal, "template name", &ok);
++
++    if (!ok || templateName.isEmpty())
++        return;   
++
++    //2) Set all the paths to "TBD" to avoid confusion       
++
++    QStringList::iterator it;
++
++    for (it = strList.begin(); it != strList.end(); ++it)
++    {
++        QString strTempLine = (*it);
++
++        if (strTempLine.contains("fixed=") || strTempLine.contains("fixed ="))
++        {
++            strTempLine = "fixed= TBD";
++        }
++        else if (strTempLine.contains("moving=") || strTempLine.contains("moving ="))
++        {
++            strTempLine = "moving= TBD";
++        }
++        else if (strTempLine.contains("fixed_roi=") || strTempLine.contains("fixed_roi ="))
++        {
++            strTempLine = "fixed_roi= TBD";
++        }
++        else if (strTempLine.contains("img_out=") || strTempLine.contains("img_out ="))
++        {
++            strTempLine = "img_out= TBD";
++        }
++        else if (strTempLine.contains("xform_out=") || strTempLine.contains("xform_out ="))
++        {
++            strTempLine = "xform_out= TBD";
++        }
++        (*it) = strTempLine;        
++    }
++
++    //3) Get App Dir Path, m_str...
++    QDir curTemplateDir(m_strPathCommandTemplateDir);
++
++    if (!curTemplateDir.exists())
++    {
++        cout << "Error! No template dir exists" << endl;
++        return;
++    }    
++
++    QString strPathOut = m_strPathCommandTemplateDir + "/" + templateName + ".txt";
++
++    QFileInfo fInfo(strPathOut);
++    if (fInfo.exists())
++    {
++        cout << "Error! The same template already exists. Try with other name" << endl;
++        return;
++    }
++    SaveCommandText(strPathOut, strList);    
++
++    //4) Update template list
++    UpdateCommandFileTemplateList(m_strPathCommandTemplateDir);    
++}
++
+ void register_gui::SaveCommandText(QString& strPathCommand, QStringList& strListLines)
+ {    
+     ofstream fout;
+@@ -1188,7 +1355,8 @@
+         m_strlistBaseName_Command.push_back(tmpInfo2.fileName());
+     }
+ 
+-    UpdateTable_Main(DATA2GUI);
++    UpdateTable_Main(DATA2GUI); //should be called first!
++    SLT_UpdateFileList();
+ }
+ 
+ void register_gui::SLT_ClearCommandFiles()
+@@ -1491,7 +1659,7 @@
+     QString path = QDir::toNativeSeparators(strDirPathOutput);// ..(QApplication::applicationDirPath());
+     QDesktopServices::openUrl(QUrl("file:///" + path));
+ 
+-//
++// Alternative:
+ //#if defined   Q_OS_WIN32
+ //    // start explorer process here. E.g. "explorer.exe C:\windows"
+ //    QString strCommand = QString("explorer %1").arg(strDirPathOutput); //works in linux as well??
+@@ -1505,15 +1673,8 @@
+ //    // start WHATEVER filebrowser here
+ //    QString strCommand = QString("open %1").arg(strDirPathOutput);
+ //    ::system(strCommand.toLocal8Bit().constData());    
+-//#endif   
+-
+-
+-    //H:\CBCT2\CT1\command1
++//#endif
+ 
+-    /*  QString strCurFolder = this->lineEditCurImageSaveFolder->text();
+-      strCurFolder.replace('/', '\\');
+-      QString strCommand = QString("explorer %1").arg(strCurFolder);
+-      ::system(strCommand.toLocal8Bit().constData());*/
+ }
+ 
+ QString register_gui::GetStrInfoFromCommandFile(enPlmCommandInfo plmInfo, QString& strPathCommandFile)
+@@ -1550,6 +1711,7 @@
+     if (infoStrList.count() > 1)
+         infoStr = infoStrList.at(1);
+ 
++    infoStr = infoStr.trimmed(); //remove only first and last spaces
+     if (plmInfo == PLM_OUTPUT_DIR_PATH)
+     {
+         QFileInfo fInfo(infoStr);
+@@ -1596,7 +1758,7 @@
+     return listImgPath;
+ }
+ 
+-
++//Put final command file on 
+ void register_gui::CopyCommandFileToOutput(QString& strPathOriginCommandFile)
+ {
+     QFileInfo fInfo(strPathOriginCommandFile);
+@@ -1656,11 +1818,18 @@
+ 
+ void register_gui::SLTM_ExportQueResult()
+ {
+-    QString strFilePath = QFileDialog::getSaveFileName(this, "Save registration report file", "", "report (*.txt)", 0, 0);
++    QString strFilePath = QFileDialog::getSaveFileName(this, "Save registration report file", m_strPathDirDefault, "report (*.txt)", 0, 0);
+ 
+     if (strFilePath.length() < 1)
+         return;
+ 
++    QFileInfo fInfo(strFilePath);
++
++    if (fInfo.suffix() != "txt" && fInfo.suffix() != "TXT")
++    {
++        strFilePath = strFilePath + ".txt";
++    }
++
+     ExportQueResult(strFilePath);
+ }
+ 
+@@ -1758,100 +1927,431 @@
+ void register_gui::WriteDefaultConfig()
+ {
+     QSettings settings;
++
++    //QString test = QFileInfo(settings.fileName()).absolutePath(); //H:HKEY_CURRENTUSER_SOFTWARE/Plastimatch --> no such folder
++
+     settings.setValue ("DEFAULT_WORK_DIR", m_strPathDirDefault);
+     settings.setValue ("DEFAULT_VIEWER_PATH", m_strPathReadImageApp);
++    //settings.setValue("DEFAULT_TEMPLATE_DIR_PATH", m_strPathCommandTemplateDir);
+ }
+ 
+ bool register_gui::ReadDefaultConfig()
+ {
+-    QSettings settings;
++    QSettings settings;//when this is called, it accesses to some hidden directory
++    //1) default work dir
+     QVariant val = settings.value ("DEFAULT_WORK_DIR");
+     if (!val.isNull()) {
+-        SetWorkDir(val.toString());
++        SetWorkDir(val.toString()); 
+     }
+     else
+     {
+         // Set workdir to folder of current directory
+-        QString m_strPathCurrent = QDir::current().absolutePath();
+-        SetWorkDir(m_strPathCurrent);
++        QString strPathCurrent = QDir::current().absolutePath();
++        SetWorkDir(strPathCurrent);
+     }
++
++    //2) default viewer path
+     val = settings.value ("DEFAULT_VIEWER_PATH");
+     if (!val.isNull()) {
+         SetReadImageApp(val.toString());
+     }
+-}
+ 
+-//create a smaple command file and put it into the working dir
+-void register_gui::SLT_CreateSampleRigid()
+-{   
+-    CreateSampleCommand(PLAST_RIGID);
+-}
++    //3) default template directory
++    /*val = settings.value("DEFAULT_TEMPLATE_DIR_PATH");
++    if (!val.isNull()) {
++        SetCommandTemplateDir(val.toString());
++    }*/
+ 
+-void register_gui::SLT_CreateSampleDeform()
+-{
+-    CreateSampleCommand(PLAST_BSPLINE);
++    return true;
+ }
+ 
+-void register_gui::CreateSampleCommand(enRegisterOption option)
++void register_gui::CreateDefaultCommandFile(enRegisterOption option) //if there is same file, overwrite it
+ {
+-    QString strPathSample;
++    QString strPathDefaultCommand;
+ 
+     if (option == PLAST_RIGID) {
+-        strPathSample = m_strPathDirDefault + "/" + "command_file_rigid.txt";
++        strPathDefaultCommand = m_strPathCommandTemplateDir + "/" + "Default_Rigid.txt";
+     }
+     else if (option == PLAST_BSPLINE) {
+-        strPathSample = m_strPathDirDefault + "/" + "command_file_deform.txt";
++        strPathDefaultCommand = m_strPathCommandTemplateDir + "/" + "Default_B-spline.txt";
++    }
++    else if (option == PLAST_AFFINE) {
++        strPathDefaultCommand = m_strPathCommandTemplateDir + "/" + "Default_Affine.txt";
++    }
++    else if (option == PLAST_GRADIENT) {
++        strPathDefaultCommand = m_strPathCommandTemplateDir + "/" + "Default_Gradient.txt";
+     }
+     else {
+         return;
+     }
+ 
+-    int cnt = 0;
+-    QString strPathNew = strPathSample;
++    QUTIL::GenDefaultCommandFile(strPathDefaultCommand, option);
+ 
+-    while (true)
++    //// GCS logic for template
++    //if (option == PLAST_RIGID) {
++    //    SetTemplateNameFromSample ("Rigid");
++    //}
++    //else if (option == PLAST_BSPLINE) {
++    //    SetTemplateNameFromSample ("B-spline");
++    //}
++    //else {
++    //    return;
++    //}
++}
++
++//void register_gui::SetTemplateNameFromSample (QString& strName)
++//{
++//    ui.comboBox_Template->addItem(strName);
++//}
++
++void register_gui::UpdateCommandFileTemplateList(QString& strPathTemplateDir)
++{
++    //Search in default template directory    
++    if (strPathTemplateDir.length() < 1)
++        return;
++
++    //Look into the specified directory and load all the text files
++    QDir dirCmdTemplate(strPathTemplateDir);
++
++    if (!dirCmdTemplate.exists())
++        return;
++
++    ui.listWidgetCommandTemplate->clear();
++
++    QFileInfoList listFile = dirCmdTemplate.entryInfoList(QDir::Files, QDir::Name); //search for DICOM RS file
++    if (listFile.size() <= 0)
++    {
++        cout << "No template file was found." << endl;
++        return;
++    }
++    else
+     {
+-        QFileInfo fInfoBefore(strPathNew);
+-        if (!fInfoBefore.exists())
++        for (int i = 0; i < listFile.size(); i++)
+         {
+-            break;
++            if (listFile.at(i).suffix().contains("txt", Qt::CaseInsensitive))
++            {
++                QString strBaseName = listFile.at(i).baseName();
++                ui.listWidgetCommandTemplate->addItem(strBaseName);
++            }
+         }
+-
+-        //if exists, try new path        
+-        cnt++;
+-        QString endFix = QString::number(cnt);
+-        strPathNew = QUTIL::GetPathWithEndFix(strPathSample, endFix);
+     }
++}
++
++void register_gui::SLT_CommandTemplateSelected() //when one of the list item selected
++{
++    int curIdx = ui.listWidgetCommandTemplate->currentRow();
++
++    if (curIdx < 0)
++        return;
++    
++    QString strBase = ui.listWidgetCommandTemplate->currentItem()->text();
++    QString curTemplateFilePath = m_strPathCommandTemplateDir + "/" + strBase + ".txt";
++
++    //QString strPathCommand = m_vRegiQue.at(row).m_quePathCommand;
++    QStringList listCurCommand;
++    ReadCommandFile(curTemplateFilePath, listCurCommand);
++    SetCommandViewerText_Main(listCurCommand);
++    
++    QString strDisp = "Template: " + strBase;
++    ui.label_CurCommandFile->setText(strDisp);
++    EnableUIForCommandfile(false);
++}
++
++void register_gui::EnableUIForCommandfile(bool bEnable)
++{    
++    ui.groupBox_CommandFile->setEnabled(bEnable);
++    //could be individualized for each components such as..
++    //ui.plainTextEdit->setEnabled(false);
++}
+ 
+-    QUTIL::GenSampleCommandFile(strPathNew, option);
++void register_gui::SLT_CopyCommandTemplateToDataPool()
++{
++    int curIdx = ui.listWidgetCommandTemplate->currentRow();
++
++    if (curIdx < 0)
++        return;
+ 
+-    QFileInfo fInfoAfter(strPathNew);
++    QString curFileBase = ui.listWidgetCommandTemplate->currentItem()->text();
++    QString strPathSrc = m_strPathCommandTemplateDir + "/" + curFileBase + ".txt";
++    QFileInfo fInfo(strPathSrc);
+ 
+-    if (!fInfoAfter.exists())
++    if (!fInfo.exists())
++        return;
++
++    //Remove "Default"
++
++    QString strNewBase;
++    if (curFileBase.contains("Default_", Qt::CaseInsensitive))
++        strNewBase = curFileBase.replace("Default_", "Custom_", Qt::CaseInsensitive);
++    else
++        strNewBase = "Custom_" + curFileBase;
++
++    //working directory
++    QString strPathTarget = m_strPathDirDefault + "/" + strNewBase + ".txt";
++
++    QString strPathTargetMod; //final file path to avoid overwritten
++
++    if (!WriteCommandNoOverwriting(strPathSrc, strPathTarget, strPathTargetMod)) //write it with end fix if it is to be overwritten
+     {
+-        cout << "Error! failed to generate a sample command file" << endl;
++        cout << "Error in writing." << endl;
+         return;
+     }
++    //    QFile::copy(strPathCommand, strPathCommandNew);
+ 
+-    m_strlistPath_Command.push_back(strPathNew);
+-
+-    UpdateBaseAndComboFromFullPath();
++    m_strlistPath_Command.push_back(strPathTargetMod);
++    QFileInfo tmpInfo2 = QFileInfo(strPathTargetMod);
++    m_strlistBaseName_Command.push_back(tmpInfo2.fileName());
+     UpdateTable_Main(DATA2GUI);
++    SLT_UpdateFileList();  
++}
+ 
+-    // GCS logic for template
+-    if (option == PLAST_RIGID) {
+-        SetTemplateNameFromSample ("Rigid");
++
++bool register_gui::WriteCommandNoOverwriting(QString& strPathSrc, QString& strPathTarget, QString& strPathTargetMod)
++{
++    //strPathSrc exists --> chekced already
++   
++    //Check target path    
++    
++    QFileInfo fInfoTargOriginal(strPathTarget);
++    QString strBaseName = fInfoTargOriginal.baseName();
++
++    QString curPathOutput = strPathTarget;
++    int iEndFix = 0;
++    QString strEndFix = "";
++    while (true)
++    {
++        QFileInfo fInfoTarg(curPathOutput);
++        if (!fInfoTarg.exists()) //good
++        {
++            strPathTargetMod = curPathOutput;
++            break;
++        }
++        else
++        {
++            ++iEndFix;
++            strEndFix = "_" + QString::number(iEndFix);
++            curPathOutput = fInfoTargOriginal.absolutePath() + "/" + strBaseName + strEndFix + "." + fInfoTargOriginal.suffix();
++        }        
+     }
+-    else if (option == PLAST_BSPLINE) {
+-        SetTemplateNameFromSample ("B-spline");
++
++    QFile::copy(strPathSrc, strPathTargetMod);
++
++    return true;
++}
++
++void register_gui::SLT_BrowseWorkingDir()
++{
++    QString strPathDir = m_strPathDirDefault;
++
++    QDir dir(strPathDir);
++    if (!dir.exists())
++    {
++        cout << "Error! No dir exists" << endl;
++        return;
+     }
+-    else {
++    QString path = QDir::toNativeSeparators(strPathDir);// ..(QApplication::applicationDirPath());
++    QDesktopServices::openUrl(QUrl("file:///" + path));
++}
++
++void register_gui::SLT_BrowseTemplateDir()
++{
++    QString strPathDir = m_strPathCommandTemplateDir;
++
++    QDir dir(strPathDir);
++    if (!dir.exists())
++    {
++        cout << "Error! No dir exists" << endl;
+         return;
+     }
++    QString path = QDir::toNativeSeparators(strPathDir);// ..(QApplication::applicationDirPath());
++    QDesktopServices::openUrl(QUrl("file:///" + path));
+ }
+ 
+-void register_gui::SetTemplateNameFromSample (const char *name)
++void register_gui::SLT_DeleteSingleTemplate()
+ {
+-    ui.comboBox_Template->addItem (name);
++    int curIdx = ui.listWidgetCommandTemplate->currentRow();
++
++    if (curIdx < 0)
++        return;
++
++    QString curFileBase = ui.listWidgetCommandTemplate->currentItem()->text();
++    QString strPathSrc = m_strPathCommandTemplateDir + "/" + curFileBase + ".txt";
++    QFileInfo fInfo(strPathSrc);
++
++    if (!fInfo.exists())
++        return;    
++
++    //Get confirmation
++
++    QMessageBox msgBox;
++    QString strMsg = "Command template: " + curFileBase + " will be permanently deleted from the folder. Are you sure?";
++    msgBox.setText(strMsg);
++    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
++    int res = msgBox.exec();
++
++    if (res == QMessageBox::Ok)
++    {
++        //delete the file
++        bool bSuccess = QFile::remove(strPathSrc);
++        if (bSuccess)
++            cout << "Template file: " << strPathSrc.toLocal8Bit().constData() << " was removed. Default templates will be regenerated when restarting the application." << endl;
++        else
++        {
++            cout << "Error! Template file: " << strPathSrc.toLocal8Bit().constData() << " couldn't be removed." << endl;
++            return;
++        }         
++    }
++    UpdateCommandFileTemplateList(m_strPathCommandTemplateDir);
++}
++
++void register_gui::SLTM_ImportDataPool()
++{    
++    QString filePath = QFileDialog::getOpenFileName(this, "Open Data pool log file", m_strPathDirDefault, "Data pool log file (*.dpl)", 0, 0);
++
++    /*if (filePath.length() < 1)
++        return;*/
++
++    QFileInfo fInfo(filePath);
++    if (!fInfo.exists())
++        return;  
++
++    ImportDataPool(filePath);
++}
++
++void register_gui::ImportDataPool(QString& strPathImportTxt)
++{
++    QStringList strList = GetStringListFromFile(strPathImportTxt);
++
++    if (strList.count() < 1)
++        return;
++
++    m_strlistPath_Fixed.clear();
++    m_strlistPath_Moving.clear();
++    m_strlistPath_Command.clear();
++
++    m_strlistBaseName_Fixed.clear();
++    m_strlistBaseName_Moving.clear();
++    m_strlistBaseName_Command.clear();    
++
++    QStringList::const_iterator it = strList.constBegin();
++    QString curStr;
++    QString curStrSub;
++    while (it != strList.constEnd())
++    {
++        curStr = (*it);
++        if (curStr.contains("FIXED_FILE_BEGIN", Qt::CaseSensitive))
++        {    
++            ++it;
++            while (it != strList.end())
++            {
++                curStrSub = (*it);
++
++                if (curStrSub.contains("FIXED_FILE_END", Qt::CaseSensitive))
++                    break;
++                else
++                {
++                    QFileInfo finfo(curStrSub);
++                    if (finfo.exists())
++                        m_strlistPath_Fixed.push_back(curStrSub);                        
++                }
++                ++it;
++            }
++        }
++        else if (curStr.contains("MOVING_FILE_BEGIN", Qt::CaseSensitive))
++        {
++            ++it;
++            while (it != strList.end())
++            {
++                curStrSub = (*it);
++
++                if (curStrSub.contains("MOVING_FILE_END", Qt::CaseSensitive))
++                    break;
++                else
++                {
++                    QFileInfo finfo(curStrSub);
++                    if (finfo.exists())
++                        m_strlistPath_Moving.push_back(curStrSub);
++                }
++                ++it;
++            }
++        }
++        else if (curStr.contains("COMMAND_FILE_BEGIN", Qt::CaseSensitive))
++        {    
++            ++it;
++            while (it != strList.end())
++            {                
++                curStrSub = (*it);
++
++                if (curStrSub.contains("COMMAND_FILE_END", Qt::CaseSensitive))
++                    break;
++                else
++                {
++                    QFileInfo finfo(curStrSub);
++                    if (finfo.exists())
++                        m_strlistPath_Command.push_back(curStrSub);
++                }
++                ++it;
++            }
++        }
++        ++it;
++    }//end of while main
++
++
++    UpdateBaseAndComboFromFullPath();
++    UpdateTable_Main(DATA2GUI); //When updating table, also do it for combo boxes
+ }
+ 
++void register_gui::SLTM_ExportDataPool()
++{
++    QString strFilePath = QFileDialog::getSaveFileName(this, "Save Data pool log file", m_strPathDirDefault, "Datafile (*.dpl)", 0, 0);  
++
++    if (strFilePath.length() < 1)
++        return;        
++
++    QFileInfo fInfo(strFilePath);
++
++    if (fInfo.suffix() != "dpl" && fInfo.suffix() != "DPL")
++    {
++        strFilePath = strFilePath + ".dpl";
++    }
++
++    ExportDataPool(strFilePath);
++}
++
++void register_gui::ExportDataPool(QString& strPathExportTxt)
++{
++    ofstream fout;
++    fout.open(strPathExportTxt.toLocal8Bit().constData());
++    if (fout.fail())
++    {
++        cout << "Writing to file failed" << endl;
++        return;
++    }
++    /*QStringList m_strlistPath_Fixed;
++    QStringList m_strlistPath_Moving;
++    QStringList m_strlistPath_Command;*/
++
++    fout << "#Data pool log file (*.dpl) for plastimatch register_gui" << endl;
++    fout << "%FIXED_FILE_BEGIN%" << endl;
++
++    QStringList::const_iterator it;
++    for (it = m_strlistPath_Fixed.begin(); it != m_strlistPath_Fixed.end(); ++it)
++    {
++        fout << (*it).toLocal8Bit().constData() << endl;
++    }
++    fout << "%FIXED_FILE_END%" << endl;
++
++    fout << "%MOVING_FILE_BEGIN%" << endl;
++    for (it = m_strlistPath_Moving.begin(); it != m_strlistPath_Moving.end(); ++it)
++    {
++        fout << (*it).toLocal8Bit().constData() << endl;
++    }
++    fout << "%MOVING_FILE_END%" << endl;
++    fout << "%COMMAND_FILE_BEGIN%" << endl;
++    for (it = m_strlistPath_Command.begin(); it != m_strlistPath_Command.end(); ++it)
++    {
++        fout << (*it).toLocal8Bit().constData() << endl;
++    }
++    fout << "%COMMAND_FILE_END%" << endl;
++    fout.close();
++}

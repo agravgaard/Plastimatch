@@ -1,0 +1,10 @@
+--- Plastimatch/src/plastimatch/cuda/CMakeLists.txt	2016-08-10 00:01:45.579993857 +0200
++++ GitLabPlastimatch/src/plastimatch/cuda/CMakeLists.txt	2016-08-10 00:54:10.276626311 +0200
+@@ -53,6 +53,7 @@
+       "${PLMCUDA_LIBRARY_SRC}" 
+       "${PLMCUDA_LIBRARY_DEPENDENCIES}"
+       ""
++      "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
+       "")
+   endif ()
+ endif ()

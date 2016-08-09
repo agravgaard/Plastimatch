@@ -145,23 +145,6 @@ Metadata::set_metadata (const std::vector<std::string>& metadata)
 }
 
 void
-Metadata::set_metadata (const std::vector<std::string>& metadata)
-{
-    std::vector<std::string>::const_iterator it = metadata.begin();
-    while (it < metadata.end()) {
-        const std::string& str = (*it);
-        size_t eq_pos = str.find_first_of ('=');
-        if (eq_pos != std::string::npos) {
-            std::string key = str.substr (0, eq_pos);
-            std::string val = str.substr (eq_pos+1);
-            /* Set newer-style metadata, used by dcmtk */
-            this->set_metadata (key, val);
-        }
-        ++it;
-    }
-}
-
-void
 Metadata::print_metadata () const
 {
     std::map<std::string, std::string>::const_iterator it;

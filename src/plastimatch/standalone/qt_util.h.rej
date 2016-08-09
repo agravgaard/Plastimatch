@@ -1,0 +1,20 @@
+--- Plastimatch/src/plastimatch/standalone/qt_util.h	2016-08-10 00:01:45.613327191 +0200
++++ GitLabPlastimatch/src/plastimatch/standalone/qt_util.h	2016-08-10 00:54:10.316626312 +0200
+@@ -1,4 +1,4 @@
+-#ifndef QT_UTIL_H
++﻿#ifndef QT_UTIL_H
+ #define QT_UTIL_H
+ 
+ #include "yk_config.h"
+@@ -54,9 +54,9 @@
+ 
+     QString GetPathWithEndFix(const QString& curFilePath, const QString& strEndFix);
+ 
+-    void GenSampleCommandFile(QString strPathCommandFile, enRegisterOption regiOption);
+-
++    void GenDefaultCommandFile(QString strPathCommandFile, enRegisterOption regiOption);
+ 
++    void GetGeometricLimitFloatImg (FloatImageType::Pointer& spFloatImg, VEC3D& limitStart, VEC3D& limitEnd);
+ 
+     //void UpdateTable3(vector<QPointF>& vData1, vector<QPointF>& vData2, vector<QPointF>& vData3, QTableModel* pTableModel, QTableModel* pTableView);
+     //void UpdateFloatTable3(vector<QPointF>& vData1, vector<QPointF>& vData2, vector<QPointF>& vData3,
