@@ -1,9 +1,0 @@
-[GLOBAL]
-fixed=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
-moving=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
-img_out=@PLM_BUILD_TESTING_DIR@/plm-reg-process-a.mha
-
-[PROCESS]
-action=adjust
-images=fixed,moving
-parms=-inf,0,-500,-500
