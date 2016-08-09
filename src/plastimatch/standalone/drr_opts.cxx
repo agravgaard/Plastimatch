@@ -256,17 +256,17 @@ parse_args (Drr_options* options, int argc, char* argv[])
 	    }
 	}
 	else if (!strcmp (argv[i], "-w")) {
-	    /* Note: user inputs row, then column.  But internally they 
-	       are stored as column, then row. */
+	    /* Note: user inputs row start, row end, 
+               column start, column end */
 	    if (++i >= argc) { print_usage(); }
 	    rc = sscanf (argv[i], "%d %d %d %d",
-		&options->image_window[2],
-		&options->image_window[3],
 		&options->image_window[0],
-		&options->image_window[1]);
+		&options->image_window[1],
+		&options->image_window[2],
+		&options->image_window[3]);
 	    if (rc == 2) {
-		options->image_window[0] = options->image_window[2];
-		options->image_window[1] = options->image_window[3];
+		options->image_window[2] = options->image_window[0];
+		options->image_window[3] = options->image_window[1];
 	    } else if (rc != 4) {
 		print_usage ();
 	    }

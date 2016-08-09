@@ -33,9 +33,6 @@ class Gamma_dose_comparison_private {
 public:
     Gamma_dose_comparison_private ()
     {
-        img_in1 = 0;
-        img_in2 = 0;
-        img_mask = 0;
         labelmap_out = 0;
 
         have_gamma_image = false;
@@ -76,9 +73,9 @@ public:
         progress_callback = 0;
     }
 public:
-    Plm_image *img_in1; /*!< input dose image 1 for gamma analysis*/
-    Plm_image *img_in2; /*!< input dose image 2 for gamma analysis*/
-    Plm_image *img_mask; /*!< input mask image for gamma analysis*/
+    Plm_image::Pointer img_in1; /*!< input dose image 1 for gamma analysis*/
+    Plm_image::Pointer img_in2; /*!< input dose image 2 for gamma analysis*/
+    Plm_image::Pointer img_mask; /*!< input mask image for gamma analysis*/
     Plm_image *labelmap_out; /*!< output uchar type labelmap, voxel value = 1/0 for pass/fail */
 
     /* Gamma image is float type image, voxel value = calculated gamma value */
@@ -150,64 +147,61 @@ Gamma_dose_comparison::~Gamma_dose_comparison () {
 void 
 Gamma_dose_comparison::set_reference_image (const char* image_fn)
 {
-    d_ptr->img_in1 = new Plm_image (image_fn);
+    d_ptr->img_in1 = Plm_image::New (image_fn);
 }
 
 void 
-Gamma_dose_comparison::set_reference_image (Plm_image* image)
+Gamma_dose_comparison::set_reference_image (const FloatImageType::Pointer image)
+{
+    d_ptr->img_in1 = Plm_image::New (image);
+}
+
+void 
+Gamma_dose_comparison::set_reference_image (const Plm_image::Pointer& image)
 {
     d_ptr->img_in1 = image;
 }
 
 void 
-Gamma_dose_comparison::set_reference_image (
-    const FloatImageType::Pointer image)
-{
-    d_ptr->img_in1 = new Plm_image (image);
-}
-
-void 
 Gamma_dose_comparison::set_compare_image (const char* image_fn)
 {
-    d_ptr->img_in2 = new Plm_image (image_fn);
+    d_ptr->img_in2 = Plm_image::New (image_fn);
 }
 
 void 
-Gamma_dose_comparison::set_compare_image (Plm_image* image)
+Gamma_dose_comparison::set_compare_image (const Plm_image::Pointer& image)
 {
     d_ptr->img_in2 = image;
 }
 
 void 
-Gamma_dose_comparison::set_compare_image (
-    const FloatImageType::Pointer image)
+Gamma_dose_comparison::set_compare_image (const FloatImageType::Pointer image)
 {
-    d_ptr->img_in2 = new Plm_image (image);
+    d_ptr->img_in2 = Plm_image::New (image);
 }
 
 void 
 Gamma_dose_comparison::set_mask_image (const std::string& image_fn)
 {
-    d_ptr->img_mask = new Plm_image (image_fn);
+    d_ptr->img_mask = Plm_image::New (image_fn);
 }
 
 void 
 Gamma_dose_comparison::set_mask_image (const char* image_fn)
 {
-    d_ptr->img_mask = new Plm_image (image_fn);
+    d_ptr->img_mask = Plm_image::New (image_fn);
 }
 
 void 
-Gamma_dose_comparison::set_mask_image (Plm_image* image)
+Gamma_dose_comparison::set_mask_image (const Plm_image::Pointer& image)
 {
     d_ptr->img_mask = image;
 }
 
 void 
-Gamma_dose_comparison::set_mask_image (
-    const UCharImageType::Pointer image)
+Gamma_dose_comparison::set_mask_image (const UCharImageType::Pointer image)
 {
-    d_ptr->img_mask = new Plm_image (image);
+    d_ptr->img_mask = Plm_image::New (image);
 }
 
 float
@@ -384,7 +378,8 @@ float Gamma_dose_comparison::get_reference_dose()
 
 void 
 Gamma_dose_comparison::resample_image_to_reference (
-    Plm_image *image_reference, Plm_image *image_moving)
+    const Plm_image::Pointer& image_reference,
+    Plm_image::Pointer& image_moving)
 {
     Plm_image_header pih;
     pih.set_from_plm_image (image_reference);
@@ -401,7 +396,7 @@ Gamma_dose_comparison::resample_image_to_reference (
 
 void 
 Gamma_dose_comparison::resample_image_with_fixed_spacing (
-    Plm_image *input_img, float spacing[3])
+    Plm_image::Pointer& input_img, float spacing[3])
 {	
     Plm_image_header pih;
     pih.set_from_plm_image (input_img);	
@@ -1082,12 +1077,12 @@ void Gamma_dose_comparison::set_interp_search(bool b_interp_search)
 
 Plm_image* Gamma_dose_comparison::get_ref_image()
 {
-    return d_ptr->img_in1;
+    return d_ptr->img_in1.get();
 }
 
 Plm_image* Gamma_dose_comparison::get_comp_image()
 {
-    return d_ptr->img_in2;
+    return d_ptr->img_in2.get();
 }
 
 bool Gamma_dose_comparison::is_ref_only_threshold()

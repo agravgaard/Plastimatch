@@ -122,7 +122,7 @@ Image_boundary_private::run ()
     unsigned char *img_in = (unsigned char*) vol_in->img;
 
     /* Allocate output image */
-    Plm_image *pli_out = pli_in.clone ();
+    Plm_image::Pointer pli_out = pli_in.clone ();
     Volume::Pointer vol_out = pli_out->get_volume_uchar ();
     unsigned char *img_out = (unsigned char*) vol_out->img;
 
@@ -141,9 +141,6 @@ Image_boundary_private::run ()
 
     /* Save the output image */
     this->output_image = pli_out->itk_uchar ();
-
-    /* Clean up */
-    delete pli_out;
 }
 
 Image_boundary::Image_boundary ()

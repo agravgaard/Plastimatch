@@ -10,13 +10,6 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkOrientImageFilter.h"
-#if (defined(_WIN32) || defined(WIN32))
-#define snprintf _snprintf
-#define mkdir(a,b) _mkdir(a)
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
 
 #include "file_util.h"
 #include "itk_dicom_save.h"

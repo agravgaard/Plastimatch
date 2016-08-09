@@ -98,7 +98,7 @@ if (NOT CMAKE_Fortran_COMPILER_WORKS)
 endif ()
 
 ## If we didn't get XiO dicom-rt test data, don't run these tests
-if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/chest-phantom-dicomrt-xio-4.33.02")
+if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/dicomrt-xio-4.33.02-chest-phantom")
   set (CTEST_CUSTOM_TESTS_IGNORE
     ${CTEST_CUSTOM_TESTS_IGNORE}
     "plm-convert-dicom-xio-a"
@@ -128,7 +128,7 @@ if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/chest-phantom-dicomrt-xio-4.33.02")
 endif ()
 
 ## If we didn't get xio test data, don't run xio tests
-if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/chest-phantom-xio-4.33.02")
+if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/xio-4.33.02-chest-phantom")
   set (CTEST_CUSTOM_TESTS_IGNORE
     ${CTEST_CUSTOM_TESTS_IGNORE}
     "plm-convert-xio-a"
@@ -160,7 +160,7 @@ if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/rtog-corvus-6.2.2")
 endif ()
 
 ## If we didn't get aw (foot) test data, don't run these tests
-if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/foot-dicomrt-aw-4.4")
+if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/dicomrt-aw-4.4-foot")
   set (CTEST_CUSTOM_TESTS_IGNORE
     ${CTEST_CUSTOM_TESTS_IGNORE}
     "plm-convert-dicom-aw-a" 
@@ -171,12 +171,12 @@ if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/foot-dicomrt-aw-4.4")
 endif ()
 
 ## If we didn't get cerr test data, don't run these tests
-if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/chest-phantom-dicomrt-CERR4pt0beta2_25_Jan_2011")
-  set (CTEST_CUSTOM_TESTS_IGNORE
-    ${CTEST_CUSTOM_TESTS_IGNORE}
-    "plm-convert-dicom-cerr-a" 
-    )
-endif ()
+# if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/chest-phantom-dicomrt-CERR4pt0beta2_25_Jan_2011")
+#   set (CTEST_CUSTOM_TESTS_IGNORE
+#     ${CTEST_CUSTOM_TESTS_IGNORE}
+#     "plm-convert-dicom-cerr-a" 
+#     )
+# endif ()
 
 ## If we didn't get corvus test data, don't run these tests
 if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/dicomrt-corvus-6.2.2")
@@ -195,7 +195,7 @@ if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/xio-4.60-irregular-spacing")
 endif ()
 
 ## If we didn't get pinnacle test data, don't run these tests
-if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}//rando-dicomrt-pinnacle3-8.2g")
+if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/dicomrt-pinnacle3-8.2g-rando")
   set (CTEST_CUSTOM_TESTS_IGNORE
     ${CTEST_CUSTOM_TESTS_IGNORE}
     "plm-convert-dicom-pinnacle-a" 
@@ -215,7 +215,7 @@ if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/dicomrt-33-structures")
 endif ()
 
 ## If we didn't get varian fdk test data, don't run these tests
-if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/varian-catphan")
+if (NOT EXISTS "${PLM_BUILD_TESTING_DIR}/varian-catphan-subset")
   set (CTEST_CUSTOM_TESTS_IGNORE
     ${CTEST_CUSTOM_TESTS_IGNORE}
     "fdk-cpu-b"
@@ -333,9 +333,23 @@ if (PLM_CONFIG_DEBIAN_BUILD)
   set (CTEST_CUSTOM_TESTS_IGNORE
     ${CTEST_CUSTOM_TESTS_IGNORE}
     "proton-dose-1"
+    "proton-dose-1-stats"
+    "proton-dose-1-check"
     "proton-dose-2"
+    "proton-dose-2-stats"
+    "proton-dose-2-check"
     "proton-dose-3"
-    "proton-dose-4"
+    "proton-dose-3-stats"
+    "proton-dose-3-check"
+    "proton-dose-5a"
+    "proton-dose-5a-stats"
+    "proton-dose-5a-check"
+    "proton-dose-5g"
+    "proton-dose-5g-stats"
+    "proton-dose-5g-check"
+    "proton-dose-6a"
+    "proton-dose-6a-stats"
+    "proton-dose-6a-check"
     )
 endif ()
 

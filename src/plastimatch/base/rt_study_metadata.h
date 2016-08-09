@@ -18,6 +18,12 @@ class Plm_image_header;
 class Slice_list;
 class Volume;
 
+/*! \brief 
+ * The Rt_study_metadata encapsulate DICOM metadata for an Rt_study. 
+ * The Rt_study_metadata includes separate metadata for image, dose, 
+ * and structure set (rtss), as well as a study_metadata which is 
+ * shared by all components.  Items such as Patient Name or Study Description
+ * will be held in study_metadata. */
 class PLMBASE_API Rt_study_metadata {
 public:
     SMART_POINTER_SUPPORT (Rt_study_metadata);
@@ -71,11 +77,20 @@ public:
         const std::string& val);
     Metadata::Pointer& get_image_metadata ();
     const Metadata::Pointer& get_image_metadata () const;
+    const std::string& get_image_metadata (unsigned short key1, 
+        unsigned short key2);
+    void set_image_metadata (unsigned short key1, unsigned short key2,
+        const std::string& val);
     Metadata::Pointer& get_rtss_metadata ();
     const Metadata::Pointer& get_rtss_metadata () const;
+    void set_rtss_metadata (unsigned short key1, unsigned short key2,
+        const std::string& val);
     Metadata::Pointer& get_dose_metadata ();
     const Metadata::Pointer& get_dose_metadata () const;
-    void generate_new_uids ();
+    void set_dose_metadata (unsigned short key1, unsigned short key2,
+        const std::string& val);
+    void generate_new_study_uids ();
+    void generate_new_series_uids ();
 };
 
 #endif

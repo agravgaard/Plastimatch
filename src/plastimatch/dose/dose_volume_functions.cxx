@@ -67,7 +67,7 @@ calculate_rpl_coordinates_xyz(std::vector<std:: vector<double> >* xyz_coordinate
     double ray_bev[3] = {0.0,0.0,0.0};
     double vec_antibug_prt[3] = {0.0,0.0,0.0};
 
-    int dim[3] = {rpl_volume->get_vol()->dim[0],rpl_volume->get_vol()->dim[1],rpl_volume->get_vol()->dim[2]};
+    const plm_long *dim = rpl_volume->get_vol()->dim;
     int idx2d = 0;   
     int idx3d = 0;
 

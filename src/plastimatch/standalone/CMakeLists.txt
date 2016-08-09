@@ -214,23 +214,23 @@ endif()
 if (ITK_FOUND)
   plm_add_executable (compute_distance "${COMPUTE_DISTANCE_SRC}" 
     "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
-    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
   plm_add_executable (dicom_info "${DICOM_INFO_SRC}"
     "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
-    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
   plm_add_executable (landmark_diff "${LANDMARK_DIFF_SRC}" 
     "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
     ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
   plm_add_executable (merge_vfs  "${MERGE_VFS_SRC}"
     "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
-    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
   plm_add_executable (shuffle_mha "${SHUFFLE_MHA_SRC}"
     "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
-    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+    ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
   if (PLM_BUILD_VISCOUS)
     plm_add_executable (viscous "${VISCOUS_SRC}"
       "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
-      ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+      ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
   endif ()
   plm_add_executable (vf_invert "${VF_INVERT_SRC}"
       "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
@@ -303,7 +303,7 @@ plm_add_executable (demons "${DEMONS_SRC}"
   ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
 plm_add_executable (dlib_train "${DLIB_TRAIN_SRC}" 
   "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
-  ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+  ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
 plm_add_executable (drr "${DRR_SRC}" 
   "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
   ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_ALWAYS})
@@ -315,13 +315,13 @@ plm_add_executable (hnd_to_pfm "${HND_TO_PFM_SRC}"
   ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
 plm_add_executable (mha_to_raw "${MHA_TO_RAW_SRC}"
   "" ""
-  ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+  ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
 plm_add_executable (proton_dose "${PROTON_DOSE_SRC}" 
   "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
   ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
 plm_add_executable (raw_to_mha "${RAW_TO_MHA_SRC}"
   "" "" 
-  ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_IF_NOT_DEBIAN})
+  ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})
 plm_add_executable (bragg_curve "${BRAGG_CURVE_SRC}" 
   "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
   ${BUILD_IF_NOT_SLICER_EXT} ${INSTALL_NEVER})

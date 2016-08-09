@@ -46,6 +46,7 @@ PLMSYS_API bool string_value_false (const char* s);
 PLMSYS_API bool string_value_false (const std::string& s);
 
 template <typename T> PLMSYS_API std::string PLM_to_string(T value);
+template <typename T> PLMSYS_API std::string PLM_to_string(T *value, int n);
 
 PLMSYS_API std::vector<std::string>& string_split (const std::string &s, char delim, std::vector<std::string> &elems);
 PLMSYS_API std::vector<std::string> string_split (const std::string &s, char delim);

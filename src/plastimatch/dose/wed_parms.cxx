@@ -161,7 +161,8 @@ Wed_Parms::set_key_val (
         /* [INPUT SETTINGS] */
     case 0:
         //Whether wed or reverse, input patient and rpl vol
-        if (!strcmp (key, "ct")) {
+        /* patient is legacy term */
+        if (!strcmp (key, "ct") || !strcmp (key, "patient")) {
             this->input_ct_fn = val;
         }
         else if (!strcmp (key, "proj_wed")) {
@@ -176,7 +177,7 @@ Wed_Parms::set_key_val (
             this->input_dose_fn = val;
         }
         //If reverse wed procedure, input dose_wed
-        else if (!strcmp (key, "wed_dose")) {
+        else if (!strcmp (key, "wed_dose") || !strcmp (key, "dose_wed")) {
             this->input_wed_dose_fn = val;
         }
         //If in depth/segmentation mode, input segment
@@ -196,10 +197,12 @@ Wed_Parms::set_key_val (
         else if (!strcmp (key, "proj_dose")) {
             this->output_proj_dose_fn = val;
         }
-        else if (!strcmp (key, "wed_ct")) {
+        /* patient_wed is legacy term */
+        else if (!strcmp (key, "wed_ct") || !strcmp (key, "patient_wed")) {
             this->output_wed_ct_fn = val;
         }
-        else if (!strcmp (key, "wed_dose")) {
+        /* dose_wed is legacy term */
+        else if (!strcmp (key, "wed_dose") || !strcmp (key, "dose_wed")) {
             this->output_wed_dose_fn = val;
         }
         else if (!strcmp (key, "ct")) {
@@ -208,7 +211,8 @@ Wed_Parms::set_key_val (
         else if (!strcmp (key, "dew_ct")) {
             this->output_dew_ct_fn = val;
         }
-        else if (!strcmp (key, "dew_dose")) {
+        /* dose is legacy term */
+        else if (!strcmp (key, "dew_dose") || !strcmp (key, "dose")) {
             this->output_dew_dose_fn = val;
         }
 #if defined (commentout)

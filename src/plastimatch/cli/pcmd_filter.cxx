@@ -15,6 +15,7 @@
 #include "synthetic_mha.h"
 #include "volume_conv.h"
 #include "volume_gaussian.h"
+#include "volume_grad.h"
 
 static Plm_image::Pointer
 create_gabor_kernel (const Filter_parms *parms, const Plm_image::Pointer& img)
@@ -101,6 +102,11 @@ filter_main (Filter_parms* parms)
             parms->gauss_width, 
             2.0);
     }
+    else if (parms->filter_type == Filter_parms::FILTER_TYPE_GRADIENT_MAGNITUDE)
+    {
+        volume_out = volume_gradient_magnitude (
+            img->get_volume_float());
+    }
     else if (parms->filter_type == Filter_parms::FILTER_TYPE_KERNEL)
     {
         /* Not yet implemented */
@@ -161,7 +167,7 @@ parse_fn (
     /* Main pattern */
     parser->add_long_option ("", "pattern",
         "filter type: {"
-        "gabor, gauss, kernel"
+        "gabor, gauss, gm, kernel"
         "}, default is gauss", 
         1, "gauss");
 
@@ -206,6 +212,9 @@ parse_fn (
     }
     else if (arg == "gauss") {
         parms->filter_type = Filter_parms::FILTER_TYPE_GAUSSIAN_SEPARABLE;
+    }
+    else if (arg == "gm") {
+        parms->filter_type = Filter_parms::FILTER_TYPE_GRADIENT_MAGNITUDE;
     }
     else if (arg == "kernel") {
         parms->filter_type = Filter_parms::FILTER_TYPE_KERNEL;

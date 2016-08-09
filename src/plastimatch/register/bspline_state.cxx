@@ -14,6 +14,7 @@
 #include "bspline.h"
 #if (CUDA_FOUND)
 #include "bspline_cuda.h"
+#include "cuda_util.h"
 #endif
 #include "bspline_interpolate.h"
 #include "bspline_landmarks.h"
@@ -149,15 +150,25 @@ bspline_cuda_state_create (
 )
 {
 #if (CUDA_FOUND)
+    if (parms->threading != BTHR_CUDA) {
+        return;
+    }
+
+    /* Set the gpuid */
+    LOAD_LIBRARY_SAFE (libplmcuda);
+    LOAD_SYMBOL (CUDA_selectgpu, libplmcuda);
+    CUDA_selectgpu (parms->gpuid);
+    UNLOAD_LIBRARY (libplmcuda);
+    
     Volume *fixed = parms->fixed;
     Volume *moving = parms->moving;
     Volume *moving_grad = parms->moving_grad;
 
     Dev_Pointers_Bspline* dev_ptrs 
         = (Dev_Pointers_Bspline*) malloc (sizeof (Dev_Pointers_Bspline));
-
     bst->dev_ptrs = dev_ptrs;
-    if ((parms->threading == BTHR_CUDA) && (parms->metric_type[0] == REGISTRATION_METRIC_MSE)) {
+    
+    if (parms->metric_type[0] == REGISTRATION_METRIC_MSE) {
         /* Be sure we loaded the CUDA plugin */
         LOAD_LIBRARY_SAFE (libplmregistercuda);
         LOAD_SYMBOL (CUDA_bspline_mse_init_j, libplmregistercuda);
@@ -176,8 +187,7 @@ bspline_cuda_state_create (
 
         UNLOAD_LIBRARY (libplmregistercuda);
     } 
-    else if ((parms->threading == BTHR_CUDA) && (parms->metric_type[0] == REGISTRATION_METRIC_MI_MATTES)) {
-
+    else if (parms->metric_type[0] == REGISTRATION_METRIC_MI_MATTES) {
         /* Be sure we loaded the CUDA plugin */
         LOAD_LIBRARY_SAFE (libplmregistercuda);
         LOAD_SYMBOL (CUDA_bspline_mi_init_a, libplmregistercuda);
@@ -209,17 +219,21 @@ bspline_cuda_state_destroy (
 )
 {
 #if (CUDA_FOUND)
+    if (parms->threading != BTHR_CUDA) {
+        return;
+    }
+
     Volume *fixed = parms->fixed;
     Volume *moving = parms->moving;
     Volume *moving_grad = parms->moving_grad;
 
-    if ((parms->threading == BTHR_CUDA) && (parms->metric_type[0] == REGISTRATION_METRIC_MSE)) {
+    if (parms->metric_type[0] == REGISTRATION_METRIC_MSE) {
         LOAD_LIBRARY_SAFE (libplmregistercuda);
         LOAD_SYMBOL (CUDA_bspline_mse_cleanup_j, libplmregistercuda);
         CUDA_bspline_mse_cleanup_j ((Dev_Pointers_Bspline *) bst->dev_ptrs, fixed, moving, moving_grad);
         UNLOAD_LIBRARY (libplmregistercuda);
     }
-    else if ((parms->threading == BTHR_CUDA) && (parms->metric_type[0] == REGISTRATION_METRIC_MI_MATTES)) {
+    else if (parms->metric_type[0] == REGISTRATION_METRIC_MI_MATTES) {
         LOAD_LIBRARY_SAFE (libplmregistercuda);
         LOAD_SYMBOL (CUDA_bspline_mi_cleanup_a, libplmregistercuda);
         CUDA_bspline_mi_cleanup_a ((Dev_Pointers_Bspline *) bst->dev_ptrs, fixed, moving, moving_grad);

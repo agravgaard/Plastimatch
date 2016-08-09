@@ -34,6 +34,7 @@ Bspline_parms::Bspline_parms ()
 
     this->lbfgsb_factr = 1.0e+7;
     this->lbfgsb_pgtol = 1.0e-5;
+    this->lbfgsb_mmax = -1;
 
     this->fixed = 0;
     this->moving = 0;

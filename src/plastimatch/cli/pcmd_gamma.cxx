@@ -32,29 +32,29 @@ gamma_main (Gamma_parms* parms)
 
     if (file_type_ref == PLM_FILE_FMT_DICOM_DOSE) {
         rt_study_ref.load(parms->ref_image_fn.c_str(), file_type_ref);
-        if (rt_study_ref.has_dose()){
-            gdc.set_reference_image(rt_study_ref.get_dose()->clone());
+        if (rt_study_ref.has_dose()) {
+            gdc.set_reference_image (rt_study_ref.get_dose());
         }
-        else{
-            gdc.set_reference_image(parms->ref_image_fn.c_str());
+        else {
+            gdc.set_reference_image (parms->ref_image_fn.c_str());
         }
     }
     else {
-        gdc.set_reference_image(parms->ref_image_fn.c_str());
+        gdc.set_reference_image (parms->ref_image_fn.c_str());
     }
 
     if (file_type_comp == PLM_FILE_FMT_DICOM_DOSE) {
         rt_study_comp.load(parms->cmp_image_fn.c_str(), file_type_comp);
         if (rt_study_comp.has_dose()) {
-            gdc.set_compare_image(rt_study_comp.get_dose()->clone());
+            gdc.set_compare_image (rt_study_comp.get_dose());
         }
         else {
-            gdc.set_compare_image(parms->cmp_image_fn.c_str());
+            gdc.set_compare_image (parms->cmp_image_fn.c_str());
         }
 
     }
     else {
-        gdc.set_compare_image(parms->cmp_image_fn.c_str());
+        gdc.set_compare_image (parms->cmp_image_fn.c_str());
     }
     //End DICOM-RD    
 

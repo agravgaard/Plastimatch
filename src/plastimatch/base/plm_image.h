@@ -16,7 +16,6 @@ class Plm_image_header;
 class Plm_image;
 class Plm_image_private;
 class Rt_study_metadata;
-class Slice_index;
 
 /*! \brief 
  * The Plm_image class represents a three-dimensional volume.  
@@ -91,7 +90,7 @@ public:
     void init ();
     void free ();
     bool have_image ();
-    Plm_image* clone (void);
+    Plm_image::Pointer clone (void);
     void create (Plm_image_type type, const Plm_image_header& pih);
 
     /* Loading */

@@ -66,9 +66,7 @@ do_synthetic_mha (Synthetic_mha_main_parms *parms)
 
     /* ss_img */
     if (parms->output_ss_img_fn != "") {
-#if (PLM_CONFIG_USE_SS_IMAGE_VEC)
         rtds.get_rtss()->convert_to_uchar_vec ();
-#endif
         rtds.get_rtss()->save_ss_image (parms->output_ss_img_fn);
     }
 

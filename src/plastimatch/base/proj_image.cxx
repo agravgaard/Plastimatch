@@ -65,10 +65,12 @@ void
 Proj_image::clear ()
 {
     if (this->pmat) {
-        free (this->pmat);
+        delete pmat;
+        this->pmat = 0;
     }
     if (this->img) {
         free (this->img);
+        this->img = 0;
     }
 }
 
@@ -399,38 +401,38 @@ proj_image_create_img (Proj_image *proj, int dim[2])
 }
 
 void
-proj_image_debug_header (Proj_image *proj)
+Proj_image::debug_header ()
 {
     int i;
-    printf ("Image center: %g %g\n", proj->pmat->ic[0], proj->pmat->ic[1]);
+    printf ("Image center: %g %g\n", this->pmat->ic[0], this->pmat->ic[1]);
     printf ("Projection matrix: ");
     for (i = 0; i < 12; i++) {
-        printf ("%g ", proj->pmat->matrix[i]);
+        printf ("%g ", this->pmat->matrix[i]);
     }
     printf ("\n");
 }
 
 void
-proj_image_stats (Proj_image *proj)
+Proj_image::stats ()
 {
     int i, num;
     float min_val, max_val;
     double sum = 0.0;
 
-    if (!proj) {
+    if (!this) {
         printf ("No image.\n");
         return;
     }
 
-    num = proj->dim[0]*proj->dim[1];
-    if (!proj->img || num == 0) {
+    num = this->dim[0]*this->dim[1];
+    if (!this->img || num == 0) {
         printf ("No image.\n");
         return;
     }
     
-    min_val = max_val = proj->img[0];
+    min_val = max_val = this->img[0];
     for (i = 0; i < num; i++) {
-        float v = proj->img[i];
+        float v = this->img[i];
         if (min_val > v) min_val = v;
         if (max_val < v) max_val = v;
         sum += v;
@@ -467,30 +469,29 @@ Proj_image::load (
 }
 
 void
-proj_image_save (
-    Proj_image *proj,
+Proj_image::save (
     const char *img_filename,
     const char *mat_filename
 )
 {
     if (img_filename) {
         if (extension_is (img_filename, ".pfm")) {
-            pfm_save (proj, img_filename);
+            pfm_save (this, img_filename);
         }
         else if (extension_is (img_filename, ".raw")) {
-            raw_save (proj, img_filename);
+            raw_save (this, img_filename);
         }
         else if (extension_is (img_filename, ".pgm")) {
-            pgm_save (proj, img_filename);
+            pgm_save (this, img_filename);
         }
 #if defined (commentout)
         else if (extension_is (img_filename, "mha.")) {
-            mha_save (proj, img_filename);
+            mha_save (this, img_filename);
         }
 #endif
     }
     if (mat_filename) {
-        proj->pmat->save (mat_filename);
+        this->pmat->save (mat_filename);
     }
 }
 

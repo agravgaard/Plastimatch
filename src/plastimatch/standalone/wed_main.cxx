@@ -294,9 +294,18 @@ do_wed (Wed_Parms *parms)
     /* Load the input proj_wed */
     Rpl_volume::Pointer proj_wed = Rpl_volume::New ();
     if (parms->input_proj_wed_fn != "") {
-        proj_wed->load (parms->input_proj_wed_fn);
+        proj_wed->load_rpl (parms->input_proj_wed_fn);
     }
 
+    /* Load the input wed_dose */
+    Plm_image::Pointer wed_dose;
+    if (parms->input_wed_dose_fn != "") {
+        printf("Loading input wed_dose: %s\n",parms->input_wed_dose_fn.c_str());
+        wed_dose = plm_image_load (parms->input_wed_dose_fn.c_str(), 
+            PLM_IMG_TYPE_ITK_FLOAT);
+    }
+
+    /* Load the skin */
     if (parms->input_skin_fn != "") {
         printf ("Skin file defined.  Modifying input ct...\n");
  
@@ -313,6 +322,7 @@ do_wed (Wed_Parms *parms)
         }
     }
   
+    /* Set up the beam */
     Aperture::Pointer aperture = Aperture::New();
     aperture->set_distance (parms->ap_offset);
     aperture->set_spacing (parms->ap_spacing);
@@ -358,94 +368,6 @@ do_wed (Wed_Parms *parms)
     /* Compute the rpl volume */
     rpl.compute_rpl_PrSTRP_no_rgc ();
 
-#if defined (commentout)
-    //Note: Set dimensions first, THEN center, as set_dim() also changes center
-    int ap_res[2];
-    float ap_center[2];
-
-    //Aperture dimensions
-    if (parms->have_ires) {
-        beam.get_aperture()->set_dim (parms->ires);
-	//If dew, pad each by one for interpolations
-	if (parms->mode==1)  {
-            ap_res[0] = (int) (parms->ires[0]+2);
-            ap_res[1] = (int) (parms->ires[1]+2);
-            beam.get_aperture()->set_dim (ap_res);
-            parms->ires[0]=ap_res[0];
-            parms->ires[1]=ap_res[1];
-	}
-    }
-    //If dew option, and not specified in .cfg files, then we guess
-    //at some scene dimensions set by input wed image.
-
-    else if (parms->mode==1) {
-        Volume *wed_vol = dose_vol->get_volume_float().get();
-        //Grab aperture dimensions from input wed.
-        //We also pad each dimension by 1, for the later trilinear 
-        //interpolations.
-        ap_res[0] = (int) (wed_vol->dim[0]+2);
-        ap_res[1] = (int) (wed_vol->dim[1]+2);
-  
-        beam.get_aperture()->set_dim (ap_res);
-        parms->ires[0]=ap_res[0];
-        parms->ires[1]=ap_res[1];
-    }
-
-    //Aperture Center
-    //Note - Center MUST be reset here if set in the config file, as set_dim()
-    //will reset the center.
-    if (parms->have_ic) {
-
-        if (parms->mode==1) {
-
-            //If center is not defined in config file (in general,
-            //it shouldn't be), then default values should be reset
-            if ((parms->ic[0]==-99.5)&&(parms->ic[1]==-99.5))  {
-                Volume *wed_vol = dose_vol->get_volume_float().get();
-                parms->ic[0] = wed_vol->origin[0] + wed_vol->dim[0];
-                parms->ic[1] = wed_vol->origin[1] + wed_vol->dim[1];
-            }
-
-            //else set it at the center
-            else {
-                ap_center[0] = parms->ic[0]+1.*parms->ap_spacing[0];
-                ap_center[1] = parms->ic[1]+1.*parms->ap_spacing[1];
-                beam.get_aperture()->set_center (ap_center);
-            }
-        }
-
-        else {
-            ap_center[0] = parms->ic[0];
-            ap_center[1] = parms->ic[1];
-            beam.get_aperture()->set_center (ap_center);
-        }
-
-    }
-    //And again, guess if not specified.
-    //Note - add the dew option below if not specified.
-    else if (parms->mode==1)  {
-        //Set center as half the resolutions.
-        ap_center[0] = (float) ap_res[0]/2.;
-        ap_center[1] = (float) ap_res[1]/2.;
-        beam.get_aperture()->set_center (ap_center);
-        parms->ic[0]=ap_center[0];
-        parms->ic[1]=ap_center[1];
-    } 
-    beam.set_step_length(parms->ray_step);
-
-    /* Try to setup the scene with the provided parameters.
-       This function computes the rpl volume. */
-    if (!scene.prepare_beam_for_calc (&beam)) {
-        print_and_exit ("ERROR: Unable to initilize scene.\n");
-    }
-
-    /* Save rpl volume if requested */
-    Rpl_volume* rpl_vol = beam.rpl_vol;
-    if (parms->output_proj_wed_fn != "") {
-        rpl_vol->save (parms->output_proj_wed_fn);
-    }
-#endif
-
     if (parms->output_proj_wed_fn != "") {
         rpl.save (parms->output_proj_wed_fn);
     }
@@ -457,12 +379,31 @@ do_wed (Wed_Parms *parms)
         Plm_image(dew_vol).save_image(parms->output_dew_ct_fn);
     }
 
+    if (parms->output_dew_dose_fn != "") {
+        if (!wed_dose) {
+            print_and_exit ("Error, dew_dose requested but no wed_dose supplied.\n");
+        }
+        Volume* dew_vol = create_dew_volume (parms, wed_dose->get_volume_float());
+        rpl.compute_dew_volume (wed_dose->get_volume_float().get(), 
+            dew_vol, 0);
+        Plm_image(dew_vol).save_image(parms->output_dew_dose_fn);
+    }
+
     if (parms->output_wed_ct_fn != "") {
-        printf ("Computing patient wed volume...\n");
+        printf ("Computing wed ct volume...\n");
 	Volume *wed_vol = create_wed_volume (parms, &rpl);
         rpl.compute_wed_volume (wed_vol, ct_vol->get_volume_float().get(), 
             background[0]);
         Plm_image(wed_vol).save_image(parms->output_wed_ct_fn);
+        printf ("done.\n");
+    }
+
+    if (parms->output_wed_dose_fn != "") {
+        printf ("Computing wed dose volume...\n");
+	Volume *wed_vol = create_wed_volume (parms, &rpl);
+        rpl.compute_wed_volume (wed_vol, dose_vol->get_volume_float().get(), 
+            background[1]);
+        Plm_image(wed_vol).save_image(parms->output_wed_dose_fn);
         printf ("done.\n");
     }
 
@@ -471,6 +412,7 @@ do_wed (Wed_Parms *parms)
         rpl.compute_rpl_HU ();
         rpl.save (parms->output_proj_ct_fn);
     }
+
 }
 
 int
@@ -482,25 +424,6 @@ main (int argc, char* argv[])
     if (!parms->parse_args (argc, argv)) {
         exit (0); 
     }
-
-#if defined (commentout)  
-    if (parms->group)  {
-        int wed_iter = 0;
-    
-        while(wed_iter!=parms->group)  {
-            if (parms->group) {
-                parms->parse_group(argc, argv, wed_iter);
-                do_wed (parms);
-                wed_iter++;
-            }
-      
-        }
-    }
-    else {
-        //Compute wed without loop
-        do_wed (parms);
-    }
-#endif
 
     do_wed (parms);
 

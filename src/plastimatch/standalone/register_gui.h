@@ -1,4 +1,4 @@
-#ifndef REGISTER_GUI_H
+﻿#ifndef REGISTER_GUI_H
 #define REGISTER_GUI_H
 
 #include <QtGui/QMainWindow>
@@ -61,17 +61,34 @@ public:
     void CopyCommandFileToOutput(QString& strPathOriginCommandFile);
 
     void ExportQueResult(QString& strPathOut);
+    void InitConfig();
+    void WriteDefaultTemplateFiles(QString& targetDirPath);
+
+    void ReadCommandFile(QString& strPathCommandFile, QStringList& strListOutput);    
+    bool WriteCommandNoOverwriting(QString& strPathSrc, QString& strPathTarget, QString& strPathTargetMod);
+
+    void EnableUIForCommandfile(bool bEnable);
+
+
+    void ImportDataPool(QString& strPathImportTxt);
+    void ExportDataPool(QString& strPathImportTxt);    
 
     public slots:                
         void SLT_SetDefaultDir();        
         void SLT_LoadFixedFiles();
         void SLT_LoadMovingFiles();
         void SLT_LoadCommandFiles();       
+        
         void SLT_ReadCommandFile_Main(QModelIndex index); //(QModelIndex& index) didn't work
         void SLT_ReadCommandFile_Que(QModelIndex index); //(QModelIndex& index) didn't work        
-        void SLT_SelectionChangedMain(QItemSelection curItem, QItemSelection prevItem);
+        void SLT_SelectionChangedMain(QItemSelection curItem, QItemSelection prevItem); //prevItem is not being used now
+        void SLT_ItemClickedMain(); //single clicked
+
         void SLT_SelectionChangedQue(QItemSelection curItem, QItemSelection prevItem);
-        void SLT_SaveCommandText();        
+        void SLT_ItemClickedQue(); //single clicked
+
+        void SLT_SaveCommandText();       
+        void SLT_SaveCommandFileAsTemplate();
 
         void SLT_AddSingleToQue();
         void SLT_AddMultipleToQueByLine();
@@ -99,8 +116,19 @@ public:
 
         void SLT_OpenSelectedOutputDir();
         void SLT_ViewSelectedImg();
-        void SLT_CreateSampleRigid();
-        void SLT_CreateSampleDeform();
+        //void SLT_CreateSampleRigid();
+        //void SLT_CreateSampleDeform();
+        void SLT_CommandTemplateSelected();
+        void SLT_CopyCommandTemplateToDataPool();    
+        void SLT_BrowseWorkingDir();
+        void SLT_BrowseTemplateDir();
+        void SLT_DeleteSingleTemplate();
+
+        
+        void SLTM_ImportDataPool();
+        void SLTM_ExportDataPool();
+
+        
 
 public:    
     QStringList m_strlistPath_Fixed;
@@ -120,6 +148,9 @@ public:
 
     void SetWorkDir(const QString& strPath);
     void SetReadImageApp(const QString& strPath);
+    void SetCommandTemplateDir(const QString& strDirPath);
+
+
     void InitTableMain(int rowCnt, int columnCnt);
     void InitTableQue(int rowCnt, int columnCnt);
     void UpdateTable_Main(enUpdateDirection updateDirection);
@@ -130,9 +161,11 @@ public:
     void WriteDefaultConfig(); //m_strFileDefaultConfig, m_strPathDirDefault, m_strPathReadImageApp
     bool ReadDefaultConfig();
 
-    void CreateSampleCommand(enRegisterOption option);
+    void CreateDefaultCommandFile(enRegisterOption option);
 
-    void SetTemplateNameFromSample (const char *name);
+    void UpdateCommandFileTemplateList(QString& strPathTemplateDir);
+
+        //SetTemplateNameFromSample (QString& strName);
 
     int m_iCurSelRow_Main;
     int m_iCurSelCol_Main;
@@ -143,6 +176,10 @@ public:
 
     QStandardItemModel *m_pTableModelMain;
     QStandardItemModel *m_pTableModelQue;
+
+    //QStandardItemModel *m_pTableModelQue;
+
+
     YKThreadRegi** m_pArrThreadRegi; //Thread ID = index of Que table (max = 200)
 
     int m_iNumOfThreadAll;

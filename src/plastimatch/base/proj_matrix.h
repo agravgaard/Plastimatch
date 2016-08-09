@@ -5,6 +5,7 @@
 #define _proj_matrix_h_
 
 #include "plmbase_config.h"
+#include <string>
 
 class PLMBASE_API Proj_matrix {
 public:
@@ -22,9 +23,11 @@ public:
     double intrinsic[12];
 
 public:
+    std::string get ();
     void get_nrm (double nrm[3]);
     void get_pdn (double pdn[3]);
     void get_prt (double prt[3]);
+
     void set (
         const double* cam, 
         const double* tgt, 
@@ -34,6 +37,8 @@ public:
         const double* ps, 
         const int* ires
     );
+    void set (const std::string& s);
+
     void save (const char *fn);
     void debug ();
     Proj_matrix* clone ();

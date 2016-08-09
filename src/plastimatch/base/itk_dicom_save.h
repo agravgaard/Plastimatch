@@ -8,7 +8,6 @@
 #include "itk_image_type.h"
 
 class Rt_study_metadata;
-class Slice_index;
 
 void
 itk_dicom_save (

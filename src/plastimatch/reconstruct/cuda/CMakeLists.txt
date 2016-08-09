@@ -77,6 +77,7 @@ if (CUDA_FOUND)
       "${PLMRECONSTRUCTCUDA_LIBRARY_SRC}"
       ""
       ""
+      "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
       "")
   endif ()
 endif ()

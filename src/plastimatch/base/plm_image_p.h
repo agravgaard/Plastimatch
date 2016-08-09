@@ -11,6 +11,7 @@ class Plm_image_private {
 public:
     Metadata::Pointer m_meta;
     Volume::Pointer m_vol;
+    std::list<Volume::Pointer> m_vol_list;
 };
 
 #endif

@@ -29,6 +29,12 @@ registration_resample_volume (
     switch (stage->resample_type) {
     case RESAMPLE_AUTO:
     case RESAMPLE_VOXEL_RATE:
+        if (resample_rate[0] == 1.0f
+            && resample_rate[1] == 1.0f
+            && resample_rate[2] == 1.0f)
+        {
+            return vol->clone ();
+        }
         if (shared->legacy_subsampling) {
             return volume_subsample_vox_legacy (vol, resample_rate);
         } else {

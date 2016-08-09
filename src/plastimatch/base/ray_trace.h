@@ -10,7 +10,8 @@
 class Volume;
 class Volume_limit;
 
-//#define DRR_VERBOSE
+// #define DRR_VERBOSE 1
+
 #define DRR_PLANE_RAY_TOLERANCE 1e-8
 #define DRR_STRIDE_TOLERANCE 1e-10
 #define DRR_HUGE_DOUBLE 1e10

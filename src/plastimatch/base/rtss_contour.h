@@ -11,7 +11,7 @@ class PLMBASE_API Rtss_contour {
 public:
     int slice_no;           /* Can be "-1" */
     std::string ct_slice_uid;
-    int num_vertices;
+    size_t num_vertices;
     float* x;
     float* y;
     float* z;

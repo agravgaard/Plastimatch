@@ -52,12 +52,11 @@ Nocedal_optimizer::Nocedal_optimizer (Bspline_optimize *bod)
     Bspline_xform *bxf = bod->get_bspline_xform ();
 
     int nmax = bxf->num_coeff;
-    int mmax = 20;
+    int mmax = parms->lbfgsb_mmax;
 
-    /* Try to allocate memory for hessian approximation.  
-       First guess based on heuristic. */
-    if (bxf->num_coeff >= 20) {
-        mmax = 20 + (int) floor (sqrt ((float) (bxf->num_coeff - 20)));
+    /* Automatic memory sizing for hessian approximation based on heuristic */
+    if (parms->lbfgsb_mmax < 1) {
+        mmax = 2 + (int) floor (sqrt ((float) (bxf->num_coeff)));
         if (mmax > std::numeric_limits<int>::max() / nmax / 10) {
             mmax = std::numeric_limits<int>::max() / nmax / 10;
         }
@@ -65,6 +64,11 @@ Nocedal_optimizer::Nocedal_optimizer (Bspline_optimize *bod)
             mmax = 500;
         }
     }
+    /* Matrix is never bigger than square */
+    if (mmax > nmax) {
+        mmax = nmax;
+    }
+    /* Check that we have enough memory for the requested mmax */
     do {
         nbd = (integer*) malloc (sizeof(integer)*nmax);
         iwa = (integer*) malloc (sizeof(integer)*3*nmax);

@@ -1,4 +1,4 @@
-#ifndef GAMMA_GUI_H
+﻿#ifndef GAMMA_GUI_H
 #define GAMMA_GUI_H
 
 #include <QtGui/QMainWindow>
@@ -22,6 +22,7 @@ class DlgGammaView;
 class YK16GrayImage;
 class qyklabel;
 class QStandardItemModel;
+
 
 class gamma_gui : public QMainWindow
 {
@@ -47,12 +48,15 @@ public:
     void SaveCurrentGammaWorkSpace(QString& strPathGammaWorkSpace);
 
     bool LoadGammaWorkSpace(QString& strPathGammaWorkSpace);
+    bool ReadProtonDoseSet(QString& strPathProtonDoseSet, ProtonSetFileMGH& protonSetInfo);
 
     void SaveBatchGamma3DSimpleReport(QString& strFilePath);
 
     void SetWorkDir(const QString& strPath);
 
     QString ReplaceUpperDirOnly(QString& strOriginalPath, QString& strCurrDirPath, QString& strDelim);
+
+    QString ConvertMGHProtonDoseToMha(QString& strPathBinnary, VEC3D& fDim, VEC3D& fOrigin, VEC3D& fSpacing);
 
     public slots:        
         void SLT_Load_RD_Ref();
@@ -127,11 +131,13 @@ public:
 
         void SLTM_ExportBatchReport();
 
+        void SLTM_LoadProtonDoseSetFile();       
+
 public:    
-    QStringList m_strlistPath_RD_Original_Ref;
+    QStringList m_strlistPath_RD_Original_Ref; //RD files, before the conversion
     QStringList m_strlistPath_RD_Original_Comp;
 
-    QStringList m_strlistPath_RD_Read_Ref;
+    QStringList m_strlistPath_RD_Read_Ref; //mha files, after the conversion
     QStringList m_strlistPath_RD_Read_Comp;
 
     QStringList m_strlistFileBaseName_Ref;
@@ -186,7 +192,6 @@ public:
     QString m_strPathInputDir;//this is for input DCM. initialized when Load Ref files or Load Comp files
 
     int m_iLastLoadedIndex;
-
 
 private:
     Ui::gamma_guiClass ui;

@@ -5,6 +5,7 @@
 #define _proj_volume_h_
 
 #include "plmbase_config.h"
+#include <string>
 
 class Proj_matrix;
 class Proj_volume_private;
@@ -51,8 +52,19 @@ public:
     const Volume *get_vol () const;
 
     void allocate ();
-    void save (const char* filename);
-    void load (const char* filename);
+
+    void save_img (const char* filename);
+    void save_img (const std::string& filename);
+    void save_header (const char* filename);
+    void save_header (const std::string& filename);
+    void save_projv (const char* filename);
+    void save_projv (const std::string& filename);
+    void load_img (const char* filename);
+    void load_img (const std::string& filename);
+    void load_header (const char* filename);
+    void load_header (const std::string& filename);
+    void load_projv (const char* filename);
+    void load_projv (const std::string& filename);
 
     void debug ();
 };

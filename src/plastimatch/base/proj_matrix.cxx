@@ -9,6 +9,7 @@
 #include "file_util.h"
 #include "plm_math.h"
 #include "proj_matrix.h"
+#include "string_util.h"
 
 Proj_matrix::Proj_matrix ()
 {
@@ -33,6 +34,26 @@ Proj_matrix::clone ()
     memcpy (pmat, this, sizeof (Proj_matrix));
 
     return pmat;
+}
+
+std::string
+Proj_matrix::get ()
+{
+    std::string s;
+    s = PLM_to_string (ic, 2);
+    s += " " + PLM_to_string (matrix, 12);
+    s += " " + PLM_to_string (sad);
+    s += " " + PLM_to_string (sid);
+    s += " " + PLM_to_string (cam, 3);
+    s += " " + PLM_to_string (nrm, 3);
+    s += " " + PLM_to_string (extrinsic, 16);
+    s += " " + PLM_to_string (intrinsic, 12);
+    return s;
+}
+
+void
+Proj_matrix::set (const std::string& s)
+{
 }
 
 static

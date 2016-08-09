@@ -339,6 +339,10 @@ Registration_parms::set_key_value (
             goto key_not_allowed_in_section_process;
         }
     }
+    else if (key == "valid_roi_out") {
+        if (section_process) goto key_not_allowed_in_section_process;
+        shared->valid_roi_out_fn = val;
+    }
     else if (key == "fixed_landmarks") {
         if (section_process) goto key_not_allowed_in_section_process;
         shared->fixed_landmarks_fn = val;
@@ -519,6 +523,12 @@ Registration_parms::set_key_value (
             goto error_exit;
         }
     }
+    else if (key == "gpuid") {
+        if (!section_stage) goto key_only_allowed_in_section_stage;
+        if (sscanf (val.c_str(), "%d", &stage->gpuid) != 1) {
+            goto error_exit;
+        }
+    }
     else if (key == "metric" || key == "smetric") {
         if (!section_stage) goto key_only_allowed_in_section_stage;
         std::vector<std::string> metric_vec = string_split (val, ',');
@@ -638,6 +648,12 @@ Registration_parms::set_key_value (
     else if (key == "pgtol") {
         if (!section_stage) goto key_only_allowed_in_section_stage;
         if (sscanf (val.c_str(), "%f", &stage->pgtol) != 1) {
+            goto error_exit;
+        }
+    }
+    else if (key == "lbfgsb_mmax") {
+        if (!section_stage) goto key_only_allowed_in_section_stage;
+        if (sscanf (val.c_str(), "%d", &stage->lbfgsb_mmax) != 1) {
             goto error_exit;
         }
     }
@@ -858,6 +874,15 @@ Registration_parms::set_key_value (
                 &(stage->gridsearch_min_overlap[0]), 
                 &(stage->gridsearch_min_overlap[1]), 
                 &(stage->gridsearch_min_overlap[2])) != 3) {
+            goto error_exit;
+        }
+    }
+    else if (key == "gridsearch_min_steps") {
+        if (!section_stage) goto key_only_allowed_in_section_stage;
+        if (sscanf (val.c_str(), "%d %d %d", 
+                &(stage->gridsearch_min_steps[0]), 
+                &(stage->gridsearch_min_steps[1]), 
+                &(stage->gridsearch_min_steps[2])) != 3) {
             goto error_exit;
         }
     }

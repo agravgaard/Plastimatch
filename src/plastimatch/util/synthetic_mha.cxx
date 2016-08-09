@@ -484,7 +484,7 @@ synth_noise (
     
     /* Set intensity */
     *label = 0;
-    *intens = parms->noise_mean + (float) r;
+    *intens = parms->noise_mean + (float) r * parms->noise_std;
 }
 
 

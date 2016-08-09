@@ -235,5 +235,11 @@ static inline int is_number (const double x)
     return 1;
 }
 
+template<class T> T 
+clamp (T value, T min_value, T max_value) {
+    if (value < min_value) return min_value;
+    if (value > max_value) return max_value;
+    return value;
+}
 
 #endif

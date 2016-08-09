@@ -7,7 +7,6 @@
 #include "plmbase_config.h"
 
 class Plm_image;
-class Slice_index;
 class Xio_ct_transform;
 class Xio_studyset;
 

@@ -253,8 +253,8 @@ bspline_loop_tile_serial (
                     // Compute physical coordinates of fixed image voxel
                     /* To remove DCOS support, switch to 
                        GET_REAL_SPACE_COORDS (fxyz, fijk, bxf); */
-                    GET_WORLD_COORDS (fxyz, fijk, 
-                        fixed, bxf);
+                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
+                        fixed->step);
 
                     // Construct the image volume index
                     fidx = volume_index (fixed->dim, fijk);
@@ -462,8 +462,8 @@ bspline_loop_tile_parallel (
                     // Compute physical coordinates of fixed image voxel
                     /* To remove DCOS support, switch to 
                        GET_REAL_SPACE_COORDS (fxyz, fijk, bxf); */
-                    GET_WORLD_COORDS (fxyz, fijk, 
-                        fixed, bxf);
+                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
+                        fixed->step);
 
                     // Construct the image volume index
                     fidx = volume_index (fixed->dim, fijk);

@@ -149,11 +149,11 @@ create_matrix_and_drr (
     }
 
     if (options->geometry_only) {
-	proj_image_save (proj, 0, mat_fn);
+	proj->save (0, mat_fn);
     } else {
 	drr_render_volume_perspective (proj, vol, ps, dev_state, options);
 	timer->start ();
-	proj_image_save (proj, img_fn, mat_fn);
+	proj->save (img_fn, mat_fn);
 	printf ("I/O time: %f sec\n", timer->report ());
     }
 

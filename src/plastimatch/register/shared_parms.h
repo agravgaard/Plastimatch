@@ -19,6 +19,7 @@ public:
     bool moving_roi_enable;
     std::string fixed_roi_fn;
     std::string moving_roi_fn;
+    std::string valid_roi_out_fn;
 
     /* Stiffness map */
     bool fixed_stiffness_enable;

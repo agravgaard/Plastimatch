@@ -22,7 +22,7 @@ print_and_exit (const char* prompt_fmt, ...)
         va_list argptr;
         va_start (argptr, prompt_fmt);
         std::string error_message = string_format_va (prompt_fmt, argptr);
-        lprintf ("%s\n", error_message.c_str());
+        lprintf ("%s", error_message.c_str());
         Plm_exception pe = Plm_exception (error_message);
         va_end (argptr);
         throw pe;

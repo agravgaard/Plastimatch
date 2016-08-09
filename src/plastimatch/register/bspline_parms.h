@@ -64,6 +64,7 @@ public:
     /* LBFGSB optimizer parms */
     double_align8 lbfgsb_factr;  /* Function value tolerance for L-BFGS-B */
     double_align8 lbfgsb_pgtol;  /* Projected grad tolerance for L-BFGS-B */
+    int lbfgsb_mmax;             /* Number of rows in M matrix */
 
     /* Image Volumes - these are not owned by Bspline_parms */
     Volume* fixed;

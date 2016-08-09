@@ -44,14 +44,14 @@ public:
       from the specified filename. */
     void set_reference_image (const char* image_fn);
     /*! \brief Set the reference image as a Plm image. */
-    void set_reference_image (Plm_image* image);
+    void set_reference_image (const Plm_image::Pointer& image);
     /*! \brief Set the reference image as an ITK image. */
     void set_reference_image (const FloatImageType::Pointer image);
     /*! \brief Set the compare image.  The image will be loaded
       from the specified filename. */
     void set_compare_image (const char* image_fn);
     /*! \brief Set the compare image as a Plm image. */
-    void set_compare_image (Plm_image* image);
+    void set_compare_image (const Plm_image::Pointer& image);
     /*! \brief Set the compare image as an ITK image. */
     void set_compare_image (const FloatImageType::Pointer image);
 
@@ -60,7 +60,7 @@ public:
     void set_mask_image (const char* image_fn);
     void set_mask_image (const std::string& image_fn);
     /*! \brief Set the mask image as a Plm image. */
-    void set_mask_image (Plm_image* image);
+    void set_mask_image (const Plm_image::Pointer& image);
     /*! \brief Set the mask image as an ITK image. */
     void set_mask_image (const UCharImageType::Pointer image);
 
@@ -145,12 +145,6 @@ public:
     float get_reference_dose();
 
     ///@}
-    /*! \brief Resample image_moving to image_reference */
-    void resample_image_to_reference (Plm_image *image_reference, Plm_image *image_moving);
-
-    /*! \brief Resample ref image with fixed spacing */
-    void resample_image_with_fixed_spacing (Plm_image *input_img, float spacing[3]);
-
     std::string get_report_string();	
     void set_report_string(std::string& report_str);
     bool is_local_gamma();
@@ -172,6 +166,12 @@ public:
      the analysis will only consider dose higher than the threshold 
      in the compare image */
     void set_ref_only_threshold(bool b_ref_only_threshold);
+
+protected:
+    /*! \brief Resample ref image with fixed spacing */
+    void resample_image_with_fixed_spacing (Plm_image::Pointer& input_img, float spacing[3]);
+    /*! \brief Resample image_moving to image_reference */
+    void resample_image_to_reference (const Plm_image::Pointer& image_reference, Plm_image::Pointer& image_moving);
 };
 
 #endif

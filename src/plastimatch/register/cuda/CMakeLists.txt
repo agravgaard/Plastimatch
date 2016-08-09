@@ -114,6 +114,7 @@ if (CUDA_FOUND)
       "${PLMREGISTERCUDA_LIBRARY_SRC}"
       "${PLMREGISTERCUDA_LIBRARY_DEPENDENCIES}"
       ""
+      "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
       "")
   endif ()
 endif ()

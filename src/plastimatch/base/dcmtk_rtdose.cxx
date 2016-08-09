@@ -84,6 +84,7 @@ Dcmtk_loader::rtdose_load ()
     float *gfov;    /* gfov = GridFrameOffsetVector */
     plm_long gfov_len;
     const char *gfov_str;
+    OFCondition ofrc;
 
     /* Modality -- better be RTDOSE */
     std::string modality = d_ptr->ds_rtdose->get_modality();
@@ -105,6 +106,25 @@ Dcmtk_loader::rtdose_load ()
 	print_and_exit ("Error parsing RTDOSE ipp.\n");
     }
 
+    /* ImageOrientationPatient */
+    float direction_cosines[9] = {
+        1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f };
+    val = d_ptr->ds_rtdose->get_cstr (DCM_ImageOrientationPatient);
+    if (val) {
+	int rc = parse_dicom_float6 (direction_cosines, val);
+	if (!rc) {
+	    direction_cosines[6] 
+		= direction_cosines[1]*direction_cosines[5] 
+		- direction_cosines[2]*direction_cosines[4];
+	    direction_cosines[7] 
+		= direction_cosines[2]*direction_cosines[3] 
+		- direction_cosines[0]*direction_cosines[5];
+	    direction_cosines[8] 
+		= direction_cosines[0]*direction_cosines[4] 
+		- direction_cosines[1]*direction_cosines[3];
+	}
+    }
+    
     /* Rows */
     if (!d_ptr->ds_rtdose->get_uint16 (DCM_Rows, &val_u16)) {
         print_and_exit ("Couldn't find DCM_Rows in rtdose\n");
@@ -196,10 +216,14 @@ Dcmtk_loader::rtdose_load ()
         sscanf (val, "%f", &dose_scaling);
     }
 
-    printf ("RTDOSE: dim = %d %d %d\n        %f %f %f\n        %f %f %f\n",
+    printf ("RTDOSE: dim = %d %d %d\n  ipp = %f %f %f\n  spc = %f %f %f\n"
+        "  dc  = %f %f %f %f %f %f\n",
         (int) dim[0], (int) dim[1], (int) dim[2],
         ipp[0], ipp[1], ipp[2], 
-        spacing[0], spacing[1], spacing[2]);
+        spacing[0], spacing[1], spacing[2],
+        direction_cosines[0], direction_cosines[1], direction_cosines[2], 
+        direction_cosines[3], direction_cosines[4], direction_cosines[5]
+    );
 
     uint16_t bits_alloc, bits_stored, high_bit, pixel_rep;
     rc = d_ptr->ds_rtdose->get_uint16 (DCM_BitsAllocated, &bits_alloc);
@@ -229,7 +253,7 @@ Dcmtk_loader::rtdose_load ()
     this->set_dose (dose);
 
     /* Create Volume */
-    Volume *vol = new Volume (dim, ipp, spacing, 0, PT_FLOAT, 1);
+    Volume *vol = new Volume (dim, ipp, spacing, direction_cosines, PT_FLOAT, 1);
     float *img = (float*) vol->img;
 
     /* Bind volume to plm_image */
@@ -306,6 +330,9 @@ Dcmtk_rt_study::save_dose (const char *dicom_dir)
         d_ptr->rt_study_metadata->get_study_date());
     dataset->putAndInsertOFStringArray (DCM_StudyTime, 
         d_ptr->rt_study_metadata->get_study_time());
+    dcmtk_copy_from_metadata (dataset, dose_metadata, 
+        DCM_StudyDescription, "");
+
     dataset->putAndInsertOFStringArray (DCM_AccessionNumber, "");
     dataset->putAndInsertOFStringArray (DCM_Modality, "RTDOSE");
     dataset->putAndInsertString (DCM_Manufacturer, "Plastimatch");
@@ -348,7 +375,7 @@ Dcmtk_rt_study::save_dose (const char *dicom_dir)
     dataset->putAndInsertString (DCM_SeriesInstanceUID, 
         d_ptr->rt_study_metadata->get_dose_series_uid());
     dcmtk_copy_from_metadata (dataset, dose_metadata, DCM_StudyID, "10001");
-    dataset->putAndInsertString (DCM_SeriesNumber, "");
+    dcmtk_copy_from_metadata (dataset, dose_metadata, DCM_SeriesNumber, "1");
     dataset->putAndInsertString (DCM_InstanceNumber, "1");
     
     s = string_format ("%g\\%g\\%g", dose_volume->origin[0], 

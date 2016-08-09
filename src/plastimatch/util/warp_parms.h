@@ -72,7 +72,10 @@ public:
     Direction_cosines m_dc;
 
     /* Metadata options */
-    std::vector<std::string> m_metadata;
+    std::vector<std::string> m_study_metadata;
+    std::vector<std::string> m_image_metadata;
+    std::vector<std::string> m_dose_metadata;
+    std::vector<std::string> m_rtss_metadata;
 
 public:
     Warp_parms () {

@@ -88,8 +88,8 @@ public:
         return volume_index (this->dim, ijk);
     }
     /*! \brief Return a world coordinates of a voxel */
-    void coords (float coords[3], const plm_long ijk[3]) {
-        VOXEL_COORDS (coords, ijk, this->origin, this->step);
+    void position (float xyz[3], const plm_long ijk[3]) {
+        POSITION_FROM_COORDS (xyz, ijk, this->origin, this->step);
     }
     /*! \brief Initialize and allocate memory for the image */
     void create (
@@ -125,7 +125,8 @@ public:
       The origin is defined as the location in world coordinates 
       of the center of the first voxel in the volume.
     */
-    const float* get_origin (void);
+    const float* get_origin (void) const;
+    void get_origin (float *) const;
     /*! \brief Set the origin.
       The origin is defined as the location in world coordinates 
       of the center of the first voxel in the volume.

@@ -10,7 +10,6 @@
 
 class Metadata;
 class Rt_study_metadata;
-class Slice_index;
 
 /* -----------------------------------------------------------------------
    Function prototypes

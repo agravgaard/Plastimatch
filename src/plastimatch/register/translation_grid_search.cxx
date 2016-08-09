@@ -112,6 +112,9 @@ translation_grid_search (
         for (int d = 0; d < 3; d++) {
             float search_range = search_max[d] - search_min[d];
             num_steps[d] = ROUND_INT (search_range / nominal_step) + 1;
+            if (num_steps[d] < stage->gridsearch_min_steps[d]) {
+                num_steps[d] = stage->gridsearch_min_steps[d];
+            }
             if (num_steps[d] > 1) {
                 search_step[d] = search_range / (num_steps[d] - 1);
             }

@@ -10,16 +10,17 @@ project (src_plastimatch)
 ##-----------------------------------------------------------------------------
 
 # Plastimatch software configuration options
-option (PLM_CONFIG_ALT_DCOS "Use alternative direction cosines rules" OFF)
-option (PLM_CONFIG_CLANG_COMPLETE "Generate .clang_complete for hipster Vim-ers" OFF)
-option (PLM_CONFIG_DISABLE_VISCOUS "Disable experimental viscous fluid registration algorithm" ON)
+option (PLM_CONFIG_CLANG_COMPLETE
+    "Generate .clang_complete for hipster Vim-ers" OFF)
+option (PLM_CONFIG_DISABLE_VISCOUS
+    "Disable experimental viscous fluid registration algorithm" ON)
 option (PLM_CONFIG_ENABLE_PLASTIMATCH_QT
-  "Enable experimental plastimatch_qt executable" OFF)
+    "Enable experimental plastimatch_qt executable" OFF)
 option (PLM_CONFIG_KEYHOLIZE "Enable RT structure keyholization" OFF)
 option (PLM_CONFIG_PREFER_PATCHED_ITK
-  "Prefer to use the patched version of certain ITK files" ON)
-option (PLM_CONFIG_USE_SS_IMAGE_VEC
-  "Save structure sets as ITK UCHAR VEC images (in development)" ON)
+    "Prefer to use the patched version of certain ITK files" ON)
+option (PLM_CONFIG_VOL_LIST
+    "Native support for volumes with irregular slice thicknesses" OFF)
 
 # Plastimatch legacy options
 option (PLM_CONFIG_LEGACY_BSPLINE_EXTEND
@@ -28,6 +29,8 @@ option (PLM_CONFIG_LEGACY_BSPLINE_XFORM_IO
   "Use legacy code for reading and writing b-spline xform files" ON)
 option (PLM_CONFIG_LEGACY_MI_METRIC
   "For ITK metrics, the legacy implementation of the mi metric is Viola-Wells to Mattes" OFF)
+option (PLM_CONFIG_LEGACY_PROJ_GEO
+  "Use legacy method for specifying projection geometry" ON)
 
 ##-----------------------------------------------------------------------------
 ##  Give a warning for obsolete dicom libraries
@@ -45,7 +48,7 @@ endif ()
 ##-----------------------------------------------------------------------------
 set (PLM_CONFIG_USE_PATCHED_ITK 0)
 if (${ITK_VERSION} VERSION_LESS "4.1" AND PLM_CONFIG_PREFER_PATCHED_ITK)
-    set (PLM_CONFIG_USE_PATCHED_ITK 1)
+  set (PLM_CONFIG_USE_PATCHED_ITK 1)
 endif ()
 
 
@@ -133,6 +136,8 @@ endif ()
 ##-----------------------------------------------------------------------------
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/sys/plm_config.h.in
   ${PLM_BUILD_ROOT}/plm_config.h)
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/sys/plm_version.h.in
+  ${PLM_BUILD_ROOT}/plm_version.h)
 
 if (NOT PLM_PREFER_NO_FORTRAN_NO_F2C)
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/sys/plm_fortran.h.in
@@ -162,27 +167,7 @@ if (NOT PLM_CONFIG_DISABLE_VISCOUS
 endif ()
 
 
-##-----------------------------------------------------------------------------
-##  OLD BUILD SYSTEM REMNANTS
-##-----------------------------------------------------------------------------
-# JAS 2012.05.15 -- needs to be merged then removed for new build system
-#if (FULL_PLASTIMATCH_BUILD)
-#  # Ugh.  ITK is stupid.  They quietly dropped support for cygwin. 
-#  # However, you can still get 3.20.0 to work.  You need to run 
-#  # "make ITKFEM" after running "make" to workaround ITK's broken CMake 
-#  # script:
-#  #  http://old.nabble.com/compile-error-using-cygwin-td30879187.html
-#  # See also:
-#  #  http://public.kitware.com/Bug/view.php?id=11659
-#  if (CYGWIN)
-#    set (PLASTIMATCH1_LIBRARY_DEPENDENCIES 
-#      ${PLASTIMATCH1_LIBRARY_DEPENDENCIES} gdi32)
-#  endif ()
-#endif ()
-
-##-----------------------------------------------------------------------------
-##  PLASTIMATCH MODULES
-##-----------------------------------------------------------------------------
+##  Specify which libraries of plastimatch should be built
 if (PLM_CONFIG_LIBRARY_BUILD)
 else ()
   set (PLMLIB_CONFIG_ENABLE_CLI true)
@@ -200,6 +185,39 @@ endif ()
 if (PLMLIB_CONFIG_ENABLE_REGISTER OR PLMLIB_CONFIG_ENABLE_RECONSTRUCT)
   set (PLMLIB_CONFIG_ENABLE_CUDA true)
   set (PLMLIB_CONFIG_ENABLE_OPENCL true)
+endif ()
+
+## Specify which include directories are needed when
+## compiling code that links to the libraries
+set (PLASTIMATCH_INCLUDE_DIRECTORIES "")
+if (NOT PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<INSTALL_INTERFACE:${PLM_INSTALL_INCLUDE_DIR}>
+    )
+  list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/sys>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/base>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/util>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/devillard>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/dlib-18.7>
+    )
+  if (PLMLIB_CONFIG_ENABLE_REGISTER)
+    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/register>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/liblbfgs-1.9/include>
+      )
+  endif ()
+  if (PLMLIB_CONFIG_ENABLE_SEGMENT)
+    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/segment>
+      )
+  endif ()
+  if (PLMLIB_CONFIG_ENABLE_DOSE)
+    list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/dose>
+      )
+  endif ()
 endif ()
 
 # Core
@@ -245,10 +263,8 @@ if (PLMLIB_CONFIG_ENABLE_TEST)
   add_subdirectory(test)
 endif ()
 
-##-----------------------------------------------------------------------------
-##  Set up configuration for external projects using plastimatch API
-##-----------------------------------------------------------------------------
-# Add targets to build tree export set
+# Create a list of targets to be exported.  These are used by applications
+# which link to plastimatch libraries.
 set (EXPORT_TARGET_LIST plmsys plmbase devillard nkidecompress plmutil)
 if (PLMLIB_CONFIG_ENABLE_DOSE)
   set (EXPORT_TARGET_LIST ${EXPORT_TARGET_LIST} specfun plmdose)
@@ -289,38 +305,77 @@ endif ()
 #if (PLMLIB_CONFIG_ENABLE_SCRIPT)
 #  set (EXPORT_TARGET_LIST ${EXPORT_TARGET_LIST} lua plmscript)
 #endif ()
-export (TARGETS 
-  ${EXPORT_TARGET_LIST}
-  FILE "${CMAKE_BINARY_DIR}/PlastimatchLibraryDepends.cmake")
 
-# Help cmake find the PlastimatchConfig.cmake in the build directory
-if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 2.8)
-  export (PACKAGE Plastimatch)
-endif ()
+# Create the configuration files used by client applications
+if (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
 
-# Create PlastimatchBuildTreeSettings.cmake for the use from the build tree
-file (RELATIVE_PATH CONF_REL_INCLUDE_DIR "${PLM_INSTALL_CMAKE_DIR}"
-  "${PLM_INSTALL_INCLUDE_DIR}")
-configure_file (
-  "${PROJECT_SOURCE_DIR}/cmake/PlastimatchConfig.cmake.in" 
-  "${CMAKE_BINARY_DIR}/PlastimatchConfig.cmake" 
-  @ONLY)
-configure_file (
-  "${PROJECT_SOURCE_DIR}/cmake/PlastimatchBuildTreeSettings.cmake.in"
-  "${CMAKE_BINARY_DIR}/PlastimatchBuildTreeSettings.cmake" @ONLY)
+  export (TARGETS 
+    ${EXPORT_TARGET_LIST}
+    FILE "${CMAKE_BINARY_DIR}/PlastimatchLibraryDepends.cmake")
 
-# Install the PlastimatchConfig.cmake file
-install (FILES 
-  "${CMAKE_BINARY_DIR}/PlastimatchConfig.cmake" 
-  DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
-  # COMPONENT dev
-  )
+  # Help cmake find the PlastimatchConfig.cmake in the build directory
+  if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 2.8)
+    export (PACKAGE Plastimatch)
+  endif ()
 
-# Install the export set for use with the install-tree
-install (EXPORT PlastimatchLibraryDepends 
-  DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
-  # COMPONENT dev
-  )
+  # Create PlastimatchBuildTreeSettings.cmake for the use from the build tree
+  file (RELATIVE_PATH CONF_REL_INCLUDE_DIR "${PLM_INSTALL_CMAKE_DIR}"
+    "${PLM_INSTALL_INCLUDE_DIR}")
+  configure_file (
+    "${PROJECT_SOURCE_DIR}/cmake/PlastimatchConfig-Legacy.cmake.in" 
+    "${CMAKE_BINARY_DIR}/PlastimatchConfig.cmake" 
+    @ONLY)
+  configure_file (
+    "${PROJECT_SOURCE_DIR}/cmake/PlastimatchBuildTreeSettings.cmake.in"
+    "${CMAKE_BINARY_DIR}/PlastimatchBuildTreeSettings.cmake" @ONLY)
+
+  # Install the PlastimatchConfig.cmake file
+  install (FILES 
+    "${CMAKE_BINARY_DIR}/PlastimatchConfig.cmake" 
+    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
+    # COMPONENT dev
+    )
+
+  # Install the export set for use with the install-tree
+  install (EXPORT PlastimatchLibraryDepends 
+    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
+    # COMPONENT dev
+    )
+
+else (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
+
+  include (CMakePackageConfigHelpers)
+
+  # Make the version file
+  write_basic_package_version_file (
+    "${CMAKE_CURRENT_BINARY_DIR}/PlastimatchConfigVersion.cmake"
+    VERSION ${PLM_BASIC_VERSION_STRING}
+    COMPATIBILITY AnyNewerVersion
+    )
+
+  # Make the targets file
+  export (EXPORT PlastimatchLibraryDepends
+    FILE "${CMAKE_BINARY_DIR}/PlastimatchLibraryDepends.cmake"
+    )
+  
+  # Make the config file
+  configure_file (
+    "${PROJECT_SOURCE_DIR}/cmake/PlastimatchConfig.cmake.in" 
+    "${CMAKE_BINARY_DIR}/PlastimatchConfig.cmake" 
+    @ONLY)
+  
+  # Install the files
+  install (EXPORT PlastimatchLibraryDepends
+    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
+    )
+  install (FILES 
+    "${CMAKE_BINARY_DIR}/PlastimatchConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/PlastimatchConfigVersion.cmake"
+    DESTINATION "${PLM_INSTALL_CMAKE_DIR}"
+    COMPONENT Devel
+    )
+
+endif (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
 
 ##-----------------------------------------------------------------------------
 ##  DOXYGEN

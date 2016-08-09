@@ -43,6 +43,16 @@ strip_extension (const std::string& filename)
     return filename.substr(0, lastdot); 
 }
 
+std::string strip_extension_if (
+    const std::string& filename, const std::string& ext)
+{
+    if (extension_is (filename, ext.c_str())) {
+        return strip_extension (filename);
+    } else {
+        return filename;
+    }
+}
+
 void
 trim_trailing_slashes (char *pathname)
 {

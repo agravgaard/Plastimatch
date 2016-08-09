@@ -34,6 +34,23 @@
 #include "string_util.h"
 #include "xvi_archive.h"
 
+Rt_study::Pointer
+load_reference_ct (
+    const std::string& patient_ct_set_dir,
+    const std::string& cbct_ref_uid)
+{
+    std::string reference_ct_dir = string_format ("%s/%s",
+        patient_ct_set_dir.c_str(), cbct_ref_uid.c_str());
+    if (is_directory (reference_ct_dir)) {
+        Rt_study::Pointer reference_study = Rt_study::New();
+        reference_study->load (reference_ct_dir);
+        return reference_study;
+    } else {
+        printf ("Error.  No matching reference CT found.\n");
+        return Rt_study::Pointer();
+    }
+}
+
 void
 do_xvi_archive (Xvi_archive_parms *parms)
 {
@@ -41,37 +58,6 @@ do_xvi_archive (Xvi_archive_parms *parms)
         parms->patient_dir, "CT_SET");
     std::string patient_images_dir = compose_filename (
         parms->patient_dir, "IMAGES");
-
-    /* Load one of the reference CTs */
-    Dir_list ct_set_dir (patient_ct_set_dir);
-    if (ct_set_dir.num_entries == 0) {
-        printf ("Error.  No CT_SET found.\n");
-        return;
-    }
-    Rt_study reference_study;
-    std::string reference_uid;
-    for (int i = 0; i < ct_set_dir.num_entries; i++) {
-        if (ct_set_dir.entries[i][0] == '.') {
-            continue;
-        }
-        std::string fn = string_format ("%s/%s",
-            patient_ct_set_dir.c_str(), ct_set_dir.entries[i]);
-        if (is_directory (fn)) {
-            printf ("Loaded reference study (%s)\n", fn.c_str());
-            reference_study.load (fn);
-            reference_uid = ct_set_dir.entries[i];
-            break;
-        }
-    }
-    if (!reference_study.have_image()) {
-        printf ("Error.  No reference CT loaded.\n");
-        return;
-    }
-    Rt_study_metadata::Pointer& reference_meta = 
-        reference_study.get_rt_study_metadata ();
-    printf ("Reference Meta: %s %s\n",
-        reference_meta->get_patient_name().c_str(),
-        reference_meta->get_patient_id().c_str());
 
     Dir_list images_dir (patient_images_dir);
     if (images_dir.num_entries == 0) {
@@ -110,6 +96,9 @@ do_xvi_archive (Xvi_archive_parms *parms)
             continue;
         }
 
+        printf ("cbct_dir = %s/%s\n", 
+            patient_images_dir.c_str(), images_dir.entries[i]);
+        
         /* Load the INI file */
         INIReader recon_ini (recon_ini_fn);
         std::string cbct_ref_uid = 
@@ -118,15 +107,46 @@ do_xvi_archive (Xvi_archive_parms *parms)
             string_format ("%s^%s",
                 recon_ini.Get ("IDENTIFICATION", "LastName", "").c_str(),
                 recon_ini.Get ("IDENTIFICATION", "FirstName", "").c_str());
-
+        std::string status_line_string = 
+            recon_ini.Get ("XVI", "StatusLineText", "");
+        std::string linac_string = "";
+        size_t n = status_line_string.find ("Plan Description:");
+        if (n != std::string::npos) {
+            linac_string = status_line_string.substr (
+                n + strlen ("Plan Description:"));
+            n = linac_string.find_first_not_of (" \t\r\n");
+            linac_string = linac_string.substr (n);
+            n = linac_string.find_first_of (" \t\r\n");
+            if (n != std::string::npos) {
+                linac_string = linac_string.substr (0, n);
+            }
+        }
         printf ("name = %s\n", patient_name.c_str());
         printf ("reference_uid = %s\n", cbct_ref_uid.c_str());
+        printf ("linac_string = %s\n", linac_string.c_str());
 
+#if defined (commentout)
         /* Verify if the file belongs to this reference CT */
         if (cbct_ref_uid != reference_uid) {
             printf ("Reference UID mismatch.  Skipping.\n");
             continue;
         }
+#endif
+
+        /* Load the matching reference CT */
+        Rt_study::Pointer reference_study = load_reference_ct (
+            patient_ct_set_dir, cbct_ref_uid);
+        if (!reference_study) {
+            printf ("No matching CT for this CBCT.  Skipping.\n");
+            continue;
+        }
+
+        /* Extract metadata from reference CT */
+        Rt_study_metadata::Pointer& reference_meta = 
+            reference_study->get_rt_study_metadata ();
+        printf ("Reference Meta: %s %s\n",
+            reference_meta->get_patient_name().c_str(),
+            reference_meta->get_patient_id().c_str());
 
         /* Load the INI.XVI file */
         INIReader recon_xvi (recon_xvi_fn);
@@ -158,36 +178,83 @@ do_xvi_archive (Xvi_archive_parms *parms)
         /* Load the .SCAN */
         Rt_study cbct_study;
         cbct_study.load_image (scan_fn);
-
         if (!cbct_study.have_image()) {
             printf ("ERROR: decompression failure with patient %s\n",
                 reference_meta->get_patient_id().c_str());
             exit (1);
         }
 
-        /* Write the DICOM image */
-        std::string output_dir = string_format (
-            "cbct_output/%s/%s", 
-            reference_meta->get_patient_id().c_str(),
-            images_dir.entries[i]);
-
+        /* Set DICOM image header fields */
         Rt_study_metadata::Pointer& cbct_meta 
             = cbct_study.get_rt_study_metadata ();
+        cbct_meta->set_patient_name (patient_name);
         if (parms->patient_id_override != "") {
             cbct_meta->set_patient_id (parms->patient_id_override);
         } else {
             cbct_meta->set_patient_id (
                 reference_meta->get_patient_id().c_str());
         }
-        cbct_meta->set_patient_name (patient_name);
         if (date_string != "" && time_string != "") {
             cbct_meta->set_study_date (date_string);
             cbct_meta->set_study_time (time_string);
+            cbct_meta->set_image_metadata(0x0008, 0x0012, date_string);
+            cbct_meta->set_image_metadata(0x0008, 0x0013, time_string);
         }
+        std::string study_description = "CBCT: " + linac_string;
+        cbct_meta->set_study_metadata (0x0008, 0x1030, study_description);
+        cbct_meta->set_image_metadata (0x0028, 0x1050, "500");  // Window
+        cbct_meta->set_image_metadata (0x0028, 0x1051, "2000"); // Level
+        std::string patient_position
+            = reference_meta->get_image_metadata(0x0018, 0x5100);
+        cbct_meta->set_image_metadata (0x0018, 0x5100, patient_position);
+        printf ("Patient position is %s\n", patient_position.c_str());
+
+        /* Fix patient orientation based on reference CT */
+        float dc[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+        if (patient_position == "HFS") {
+            /* Do nothing */
+            //continue;
+        }
+        else if (patient_position == "HFP") {
+            // dc = { -1, 0, 0, 0, -1, 0, 0, 0, 1 };
+            dc[0] = dc[4] = -1;
+            cbct_study.get_image()->get_volume()->set_direction_cosines (dc);
+            //continue;
+        }
+        else if (patient_position == "FFS") {
+            // dc = { -1, 0, 0, 0, 1, 0, 0, 0, -1 };
+            dc[0] = dc[8] = -1;
+            cbct_study.get_image()->get_volume()->set_direction_cosines (dc);
+            //continue;
+        }
+        else if (patient_position == "FFP") {
+            // dc = { 1, 0, 0, 0, -1, 0, 0, 0, -1 };
+            dc[4] = dc[8] = -1;
+            cbct_study.get_image()->get_volume()->set_direction_cosines (dc);
+            //continue;
+        }
+        else {
+            /* Punt */
+            patient_position = "HFS";
+        }
+        float origin[3];
+        cbct_study.get_image()->get_volume()->get_origin(origin);
+        origin[0] = dc[0] * origin[0];
+        origin[1] = dc[4] * origin[1];
+        origin[2] = dc[8] * origin[2];
+        cbct_study.get_image()->get_volume()->set_origin (origin);
+
+//        cbct_study.save_image ("cbct.mha");
+
+        /* Write the DICOM image */
+        std::string output_dir = string_format (
+            "cbct_output/%s/%s", 
+            reference_meta->get_patient_id().c_str(),
+            images_dir.entries[i]);
         cbct_study.save_dicom (output_dir);
 
         /* Create the DICOM SRO */
-        Xform::Pointer xf = Xform::New();
+        AffineTransformType::Pointer aff = AffineTransformType::New();
         AffineTransformType::ParametersType xfp(12);
         float xvip[16];
         int rc = sscanf (registration_string.c_str(), 
@@ -202,33 +269,169 @@ do_xvi_archive (Xvi_archive_parms *parms)
             exit (1);
         }
 
-        // dicom rotation = [0 0 1; 0 1 0; -1 0 0] * xvi rotation
-        xfp[0] =   xvip[8];
-        xfp[1] =   xvip[9];
-        xfp[2] =   xvip[10];
-        xfp[3] =   xvip[4];
-        xfp[4] =   xvip[5];
-        xfp[5] =   xvip[6];
-        xfp[6] = - xvip[0];
-        xfp[7] = - xvip[1];
-        xfp[8] = - xvip[2];
+        printf ("XVI\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n", 
+            xvip[0], xvip[1], xvip[2], xvip[3], 
+            xvip[4], xvip[5], xvip[6], xvip[7], 
+            xvip[8], xvip[9], xvip[10], xvip[11], 
+            xvip[12], xvip[13], xvip[14], xvip[15]);
+        
+        if (patient_position == "HFS") {
+            xfp[0] =   xvip[8];
+            xfp[1] =   xvip[9];
+            xfp[2] =   xvip[10];
+            xfp[3] =   xvip[4];
+            xfp[4] =   xvip[5];
+            xfp[5] =   xvip[6];
+            xfp[6] = - xvip[0];
+            xfp[7] = - xvip[1];
+            xfp[8] = - xvip[2];
 
+            // B
+            xfp[9]  =   (xfp[0]*xvip[12] + xfp[3]*xvip[13] + xfp[6]*xvip[14]);
+            xfp[10] =   (xfp[1]*xvip[12] + xfp[4]*xvip[13] + xfp[7]*xvip[14]);
+            xfp[11] = - (xfp[2]*xvip[12] + xfp[5]*xvip[13] + xfp[8]*xvip[14]);
+
+            // "A", Verified
+            xfp[9]  = - (xfp[0]*xvip[12] + xfp[1]*xvip[13] + xfp[2]*xvip[14]);
+            xfp[10] = - (xfp[3]*xvip[12] + xfp[4]*xvip[13] + xfp[5]*xvip[14]);
+            xfp[11] = - (xfp[6]*xvip[12] + xfp[7]*xvip[13] + xfp[8]*xvip[14]);
+        
+        }
+        else if (patient_position == "HFP") {
+            xfp[0] =   xvip[8];
+            xfp[1] =   xvip[9];
+            xfp[2] = - xvip[10];
+            xfp[3] =   xvip[4];
+            xfp[4] =   xvip[5];
+            xfp[5] = - xvip[6];
+            xfp[6] =   xvip[0];
+            xfp[7] =   xvip[1];
+            xfp[8] = - xvip[2];
+
+            // "A", Unlikely
+            xfp[9]  =   (xfp[0]*xvip[12] + xfp[1]*xvip[13] + xfp[2]*xvip[14]);
+            xfp[10] = - (xfp[3]*xvip[12] + xfp[4]*xvip[13] + xfp[5]*xvip[14]);
+            xfp[11] = - (xfp[6]*xvip[12] + xfp[7]*xvip[13] + xfp[8]*xvip[14]);
+        
+            // "B", Possible
+            xfp[9]  =   (xfp[0]*xvip[12] + xfp[3]*xvip[13] + xfp[6]*xvip[14]);
+            xfp[10] =   (xfp[1]*xvip[12] + xfp[4]*xvip[13] + xfp[7]*xvip[14]);
+            xfp[11] = - (xfp[2]*xvip[12] + xfp[5]*xvip[13] + xfp[8]*xvip[14]);
+
+        }
+        else if (patient_position == "FFS") {
+            xfp[0] = - xvip[8];
+            xfp[1] = - xvip[9];
+            xfp[2] = - xvip[10];
+            xfp[3] =   xvip[4];
+            xfp[4] =   xvip[5];
+            xfp[5] =   xvip[6];
+            xfp[6] =   xvip[0];
+            xfp[7] =   xvip[1];
+            xfp[8] =   xvip[2];
+
+            // "B", Unlikely
+            xfp[9]  = - (xfp[0]*xvip[12] + xfp[3]*xvip[13] + xfp[6]*xvip[14]);
+            xfp[10] =   (xfp[1]*xvip[12] + xfp[4]*xvip[13] + xfp[7]*xvip[14]);
+            xfp[11] = - (xfp[2]*xvip[12] + xfp[5]*xvip[13] + xfp[8]*xvip[14]);
+
+            // "A", Possible
+            xfp[9]  =   (xfp[0]*xvip[12] + xfp[1]*xvip[13] + xfp[2]*xvip[14]);
+            xfp[10] = - (xfp[3]*xvip[12] + xfp[4]*xvip[13] + xfp[5]*xvip[14]);
+            xfp[11] = - (xfp[6]*xvip[12] + xfp[7]*xvip[13] + xfp[8]*xvip[14]);
+        
+            // "C", Possible
+            xfp[9]  = - (xfp[0]*xvip[12] + xfp[1]*xvip[13] + xfp[2]*xvip[14]);
+            xfp[10] = - (xfp[3]*xvip[12] + xfp[4]*xvip[13] + xfp[5]*xvip[14]);
+            xfp[11] = - (xfp[6]*xvip[12] + xfp[7]*xvip[13] + xfp[8]*xvip[14]);
+        
+        }
+        else if (patient_position == "FFP") {
+            xfp[0] = - xvip[8];
+            xfp[1] = - xvip[9];
+            xfp[2] =   xvip[10];
+            xfp[3] =   xvip[4];
+            xfp[4] =   xvip[5];
+            xfp[5] = - xvip[6];
+            xfp[6] = - xvip[0];
+            xfp[7] = - xvip[1];
+            xfp[8] =   xvip[2];
+
+            // A
+            xfp[9]  =   (xfp[0]*xvip[12] + xfp[1]*xvip[13] + xfp[2]*xvip[14]);
+            xfp[10] =   (xfp[3]*xvip[12] + xfp[4]*xvip[13] + xfp[5]*xvip[14]);
+            xfp[11] = - (xfp[6]*xvip[12] + xfp[7]*xvip[13] + xfp[8]*xvip[14]);
+        
+            // "B", Mostly Verified
+            xfp[9]  =   (xfp[0]*xvip[12] + xfp[3]*xvip[13] + xfp[6]*xvip[14]);
+            xfp[10] =   (xfp[1]*xvip[12] + xfp[4]*xvip[13] + xfp[7]*xvip[14]);
+            xfp[11] = - (xfp[2]*xvip[12] + xfp[5]*xvip[13] + xfp[8]*xvip[14]);
+        }
+
+        // Convert cm to mm
+        xfp[9]  *= 10;
+        xfp[10] *= 10;
+        xfp[11] *= 10;
+        
+#if defined (commentout)
+        aff->SetParametersByValue (xfp);
+        vnl_matrix_fixed< double, 3, 3 > xfp_rot_inv = 
+            aff->GetMatrix().GetInverse();
+        printf ("XFORM-R INV\n%f %f %f\n%f %f %f\n%f %f %f\n",
+            xfp_rot_inv[0][0],
+            xfp_rot_inv[0][1],
+            xfp_rot_inv[0][2],
+            xfp_rot_inv[1][0],
+            xfp_rot_inv[1][1],
+            xfp_rot_inv[1][2],
+            xfp_rot_inv[2][0],
+            xfp_rot_inv[2][1],
+            xfp_rot_inv[2][2]);
+#endif
+        
         // dicom translation = - 10 * dicom_rotation * xvi translation
+        // Old, "perfect" HFS setting
+#if defined (commentout)
         xfp[9]  = -10 * (xfp[0]*xvip[12] + xfp[1]*xvip[13] + xfp[2]*xvip[14]);
         xfp[10] = -10 * (xfp[3]*xvip[12] + xfp[4]*xvip[13] + xfp[5]*xvip[14]);
         xfp[11] = -10 * (xfp[6]*xvip[12] + xfp[7]*xvip[13] + xfp[8]*xvip[14]);
+
+        xfp[9]  = -10 * (xfp[0]*xvip[12] + xfp[3]*xvip[13] + xfp[6]*xvip[14]);
+        xfp[10] = -10 * (xfp[1]*xvip[12] + xfp[4]*xvip[13] + xfp[7]*xvip[14]);
+        xfp[11] = -10 * (xfp[2]*xvip[12] + xfp[5]*xvip[13] + xfp[8]*xvip[14]);
+#endif
+        
+        Xform::Pointer xf = Xform::New();
         xf->set_aff (xfp);
 
+        printf ("XFORM\n%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n",
+            xfp[0],
+            xfp[1],
+            xfp[2],
+            xfp[3],
+            xfp[4],
+            xfp[5],
+            xfp[6],
+            xfp[7],
+            xfp[8],
+            xfp[9],
+            xfp[10],
+            xfp[11]
+        );
+
+//        reference_study->save_image ("ct.nrrd");
+//        xf->save ("xf.tfm");
+        
 #if defined (commentout)
-        std::string xf_file = string_format (
-            "%s/xf.tfm", output_dir.c_str());
-        xf->save (xf_file);
 #endif
 
         Dcmtk_sro::save (
-            xf, reference_study.get_rt_study_metadata (),
+            xf,
+            reference_study->get_rt_study_metadata (),
             cbct_study.get_rt_study_metadata (),
             output_dir, true);
+
+        //break;
     }
 }
 
@@ -278,7 +481,7 @@ parse_fn (
 
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
     Xvi_archive_parms parms;
 

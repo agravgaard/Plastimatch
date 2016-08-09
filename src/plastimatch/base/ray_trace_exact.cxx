@@ -23,15 +23,17 @@ ray_trace_exact_init_loopvars (
     double pt,         /* Input:  initial intersection of ray with volume */
     double ry,         /* Input:  normalized direction of ray */
     double origin,     /* Input:  origin of volume */
+    plm_long dim,      /* Input:  dimension of volume */
     double samp        /* Input:  pixel spacing of volume */
 )
 {
-#if (DRR_VERBOSE)
+#if DRR_VERBOSE
     printf ("pt/ry/off/samp: %g %g %g %g\n", pt, ry, origin, samp);
 #endif
 
     *aidir = SIGN (ry) * SIGN (samp);
     *ai = ROUND_INT ((pt - origin) / samp);
+    *ai = clamp<int> (*ai, 0, (int) dim - 1);
     *ao = SIGN (ry) 
 	* (((*ai) * samp + origin) + (SIGN (ry) * 0.5 * fabs (samp)) - pt);
 
@@ -42,25 +44,6 @@ ray_trace_exact_init_loopvars (
 	*ao = DRR_HUGE_DOUBLE;
 	*al = DRR_HUGE_DOUBLE;
     }
-
-#if defined (commentout)
-    if (ry > 0) {
-	*aidir = 1 * SIGN (samp);
-        *ai = (int) floor ((pt - origin + 0.5 * samp) / samp);
-        *ao = fabs(samp - ((pt - origin + 0.5 * samp) - (*ai) * samp));
-    } else {
-	*aidir = -1 * SIGN (samp);
-        *ai = (int) floor ((pt - origin + 0.5 * samp) / samp);
-        *ao = fabs(samp - ((*ai+1) * samp - (pt - origin + 0.5 * samp)));
-    }
-    if (fabs(ry) > DRR_STRIDE_TOLERANCE) {
-	*ao = *ao / fabs(ry);
-	*al = fabs(samp) / fabs(ry);
-    } else {
-	*ao = DRR_HUGE_DOUBLE;
-	*al = DRR_HUGE_DOUBLE;
-    }
-#endif
 }
 
 /* Initialize loop variables.  Returns 1 if the segment intersects 
@@ -118,18 +101,21 @@ ray_trace_exact_init (
 	ip1[0],
 	ray[0], 
 	vol->origin[0], 
+	vol->dim[0],
 	vol->spacing[0]);
     ray_trace_exact_init_loopvars (
 	ai_y, aiydir, ao_y, al_y, 
 	ip1[1],
 	ray[1], 
 	vol->origin[1], 
+	vol->dim[1], 
 	vol->spacing[1]);
     ray_trace_exact_init_loopvars (
 	ai_z, aizdir, ao_z, al_z, 
 	ip1[2], 
 	ray[2], 
 	vol->origin[2], 
+	vol->dim[2], 
 	vol->spacing[2]);
 
 #if defined (DRR_VERBOSE)

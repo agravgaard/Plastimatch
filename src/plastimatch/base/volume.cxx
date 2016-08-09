@@ -215,9 +215,17 @@ Volume::create (
 }
 
 const float*
-Volume::get_origin ()
+Volume::get_origin () const
 {
     return this->origin;
+}
+
+void
+Volume::get_origin (float *origin) const
+{
+    for (int d = 0; d < 3; d++) {
+        origin[d] = this->origin[d];
+    }
 }
 
 void
@@ -848,7 +856,7 @@ void
 Volume::move_origin_to_idx (const plm_long ijk[3])
 {
     float new_origin[3];
-    this->coords (new_origin, ijk);
+    this->position (new_origin, ijk);
     this->set_origin (new_origin);
 }
 

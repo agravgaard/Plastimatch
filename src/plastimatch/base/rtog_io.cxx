@@ -47,16 +47,8 @@
 #include <string.h>
 #include <math.h>
 
-#if (defined(_WIN32) || defined(WIN32))
-#include <direct.h>
-#define snprintf _snprintf
-#define mkdir(a,b) _mkdir(a)
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
-
 #include "exchkeys.h"
+#include "file_util.h"
 
 #define BUFLEN 2048
 
@@ -613,7 +605,7 @@ load_ct (RTOG_Header* rtog_header, Program_Parms* parms)
 void
 make_output_dir (Program_Parms* parms)
 {
-    mkdir (parms->outdir, 0777);
+    make_directory_recursive (parms->outdir);
 }
 
 void

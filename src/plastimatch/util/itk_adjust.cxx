@@ -10,6 +10,7 @@
 #include "itk_image_clone.h"
 #include "plm_math.h"
 #include "print_and_exit.h"
+#include "pwlut.h"
 
 FloatImageType::Pointer
 itk_adjust (FloatImageType::Pointer image_in, const Float_pair_list& al)
@@ -20,6 +21,15 @@ itk_adjust (FloatImageType::Pointer image_in, const Float_pair_list& al)
     FloatImageType::RegionType rg = image_out->GetLargestPossibleRegion ();
     FloatIteratorType it (image_out, rg);
 
+    Pwlut pwlut;
+    pwlut.set_lut (al);
+
+    for (it.GoToBegin(); !it.IsAtEnd(); ++it) {
+        it.Set (pwlut.lookup (it.Get()));
+    }
+    return image_out;
+
+#if defined (commentout)
     /* Special processing for end caps */
     float left_slope = 1.0;
     float right_slope = 1.0;
@@ -90,6 +100,7 @@ itk_adjust (FloatImageType::Pointer image_in, const Float_pair_list& al)
         it.Set (vout);
     }
     return image_out;
+#endif
 }
 
 FloatImageType::Pointer

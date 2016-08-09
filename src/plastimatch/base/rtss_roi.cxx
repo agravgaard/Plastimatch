@@ -55,6 +55,19 @@ Rtss_roi::add_polyline ()
     return new_polyline;
 }
 
+Rtss_contour*
+Rtss_roi::add_polyline (size_t num_vertices)
+{
+    Rtss_contour* rtss_contour = this->add_polyline();
+    rtss_contour->num_vertices = num_vertices;
+    rtss_contour->slice_no = -1;
+    rtss_contour->ct_slice_uid = "";
+    rtss_contour->x = (float*) malloc (num_vertices * sizeof(float));
+    rtss_contour->y = (float*) malloc (num_vertices * sizeof(float));
+    rtss_contour->z = (float*) malloc (num_vertices * sizeof(float));
+    return rtss_contour;
+}
+
 std::string
 Rtss_roi::adjust_name (const std::string& name_in)
 {

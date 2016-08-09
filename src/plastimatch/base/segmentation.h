@@ -17,7 +17,6 @@ class Plm_image_header;
 class Rt_study;
 class Segmentation_private;
 class Rtss_roi;
-class Slice_index;
 class Xio_ct_transform;
 class Warp_parms;
 
@@ -86,6 +85,9 @@ public:
 
     void add_structure (
         UCharImageType::Pointer itk_image, 
+        const char *structure_name = 0,
+        const char *structure_color = 0);
+    Rtss_roi* add_rtss_roi (
         const char *structure_name = 0,
         const char *structure_color = 0);
 

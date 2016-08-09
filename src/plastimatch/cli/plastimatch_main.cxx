@@ -274,7 +274,7 @@ main (int argc, char *argv[])
     try {
         do_command (argc, argv);
     } catch (const Plm_exception& pe) {
-        fprintf (stderr, "%s", pe.what());
+        //fprintf (stderr, "%s", pe.what());
         return 1;
     }
 

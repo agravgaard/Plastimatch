@@ -5,7 +5,7 @@
 #define _itk_image_h_
 
 #include "plmbase_config.h"
-#include "sys/plm_int.h"
+#include "plm_int.h"
 
 #include "itk_image_type.h"
 

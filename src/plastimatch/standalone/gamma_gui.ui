@@ -1035,13 +1035,13 @@
      <string>File</string>
     </property>
     <addaction name="actionLoad_saved_results"/>
+    <addaction name="actionLoad_proton_dose_file_set"/>
     <addaction name="actionExport_simple_batch_report"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionProfile_View"/>
    </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
@@ -1077,12 +1077,17 @@
   </action>
   <action name="actionLoad_saved_results">
    <property name="text">
-    <string>Load saved results</string>
+    <string>Import workspace file</string>
    </property>
   </action>
   <action name="actionExport_simple_batch_report">
    <property name="text">
     <string>Export simple batch report</string>
+   </property>
+  </action>
+  <action name="actionLoad_proton_dose_file_set">
+   <property name="text">
+    <string>Import proton dose file (*.set)</string>
    </property>
   </action>
  </widget>
@@ -1582,6 +1587,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionLoad_proton_dose_file_set</sender>
+   <signal>triggered()</signal>
+   <receiver>gamma_guiClass</receiver>
+   <slot>SLTM_LoadProtonDoseSetFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>612</x>
+     <y>428</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>SLT_Load_RD_Ref()</slot>
@@ -1602,5 +1623,6 @@
   <slot>SLTM_LoadSavedWorkSpace()</slot>
   <slot>SLT_SetWorkDir()</slot>
   <slot>SLTM_ExportBatchReport()</slot>
+  <slot>SLTM_LoadProtonDoseSetFile()</slot>
  </slots>
 </ui>

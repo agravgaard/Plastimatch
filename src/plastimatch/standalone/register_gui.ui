@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>987</width>
+    <width>838</width>
     <height>913</height>
    </rect>
   </property>
@@ -33,6 +33,13 @@
       </item>
       <item>
        <widget class="QLineEdit" name="lineEditDefaultDirPath"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonBrowseWorkingDir">
+        <property name="text">
+         <string>Browse</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -113,10 +120,10 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="3">
+                 <item row="2" column="3">
                   <widget class="QPushButton" name="pushButton_QueSingle">
                    <property name="text">
-                    <string>Que</string>
+                    <string>Send to Que</string>
                    </property>
                   </widget>
                  </item>
@@ -209,31 +216,70 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
+           <layout class="QVBoxLayout" name="verticalLayout_14">
             <item>
-             <widget class="QGroupBox" name="groupBox_3">
+             <widget class="QGroupBox" name="groupBox_CommandTemplate">
+              <property name="title">
+               <string>Command File Template</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <item>
+                  <widget class="QListWidget" name="listWidgetCommandTemplate"/>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_15">
+                   <item>
+                    <widget class="QPushButton" name="pushButtonTransferTemplate">
+                     <property name="text">
+                      <string>Transfer Selection</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButtonTransferTemplate_2">
+                     <property name="text">
+                      <string>Delete Selection</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButtonBrowseTemplateDir">
+                     <property name="text">
+                      <string>Browse Template Dir</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_CommandFile">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="title">
                <string>Command file</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_12">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_11">
-                 <item>
-                  <widget class="QPushButton" name="pushButton_CreateCommandRigid">
-                   <property name="text">
-                    <string>Create Sample Rigid</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_CreateCommandDeform">
-                   <property name="text">
-                    <string>Create Sample Deformable</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_3">
                  <item>
@@ -267,58 +313,31 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_12">
-                 <item>
-                  <widget class="QLabel" name="label">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Template name</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="comboBox_Template">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_DeleteTemplate">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Del</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_SaveTemplate">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Save</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                  <item>
                   <widget class="QLabel" name="label_2">
                    <property name="text">
                     <string>Command File Editor</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_5">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_CurCommandFile">
+                   <property name="text">
+                    <string>Current file</string>
                    </property>
                   </widget>
                  </item>
@@ -342,10 +361,24 @@
                    </property>
                   </widget>
                  </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_SaveCommandAsTemplate">
+                   <property name="text">
+                    <string>Save As Template</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </item>
                <item>
-                <widget class="QPlainTextEdit" name="plainTextEdit"/>
+                <widget class="QPlainTextEdit" name="plainTextEdit">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>268</height>
+                  </size>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -548,8 +581,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>987</width>
-     <height>22</height>
+     <width>838</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuView">
@@ -559,6 +592,8 @@
     <addaction name="actionLoad_fixed_images"/>
     <addaction name="actionLoad_moving_images"/>
     <addaction name="actionLoad_command_files"/>
+    <addaction name="actionImport_data_pool"/>
+    <addaction name="actionExport_data_pool"/>
     <addaction name="actionSave_Que_Table_To_Text"/>
    </widget>
    <widget class="QMenu" name="menuView_2">
@@ -607,6 +642,16 @@
     <string>Save que table to text file</string>
    </property>
   </action>
+  <action name="actionImport_data_pool">
+   <property name="text">
+    <string>Import data pool</string>
+   </property>
+  </action>
+  <action name="actionExport_data_pool">
+   <property name="text">
+    <string>Export data pool</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
@@ -634,8 +679,8 @@
    <slot>SLT_SaveCommandText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>951</x>
-     <y>245</y>
+     <x>703</x>
+     <y>583</y>
     </hint>
     <hint type="destinationlabel">
      <x>682</x>
@@ -650,8 +695,8 @@
    <slot>SLT_AddSingleToQue()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>477</x>
-     <y>183</y>
+     <x>343</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel">
      <x>568</x>
@@ -683,7 +728,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>202</x>
-     <y>273</y>
+     <y>266</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -746,8 +791,8 @@
    <slot>SLT_CopyCommandFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>598</x>
-     <y>214</y>
+     <x>464</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
      <x>570</x>
@@ -762,8 +807,8 @@
    <slot>SLT_ClearCommandFiles()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>951</x>
-     <y>214</y>
+     <x>802</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
      <x>897</x>
@@ -778,8 +823,8 @@
    <slot>SLT_UpdateFileList()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>487</x>
-     <y>314</y>
+     <x>353</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>572</x>
@@ -795,7 +840,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>129</x>
-     <y>314</y>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>913</x>
@@ -890,7 +935,7 @@
    <slot>SLT_OpenSelectedOutputDir()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
+     <x>568</x>
      <y>813</y>
     </hint>
     <hint type="destinationlabel">
@@ -906,7 +951,7 @@
    <slot>SLT_CopyTableQueToClipboard()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
+     <x>568</x>
      <y>848</y>
     </hint>
     <hint type="destinationlabel">
@@ -954,7 +999,7 @@
    <slot>SLT_ViewSelectedImg()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
+     <x>568</x>
      <y>778</y>
     </hint>
     <hint type="destinationlabel">
@@ -964,34 +1009,162 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_CreateCommandRigid</sender>
-   <signal>released()</signal>
+   <sender>listWidgetCommandTemplate</sender>
+   <signal>itemClicked(QListWidgetItem*)</signal>
    <receiver>register_guiClass</receiver>
-   <slot>SLT_CreateSampleRigid()</slot>
+   <slot>SLT_CommandTemplateSelected()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>691</x>
-     <y>174</y>
+     <x>534</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
-     <x>982</x>
-     <y>218</y>
+     <x>831</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_CreateCommandDeform</sender>
+   <sender>pushButtonTransferTemplate</sender>
    <signal>released()</signal>
    <receiver>register_guiClass</receiver>
-   <slot>SLT_CreateSampleDeform()</slot>
+   <slot>SLT_CopyCommandTemplateToDataPool()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
-     <y>169</y>
+     <x>771</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
-     <x>984</x>
-     <y>194</y>
+     <x>832</x>
+     <y>135</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_SaveCommandAsTemplate</sender>
+   <signal>released()</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLT_SaveCommandFileAsTemplate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>770</x>
+     <y>575</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>833</x>
+     <y>585</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonBrowseWorkingDir</sender>
+   <signal>released()</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLT_BrowseWorkingDir()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>805</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>837</x>
+     <y>87</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonBrowseTemplateDir</sender>
+   <signal>released()</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLT_BrowseTemplateDir()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>240</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>835</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonTransferTemplate_2</sender>
+   <signal>released()</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLT_DeleteSingleTemplate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>771</x>
+     <y>204</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>832</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImport_data_pool</sender>
+   <signal>triggered()</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLTM_ImportDataPool()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>418</x>
+     <y>456</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExport_data_pool</sender>
+   <signal>triggered()</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLTM_ExportDataPool()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>418</x>
+     <y>456</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tableView_main</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLT_ItemClickedMain()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>387</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>7</x>
+     <y>389</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tableView_que</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>register_guiClass</receiver>
+   <slot>SLT_ItemClickedQue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>483</x>
+     <y>164</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>40</y>
     </hint>
    </hints>
   </connection>
@@ -1022,5 +1195,15 @@
   <slot>SLT_ViewSelectedImg()</slot>
   <slot>SLT_CreateSampleRigid()</slot>
   <slot>SLT_CreateSampleDeform()</slot>
+  <slot>SLT_CommandTemplateSelected()</slot>
+  <slot>SLT_CopyCommandTemplateToDataPool()</slot>
+  <slot>SLT_SaveCommandFileAsTemplate()</slot>
+  <slot>SLT_BrowseWorkingDir()</slot>
+  <slot>SLT_BrowseTemplateDir()</slot>
+  <slot>SLT_DeleteSingleTemplate()</slot>
+  <slot>SLTM_ImportDataPool()</slot>
+  <slot>SLTM_ExportDataPool()</slot>
+  <slot>SLT_ItemClickedMain()</slot>
+  <slot>SLT_ItemClickedQue()</slot>
  </slots>
 </ui>

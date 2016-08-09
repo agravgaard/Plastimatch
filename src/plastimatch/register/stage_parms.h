@@ -126,6 +126,7 @@ public:
     int optim_subtype;       /* used for demons types (diffeomorphic, etc.) */
     char alg_flavor;
     Threading threading_type;
+    int gpuid;               /* Sets GPU to use for multi-gpu machines */
     /* Similarity metric */
     std::vector<Registration_metric_type> metric_type;
     std::vector<float> metric_lambda;
@@ -149,6 +150,7 @@ public:
     float grad_tol;
     /* LBGFGB optimizer */
     float pgtol;
+    int lbfgsb_mmax;
     /* Versor & RSG optimizer */
     float max_step;
     float min_step;
@@ -199,6 +201,7 @@ public:
     float gridsearch_min_overlap[3];
     Gridsearch_step_size_type gridsearch_step_size_type;
     float gridsearch_step_size[3];
+    int gridsearch_min_steps[3];
     /* Landmarks */
     float landmark_stiffness; //strength of attraction between landmarks
     char landmark_flavor;

@@ -1624,7 +1624,8 @@ bspline_score_h_mi (
                     if (fijk[2] >= bxf->roi_offset[2] + bxf->roi_dim[2]) { continue; }
 
                     /* Compute space coordinates of fixed image voxel */
-                    GET_WORLD_COORDS (fxyz, fijk, fixed, bxf);
+                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
+                        fixed->step);
 
                     /* JAS 2012.03.26: Tends to break the optimizer (PGTOL)   */
                     /* Check to make sure the indices are valid (inside roi) */
@@ -1870,7 +1871,8 @@ bspline_score_g_mi (
                     if (fijk[2] >= bxf->roi_offset[2] + bxf->roi_dim[2]) { continue; }
 
                     /* Compute space coordinates of fixed image voxel */
-                    GET_WORLD_COORDS (fxyz, fijk, fixed, bxf);
+                    POSITION_FROM_COORDS (fxyz, fijk, bxf->img_origin, 
+                        fixed->step);
 
                     /* Compute deformation vector (dxyz) for voxel */
                     bspline_interp_pix_c (dxyz, bxf, pidx, q);

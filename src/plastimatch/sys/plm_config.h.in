@@ -28,13 +28,6 @@
 #define CMAKE_SIZEOF_SIZE_T @CMAKE_SIZEOF_SIZE_T@
 #define PLM_BIG_ENDIAN @PLM_BIG_ENDIAN@
 
-/* Plastimatch version attributes */
-#cmakedefine PLASTIMATCH_HAVE_BUILD_NUMBER 1
-#define PLASTIMATCH_BUILD_NUMBER "@PLASTIMATCH_SVN_VERSION@"
-#cmakedefine PLM_DEFAULT_VERSION_STRING "@PLM_DEFAULT_VERSION_STRING@"
-#cmakedefine PLM_RELEASE_VERSION_STRING "@PLM_RELEASE_VERSION_STRING@"
-#cmakedefine PLM_CONFIG_VERSION_STRING "@PLM_CONFIG_VERSION_STRING@"
-
 /* External libraries */
 #cmakedefine CUDA_FOUND 1
 #cmakedefine DCMTK_FOUND 1
@@ -52,10 +45,9 @@
 
 /* User options */
 #cmakedefine PLM_BUILD_SHARED_LIBS 1
-#cmakedefine PLM_CONFIG_ALT_DCOS 1
 #cmakedefine PLM_CONFIG_KEYHOLIZE 1
-#cmakedefine PLM_CONFIG_USE_SS_IMAGE_VEC 1
 #cmakedefine PLM_CONFIG_USE_PATCHED_ITK 1
+#cmakedefine PLM_CONFIG_VOL_LIST 1
 
 #cmakedefine PLM_CONFIG_LEGACY_BSPLINE_EXTEND 1
 #cmakedefine PLM_CONFIG_LEGACY_BSPLINE_XFORM_IO 1
@@ -120,44 +112,37 @@
 #pragma clang diagnostic ignored "-Wtautological-compare"
 #endif
 
-#if _MSC_VER < 1700
+#if defined(_MSC_VER) && _MSC_VER < 1700
 #define inline __inline
 #endif
 
-#if defined(__BORLANDC__) || defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
 #endif
 
-
-/* JAS 2012.04.24
- * Plastimatch 2.0 method for demangling symbols */
 #ifdef __cplusplus
 #define EXTERNC extern "C"
 #else
 #define EXTERNC
 #endif
 
-
-/* JAS 2011.02.07
- * GPU Plugins are not considered "shared libs"
- * otherwise Win32 build will break when not using "shared libs" */
 #if ((defined(_WIN32) || defined(WIN32)) && (defined (PLM_USE_GPU_PLUGINS)))
 #ifdef plmcuda_EXPORTS
- #define plmcuda_EXPORT(f, ...)                                     \
+#define plmcuda_EXPORT(f, ...)                                     \
     __declspec(dllexport)                                          \
     f (__VA_ARGS__); typedef f##_t(__VA_ARGS__); 
  #else
- #define plmcuda_EXPORT(f, ...)                                     \
+#define plmcuda_EXPORT(f, ...)                                     \
     __declspec(dllimport)                                          \
     f (__VA_ARGS__); typedef f##_t(__VA_ARGS__); 
 #endif
 
 #ifdef plmopencl_EXPORTS
- #define plmopencl_EXPORT(f, ...)                                   \
+#define plmopencl_EXPORT(f, ...)                                   \
     __declspec(dllexport)                                          \
     f (__VA_ARGS__); typedef f##_t(__VA_ARGS__); 
 #else
- #define plmopencl_EXPORT(f, ...)                                   \
+#define plmopencl_EXPORT(f, ...)                                   \
     __declspec(dllimport)                                          \
     f (__VA_ARGS__); typedef f##_t(__VA_ARGS__); 
 #endif

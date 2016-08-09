@@ -1,0 +1,14 @@
+--- Plastimatch/CMakeLists.txt	2016-08-10 00:27:25.156643775 +0200
++++ GitLabPlastimatch/CMakeLists.txt	2016-08-10 00:54:09.816626316 +0200
+@@ -8,8 +8,9 @@
+ ## The version here should be equal to the "next release"
+ set (PLM_VERSION_MAJOR "1")
+ set (PLM_VERSION_MINOR "6")
+-set (PLM_VERSION_PATCH "3")
+-set (PLM_RELEASE_VERSION FALSE)
++set (PLM_VERSION_PATCH "4")
++#set (PLM_RELEASE_VERSION FALSE)
++set (PLM_RELEASE_VERSION TRUE)
+ 
+ ##-----------------------------------------------------------------------------
+ ##  Set up CMake defaults

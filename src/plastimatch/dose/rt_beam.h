@@ -56,6 +56,9 @@ public:
     /*! \brief Set the position of the beam isocenter in world coordinates. */
     void set_isocenter_position (const double position[3]);
 
+    /*! \brief Get the source distance. */
+    double get_source_distance () const;
+    
     /*! \brief Get "flavor" parameter of dose calculation algorithm */
     char get_flavor () const;
     /*! \brief Set "flavor" parameter of dose calculation algorithm */

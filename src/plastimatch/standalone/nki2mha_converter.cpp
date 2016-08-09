@@ -436,7 +436,7 @@ QString nki2mha_converter::CorrectSingle_NKI2RAW( const char* filePath )
     if ( v->pix_size != 2)//USHORT or short only
     {		
         cout << "not supported file format. only USHORT 16 bit is compatible" << endl;
-        return false;
+        return "";
     }
 
     int img2DSize = imgWidth*imgHeight;	

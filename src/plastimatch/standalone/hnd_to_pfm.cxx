@@ -40,7 +40,7 @@ main (int argc, char* argv[])
     }
 
     /* Write image and header */
-    proj_image_save (proj, pfm_fn, mat_fn);
+    proj->save (pfm_fn, mat_fn);
 
     delete proj;
     return 0;

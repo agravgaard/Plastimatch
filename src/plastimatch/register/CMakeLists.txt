@@ -167,6 +167,7 @@ plm_add_library (
   "${PLMREGISTER_LIBRARY_SRC}" 
   "${PLMREGISTER_LIBRARY_DEPENDENCIES}"
   "${PLMREGISTER_LIBRARY_LDFLAGS}"
+  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
   "")
 
 # because plmregistercuda is dynamically loaded (not linked)

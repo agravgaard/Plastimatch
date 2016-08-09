@@ -172,11 +172,7 @@ Direction_cosines::set (const DirectionType& itk_dc)
 {
     for (unsigned int d1 = 0; d1 < 3; d1++) {
 	for (unsigned int d2 = 0; d2 < 3; d2++) {
-#if defined (PLM_CONFIG_ALT_DCOS)
-	    d_ptr->direction_matrix[d1*3+d2] = itk_dc[d2][d1];
-#else
 	    d_ptr->direction_matrix[d1*3+d2] = itk_dc[d1][d2];
-#endif
 	}
     }
     solve_inverse ();

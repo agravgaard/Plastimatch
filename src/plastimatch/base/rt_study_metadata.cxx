@@ -16,14 +16,16 @@ class Rt_study_metadata_private {
 public:
     std::string date_string;
     std::string time_string;
+
+    std::string study_uid;
+    std::string for_uid;
+
     std::string ct_series_uid;
     std::string dose_instance_uid;
     std::string dose_series_uid;
-    std::string for_uid;
     std::string plan_instance_uid;
     std::string rtss_instance_uid;
     std::string rtss_series_uid;
-    std::string study_uid;
     Slice_list slice_list;
 
     Metadata::Pointer study_metadata;
@@ -34,14 +36,6 @@ public:
 public:
     Rt_study_metadata_private () {
         dicom_get_date_time (&date_string, &time_string);
-        study_uid = dicom_uid (PLM_UID_PREFIX);
-        for_uid = dicom_uid (PLM_UID_PREFIX);
-        ct_series_uid = dicom_uid (PLM_UID_PREFIX);
-        plan_instance_uid = dicom_uid (PLM_UID_PREFIX);
-        rtss_instance_uid = dicom_uid (PLM_UID_PREFIX);
-        rtss_series_uid = dicom_uid (PLM_UID_PREFIX);
-        dose_instance_uid = dicom_uid (PLM_UID_PREFIX);
-        dose_series_uid = dicom_uid (PLM_UID_PREFIX);
 
         study_metadata = Metadata::New ();
         image_metadata = Metadata::New ();
@@ -52,18 +46,24 @@ public:
         image_metadata->set_parent (study_metadata);
         rtss_metadata->set_parent (study_metadata);
         dose_metadata->set_parent (study_metadata);
+
+        this->generate_new_study_uids ();
+        this->generate_new_series_uids ();
     }
 public:
     void
-    generate_new_uids () {
+    generate_new_study_uids () {
         study_uid = dicom_uid (PLM_UID_PREFIX);
         for_uid = dicom_uid (PLM_UID_PREFIX);
+    }
+    void
+    generate_new_series_uids () {
         ct_series_uid = dicom_uid (PLM_UID_PREFIX);
+        dose_instance_uid = dicom_uid (PLM_UID_PREFIX);
+        dose_series_uid = dicom_uid (PLM_UID_PREFIX);
         plan_instance_uid = dicom_uid (PLM_UID_PREFIX);
         rtss_instance_uid = dicom_uid (PLM_UID_PREFIX);
         rtss_series_uid = dicom_uid (PLM_UID_PREFIX);
-        dose_instance_uid = dicom_uid (PLM_UID_PREFIX);
-        dose_series_uid = dicom_uid (PLM_UID_PREFIX);
     }
 };
 
@@ -322,6 +322,23 @@ Rt_study_metadata::get_image_metadata () const
     return d_ptr->image_metadata;
 }
 
+const std::string& 
+Rt_study_metadata::get_image_metadata (
+    unsigned short key1, 
+    unsigned short key2
+) {
+    return d_ptr->image_metadata->get_metadata (key1, key2);
+}
+
+void
+Rt_study_metadata::set_image_metadata (
+    unsigned short key1, 
+    unsigned short key2,
+    const std::string& val
+) {
+    d_ptr->image_metadata->set_metadata (key1, key2, val);
+}
+
 Metadata::Pointer&
 Rt_study_metadata::get_rtss_metadata ()
 {
@@ -332,6 +349,15 @@ const Metadata::Pointer&
 Rt_study_metadata::get_rtss_metadata () const
 {
     return d_ptr->rtss_metadata;
+}
+
+void
+Rt_study_metadata::set_rtss_metadata (
+    unsigned short key1, 
+    unsigned short key2,
+    const std::string& val
+) {
+    d_ptr->rtss_metadata->set_metadata (key1, key2, val);
 }
 
 Metadata::Pointer&
@@ -347,7 +373,22 @@ Rt_study_metadata::get_dose_metadata () const
 }
 
 void
-Rt_study_metadata::generate_new_uids () 
+Rt_study_metadata::set_dose_metadata (
+    unsigned short key1, 
+    unsigned short key2,
+    const std::string& val
+) {
+    d_ptr->dose_metadata->set_metadata (key1, key2, val);
+}
+
+void
+Rt_study_metadata::generate_new_study_uids () 
 {
-    d_ptr->generate_new_uids ();
+    d_ptr->generate_new_study_uids ();
+}
+
+void
+Rt_study_metadata::generate_new_series_uids () 
+{
+    d_ptr->generate_new_series_uids ();
 }

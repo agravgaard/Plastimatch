@@ -4,8 +4,8 @@ target=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Tumor.mha
 skin=@PLM_BUILD_TESTING_DIR@/lung-1-prefix/Body.mha
 
 [OUTPUT SETTINGS]
-proj_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-ct.mha
-proj_wed=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-wed.mha
+proj_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-ct.rpl
+proj_wed=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-proj-wed.rpl
 wed_ct=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-wed-ct.mha
 
 [BEAM]

@@ -1286,10 +1286,10 @@ Mabs::atlas_prealign ()
 
     /* Parse directory with registration files */
     if (d_ptr->parms->prealign_mode == "disabled") {
-        print_and_exit ("Prealignment not enabled in parameters file!");
+        print_and_exit ("Prealignment not enabled in parameters file!\n");
     }
     else if (d_ptr->parms->prealign_mode == "default") {
-        print_and_exit ("No default prealignment implemented yet!");
+        print_and_exit ("No default prealignment implemented yet!\n");
     }
     else if (d_ptr->parms->prealign_mode == "custom") {
         this->parse_registration_dir (d_ptr->parms->prealign_registration_config);
@@ -1299,7 +1299,7 @@ Mabs::atlas_prealign ()
     this->load_process_dir_list (d_ptr->convert_dir);
     if (d_ptr->process_dir_list.size() < 2) {
         print_and_exit ("Error.  Prealignment requires at least two "
-            "images in the convert directory.");
+            "images in the convert directory.\n");
     }
 
     /* Identify directory of reference image */
@@ -1312,7 +1312,7 @@ Mabs::atlas_prealign ()
             d_ptr->parms->prealign_reference.c_str());
         if (!is_directory (reference_dir)) {
             print_and_exit ("Error.  Prealignment reference directory (%s) "
-                " was not found.", reference_dir.c_str());
+                " was not found.\n", reference_dir.c_str());
         }
     } else {
         reference_dir = d_ptr->process_dir_list.front();

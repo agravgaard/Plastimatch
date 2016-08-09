@@ -80,11 +80,7 @@ Dvh::run ()
     plm_long ss_dim[3];
 
     FloatImageType::Pointer dose_img = d_ptr->dose->itk_float ();
-#if (PLM_CONFIG_USE_SS_IMAGE_VEC)
     UCharVecImageType::Pointer ss_img = d_ptr->rtss->get_ss_img_uchar_vec ();
-#else
-    UInt32ImageType::Pointer ss_img = d_ptr->rtss->get_ss_img_uint32 ();
-#endif
 
     /* GCS HACK: This should go into rtss.cxx */
     Rtss *ss_list;
@@ -92,11 +88,7 @@ Dvh::run ()
         ss_list = d_ptr->rtss->get_structure_set_raw();
     } else {
         ss_list = new Rtss;
-#if (PLM_CONFIG_USE_SS_IMAGE_VEC)
         int num_structures = ss_img->GetVectorLength() * 8;
-#else
-        int num_structures = 32;
-#endif
         for (int i = 0; i < num_structures; i++) {
             ss_list->add_structure ("Unknown Structure", 
                 "255 255 0", i+1, i);
@@ -164,15 +156,9 @@ Dvh::run ()
     typedef itk::ImageRegionConstIterator < FloatImageType > 
         FloatIteratorType;
     FloatIteratorType it_d (dose_img, dose_img->GetRequestedRegion ());
-#if (PLM_CONFIG_USE_SS_IMAGE_VEC)
     typedef itk::ImageRegionConstIterator < UCharVecImageType > 
         UCharVecIteratorType;
     UCharVecIteratorType it_s (ss_img, ss_img->GetRequestedRegion ());
-#else
-    typedef itk::ImageRegionConstIterator < UInt32ImageType > 
-        UInt32IteratorType;
-    UInt32IteratorType it_s (ss_img, ss_img->GetRequestedRegion ());
-#endif
 
     /* Loop through dose & ss images */
     for (it_d.GoToBegin(), it_s.GoToBegin(); 
@@ -180,11 +166,7 @@ Dvh::run ()
          ++it_d, ++it_s)
     {
         float d = it_d.Get();
-#if (PLM_CONFIG_USE_SS_IMAGE_VEC)
 	itk::VariableLengthVector<unsigned char> s = it_s.Get();
-#else
-        uint32_t s = it_s.Get();
-#endif
 
         /* Convert from cGy to Gy */
         if (d_ptr->dose_units == DVH_UNITS_CGY) {
@@ -203,7 +185,6 @@ Dvh::run ()
             Rtss_roi *curr_structure = ss_list->slist[sno];
                     
             /* Is this pixel in the current structure? */
-#if (PLM_CONFIG_USE_SS_IMAGE_VEC)
             int curr_bit = curr_structure->bit;
             unsigned int uchar_no = curr_bit / 8;
             unsigned int bit_no = curr_bit % 8;
@@ -214,9 +195,6 @@ Dvh::run ()
                     curr_bit, ss_img->GetVectorLength() * 8);
             }
             bool in_struct = s[uchar_no] & bit_mask;
-#else            
-            uint32_t in_struct = s & (1 << curr_structure->bit);
-#endif
 
             /* If so, update histogram & structure size */
             if (in_struct) {

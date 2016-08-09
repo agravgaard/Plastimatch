@@ -254,7 +254,8 @@ save_output (
     float default_value, 
     const std::string& img_out_fn,
     const std::string& vf_out_fn,
-    const std::string& warped_landmarks_fn
+    const std::string& warped_landmarks_fn,
+    const std::string& valid_roi_out_fn
 )
 {
     /* Handle null xf, make it zero translation */
@@ -276,7 +277,9 @@ save_output (
         }
     }
 
-    if (img_out_fn[0] || vf_out_fn[0] || warped_landmarks_fn[0]) {
+    if (img_out_fn[0] || vf_out_fn[0] || warped_landmarks_fn[0]
+        || valid_roi_out_fn[0])
+    {
         DeformationFieldType::Pointer vf;
         DeformationFieldType::Pointer *vfp;
         Plm_image::Pointer im_warped;
@@ -318,6 +321,15 @@ save_output (
         if (vf_out_fn[0]) {
             logfile_printf ("Saving vf...\n");
             itk_image_save (vf, vf_out_fn);
+        }
+        if (valid_roi_out_fn[0]) {
+            logfile_printf ("Warping valid ROI...\n");
+            Plm_image::Pointer valid_roi
+                = Plm_image::clone (regd->moving_image);
+#if defined (commentout)
+            plm_warp (im_warped, vfp, xf_out, &pih, regd->moving_image, 
+                default_value, 0, 1);
+#endif
         }
     }
 }
@@ -530,7 +542,8 @@ Registration::run_main_thread ()
                 stage->xf_out_fn, stage->xf_out_itk, 
                 stage->img_out_fmt, stage->img_out_type, 
                 stage->default_value, stage->img_out_fn, 
-                stage->vf_out_fn, shared->warped_landmarks_fn);
+                stage->vf_out_fn, shared->warped_landmarks_fn, 
+                shared->valid_roi_out_fn);
 
             /* Tell the parent thread that we finished a stage, 
                so it can wake up if needed. */
@@ -611,7 +624,8 @@ Registration::save_global_outputs ()
     save_output (regd.get(), d_ptr->xf_out, regp->xf_out_fn, regp->xf_out_itk, 
         regp->img_out_fmt, regp->img_out_type, 
         regp->default_value, regp->img_out_fn, 
-        regp->vf_out_fn, shared->warped_landmarks_fn.c_str());
+        regp->vf_out_fn, shared->warped_landmarks_fn,
+        shared->valid_roi_out_fn);
 }
 
 Xform::Pointer

@@ -468,7 +468,7 @@ Rtss::set_rasterization_geometry (void)
 }
 
 void
-Rtss::apply_slice_index (const Rt_study_metadata::Pointer& rsm)
+Rtss::apply_slice_list (const Rt_study_metadata::Pointer& rsm)
 {
     this->apply_slice_list (rsm->get_slice_list());
 }

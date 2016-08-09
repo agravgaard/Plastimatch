@@ -21,7 +21,6 @@ set (PLMUTIL_LIBRARY_SRC
   distance_map.cxx
   diff.cxx
   dvh.cxx dvh.h 
-  float_pair_list.cxx float_pair_list.h
   gamma_dose_comparison.cxx gamma_dose_comparison.h
   geometry_chooser.cxx geometry_chooser.h 
   hausdorff_distance.cxx hausdorff_distance.h 
@@ -97,4 +96,5 @@ plm_add_library (
   "${PLMUTIL_LIBRARY_SRC}" 
   "${PLMUTIL_LIBRARY_DEPENDENCIES}"
   "${PLMUTIL_LIBRARY_LDFLAGS}"
+  "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
   "${PLMUTIL_LIBRARY_HEADERS}")

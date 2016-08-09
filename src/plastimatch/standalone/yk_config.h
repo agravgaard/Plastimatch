@@ -31,6 +31,18 @@ struct VEC3D{
     double z;
 };
 
+// 1mm spacing, unit = cGy
+class ProtonSetFileMGH{
+public:
+    VEC3D fDim;
+    VEC3D fOrigin;
+    VEC3D fSpacing;
+    QString strCTDir;
+    QString strPathCompDose;
+    QString strPathRefDose;
+};
+
+
 
 enum enPLANE{
     PLANE_AXIAL = 0,

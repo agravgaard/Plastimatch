@@ -216,39 +216,3 @@ plm_chdir (char* s)
     return _chdir (s);
 #endif
 }
-
-/* cross platform directory list */
-int
-plm_get_dir_list (const char*** f_list)
-{
-#if (WIN32)
-    // Win32 Version goes here
-    return -1;
-#elif (UNIX)
-    DIR *dp;
-    struct dirent *ep;
-    char b[NAME_MAX];
-    int n;
-
-    if (!plm_getcwd (b, NAME_MAX)) {
-        return -1;
-    }
-
-    dp = opendir (b);
-    if (dp != NULL) {
-        n=0;
-        while ((ep=readdir(dp))) { n++; }
-        *f_list = (const char**)malloc (n*sizeof(char*));
-        rewinddir (dp);
-        n=0;
-        while ((ep=readdir(dp))) {
-            (*f_list)[n] = (char*)malloc (strlen(ep->d_name));
-            strcpy ((char*)(*f_list)[n++], ep->d_name);
-        }
-        (void) closedir (dp);
-        return n;
-    } else {
-        return -1;
-    }
-#endif
-}

@@ -53,6 +53,7 @@ if (CUDA_FOUND)
       "${PLMCUDA_LIBRARY_SRC}" 
       "${PLMCUDA_LIBRARY_DEPENDENCIES}"
       ""
+      "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
       "")
   endif ()
 endif ()
