@@ -33,8 +33,6 @@ public:
     Regularization_parms *reg_parms;
     Bspline_xform *bxf;
 
-    Volume* fixed;
-    Volume* moving;
     Volume* fixed_stiffness;
 
     /* numeric methods */

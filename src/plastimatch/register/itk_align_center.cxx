@@ -26,10 +26,12 @@ itk_align_center (
     Registration_data* regd, Xform *xf_out, 
     const Xform *xf_in, const Stage_parms* stage)
 {
+    Plm_image::Pointer fixed_image = regd->get_fixed_image();
+    Plm_image::Pointer moving_image = regd->get_moving_image();
     float fixed_center[3];
     float moving_center[3];
-    itk_volume_center (fixed_center, regd->fixed_image->itk_float());
-    itk_volume_center (moving_center, regd->moving_image->itk_float());
+    itk_volume_center (fixed_center, fixed_image->itk_float());
+    itk_volume_center (moving_center, moving_image->itk_float());
 
     itk::Array<double> trn_parms (3);
     trn_parms[0] = moving_center[0] - fixed_center[0];
@@ -43,15 +45,18 @@ itk_align_center_of_gravity (
     Registration_data* regd, Xform *xf_out, 
     const Xform *xf_in, const Stage_parms* stage)
 {
-    if (regd->fixed_roi != NULL && regd->moving_roi != NULL) {
-        typedef itk::ImageMomentsCalculator<UCharImageType> ImageMomentsCalculatorType;
-        
-        ImageMomentsCalculatorType::Pointer fixedCalculator = ImageMomentsCalculatorType::New();
-        fixedCalculator->SetImage(regd->fixed_roi->itk_uchar());
+    if (regd->get_fixed_roi() && regd->get_moving_roi()) {
+        typedef itk::ImageMomentsCalculator<UCharImageType>
+            ImageMomentsCalculatorType;
+
+        ImageMomentsCalculatorType::Pointer fixedCalculator
+            = ImageMomentsCalculatorType::New();
+        fixedCalculator->SetImage(regd->get_fixed_roi()->itk_uchar());
         fixedCalculator->Compute();
 
-        ImageMomentsCalculatorType::Pointer movingCalculator = ImageMomentsCalculatorType::New();
-        movingCalculator->SetImage(regd->moving_roi->itk_uchar());
+        ImageMomentsCalculatorType::Pointer movingCalculator
+            = ImageMomentsCalculatorType::New();
+        movingCalculator->SetImage(regd->get_moving_roi()->itk_uchar());
         movingCalculator->Compute();
 
         ImageMomentsCalculatorType::VectorType fixedCenter; 

@@ -22,6 +22,7 @@
 #include "rt_study_p.h"
 #include "rtss.h"
 #include "segmentation.h"
+#include "string_util.h"
 #include "volume.h"
 #include "xio_ct.h"
 #include "xio_ct_transform.h"
@@ -60,20 +61,23 @@ Rt_study::load (const char* input_path,
         this->load_image (input_path);
         break;
     case PLM_FILE_FMT_DICOM_DIR:
-        this->load_dicom_dir ((const char*) input_path);
+        this->load_dicom_dir (input_path);
         break;
     case PLM_FILE_FMT_XIO_DIR:
-        this->load_xio ((const char*) input_path);
+        this->load_xio (input_path);
+        break;
+    case PLM_FILE_FMT_RT_STUDY_DIR:
+        this->load_rt_study_dir (input_path);
         break;
     case PLM_FILE_FMT_DIJ:
         print_and_exit (
             "Warping dij files requires ctatts_in, dif_in files\n");
         break;
     case PLM_FILE_FMT_DICOM_RTSS:
-        this->load_dicom_rtss ((const char*) input_path);
+        this->load_dicom_rtss (input_path);
         break;
     case PLM_FILE_FMT_DICOM_DOSE:
-        this->load_dicom_dose ((const char*) input_path);
+        this->load_dicom_dose (input_path);
         break;
     case PLM_FILE_FMT_DICOM_RTPLAN:
         this->load_dicom_rtplan((const char*)input_path);
@@ -145,16 +149,29 @@ Rt_study::load_dicom (const char *dicom_dir)
 void
 Rt_study::load_dicom_rtss (const char *dicom_path)
 {
-    d_ptr->m_rtss.reset ();
+    d_ptr->m_seg.reset ();
 #if PLM_DCM_USE_DCMTK
     this->load_dcmtk (dicom_path);
 #elif PLM_DCM_USE_GDCM1
-    d_ptr->m_rtss = Segmentation::New ();
-    d_ptr->m_rtss->load_gdcm_rtss (dicom_path, d_ptr->m_drs.get());
+    d_ptr->m_seg = Segmentation::New ();
+    d_ptr->m_seg->load_gdcm_rtss (dicom_path, d_ptr->m_drs.get());
 #else
     /* Do nothing */
 #endif
 }
+
+void
+Rt_study::load_dicom_rtplan(const char *dicom_path)
+{    
+#if PLM_DCM_USE_DCMTK
+    this->load_dcmtk(dicom_path);
+#elif PLM_DCM_USE_GDCM1
+    //not yet implemented
+#else
+    /* Do nothing */
+#endif
+}
+
 
 void
 Rt_study::load_dicom_dose (const char *dicom_path)
@@ -163,20 +180,6 @@ Rt_study::load_dicom_dose (const char *dicom_path)
     this->load_dcmtk (dicom_path);
 #elif PLM_DCM_USE_GDCM1
     d_ptr->m_dose.reset (gdcm1_dose_load (0, dicom_path));
-#else
-    /* Do nothing */
-#endif
-}
-
-
-void
-Rt_study::load_dicom_rtplan(const char *dicom_path)
-{
-    //d_ptr->m_rtplan.reset();//currently no need of priviate structure but metadata.
-#if PLM_DCM_USE_DCMTK
-    this->load_dcmtk(dicom_path);
-#elif PLM_DCM_USE_GDCM1
-    //not yet implemented
 #else
     /* Do nothing */
 #endif
@@ -246,12 +249,12 @@ Rt_study::load_xio (const char *xio_dir)
     xio_ct_load (d_ptr->m_img.get(), &xst);
 
     /* Load the XiO studyset structure set */
-    d_ptr->m_rtss = Segmentation::New ();
-    d_ptr->m_rtss->load_xio (xst);
+    d_ptr->m_seg = Segmentation::New ();
+    d_ptr->m_seg->load_xio (xst);
 
     /* Apply XiO CT geometry to structures */
-    if (d_ptr->m_rtss->have_structure_set()) {
-        Rtss *rtss_ss = d_ptr->m_rtss->get_structure_set_raw ();
+    if (d_ptr->m_seg->have_structure_set()) {
+        Rtss *rtss_ss = d_ptr->m_seg->get_structure_set_raw ();
         rtss_ss->set_geometry (d_ptr->m_img);
     }
 
@@ -265,6 +268,10 @@ Rt_study::load_xio (const char *xio_dir)
         if (demographic.m_patient_id != "") {
             d_ptr->m_drs->set_study_metadata (0x0010, 0x0020, 
                 demographic.m_patient_id);
+        }
+        if (demographic.m_import_date != "") {
+            d_ptr->m_drs->set_study_date (demographic.m_import_date);
+            d_ptr->m_drs->set_study_time ("");
         }
     }
 
@@ -288,8 +295,8 @@ Rt_study::load_xio (const char *xio_dir)
     if (d_ptr->m_img) {
         xio_ct_apply_transform (d_ptr->m_img.get(), d_ptr->m_xio_transform);
     }
-    if (d_ptr->m_rtss->have_structure_set()) {
-        xio_structures_apply_transform (d_ptr->m_rtss->get_structure_set_raw(),
+    if (d_ptr->m_seg->have_structure_set()) {
+        xio_structures_apply_transform (d_ptr->m_seg->get_structure_set_raw(),
             d_ptr->m_xio_transform);
     }
     if (d_ptr->m_dose) {
@@ -298,10 +305,25 @@ Rt_study::load_xio (const char *xio_dir)
 }
 
 void
+Rt_study::load_rt_study_dir (const char *rt_study_dir)
+{
+    std::string fn = string_format ("%s/img.nrrd", rt_study_dir);
+    this->load_image (fn);
+    fn = string_format ("%s/structures", rt_study_dir);
+    this->load_prefix (fn);
+}
+
+void
+Rt_study::load_rt_study_dir (const std::string& rt_study_dir)
+{
+    load_rt_study_dir (rt_study_dir.c_str());
+}
+
+void
 Rt_study::load_ss_img (const char *ss_img, const char *ss_list)
 {
-    d_ptr->m_rtss = Segmentation::New ();
-    d_ptr->m_rtss->load (ss_img, ss_list);
+    d_ptr->m_seg = Segmentation::New ();
+    d_ptr->m_seg->load (ss_img, ss_list);
 }
 
 void
@@ -389,15 +411,21 @@ Rt_study::load_dose_mc (const char *dose_mc)
 void 
 Rt_study::load_cxt (const char *input_fn)
 {
-    d_ptr->m_rtss = Segmentation::New ();
-    d_ptr->m_rtss->load_cxt (input_fn, d_ptr->m_drs.get());
+    d_ptr->m_seg = Segmentation::New ();
+    d_ptr->m_seg->load_cxt (input_fn, d_ptr->m_drs.get());
 }
 
 void 
 Rt_study::load_prefix (const char *input_fn)
 {
-    d_ptr->m_rtss = Segmentation::New ();
-    d_ptr->m_rtss->load_prefix (input_fn);
+    d_ptr->m_seg = Segmentation::New ();
+    d_ptr->m_seg->load_prefix (input_fn);
+}
+
+void 
+Rt_study::load_prefix (const std::string& input_fn)
+{
+    this->load_prefix (input_fn.c_str());
 }
 
 void
@@ -410,8 +438,8 @@ Rt_study::save_dicom (const char *dicom_dir, bool filenames_with_uid)
     if (d_ptr->m_img) {
         d_ptr->m_drs->set_image_header (d_ptr->m_img);
     }
-    if (d_ptr->m_rtss) {
-        d_ptr->m_rtss->cxt_extract ();
+    if (d_ptr->m_seg) {
+        d_ptr->m_seg->cxt_extract ();
     }
 
 #if PLM_DCM_USE_DCMTK
@@ -443,6 +471,30 @@ Rt_study::save_dicom_dose (const char *dicom_dir)
 }
 
 void
+Rt_study::save_image (const std::string& fname)
+{
+    if (fname != "") {
+        d_ptr->m_img->save_image (fname);
+    }
+}
+
+void
+Rt_study::save_image (const char* fname)
+{
+    if (d_ptr->m_img) {
+        d_ptr->m_img->save_image (fname);
+    }
+}
+
+void
+Rt_study::save_image (const char* fname, Plm_image_type image_type)
+{
+    if (d_ptr->m_img) {
+        d_ptr->m_img->convert_and_save (fname, image_type);
+    }
+}
+
+void
 Rt_study::save_dose (const std::string& fname)
 {
     if (fname != "") {
@@ -471,7 +523,7 @@ Rt_study::save_prefix (
     const std::string& output_prefix, 
     const std::string& extension)
 {
-    d_ptr->m_rtss->save_prefix (output_prefix, extension);
+    d_ptr->m_seg->save_prefix (output_prefix, extension);
 }
 
 const Rt_study_metadata::Pointer&
@@ -487,28 +539,57 @@ Rt_study::get_rt_study_metadata ()
 }
 
 void 
-Rt_study::set_study_metadata (std::vector<std::string>& metadata)
+Rt_study::set_study_metadata (const std::vector<std::string>& metadata)
 {
     Metadata::Pointer& study_metadata = d_ptr->m_drs->get_study_metadata ();
-
-    std::vector<std::string>::iterator it = metadata.begin();
-    while (it < metadata.end()) {
-        const std::string& str = (*it);
-        size_t eq_pos = str.find_first_of ('=');
-        if (eq_pos != std::string::npos) {
-            std::string key = str.substr (0, eq_pos);
-            std::string val = str.substr (eq_pos+1);
-#if defined (commentout)
-            /* Set older-style metadata, used by gdcm */
-            d_ptr->m_meta->set_metadata (key, val);
-#endif
-            /* Set newer-style metadata, used by dcmtk */
-            study_metadata->set_metadata (key, val);
-        }
-        ++it;
-    }
-
+    study_metadata->set_metadata (metadata);
+    /* GCS FIX.  This is the wrong place for this. */
     d_ptr->m_xio_transform->set (d_ptr->m_drs->get_image_metadata());
+}
+
+Metadata::Pointer&
+Rt_study::get_study_metadata (void)
+{
+    return d_ptr->m_drs->get_study_metadata();
+}
+
+void 
+Rt_study::set_image_metadata (const std::vector<std::string>& metadata)
+{
+    Metadata::Pointer& image_metadata = d_ptr->m_drs->get_image_metadata ();
+    image_metadata->set_metadata (metadata);
+}
+
+Metadata::Pointer&
+Rt_study::get_image_metadata (void)
+{
+    return d_ptr->m_drs->get_image_metadata();
+}
+
+void 
+Rt_study::set_dose_metadata (const std::vector<std::string>& metadata)
+{
+    Metadata::Pointer& dose_metadata = d_ptr->m_drs->get_dose_metadata ();
+    dose_metadata->set_metadata (metadata);
+}
+
+Metadata::Pointer&
+Rt_study::get_dose_metadata (void)
+{
+    return d_ptr->m_drs->get_dose_metadata();
+}
+
+void 
+Rt_study::set_rtstruct_metadata (const std::vector<std::string>& metadata)
+{
+    Metadata::Pointer& seg_metadata = d_ptr->m_drs->get_rtstruct_metadata ();
+    seg_metadata->set_metadata (metadata);
+}
+
+Metadata::Pointer&
+Rt_study::get_rtstruct_metadata (void)
+{
+    return d_ptr->m_drs->get_rtstruct_metadata();
 }
 
 bool
@@ -589,21 +670,21 @@ Rt_study::get_dose ()
 }
 
 bool
-Rt_study::have_rtss ()
+Rt_study::have_segmentation ()
 {
-    return (bool) d_ptr->m_rtss;
+    return (bool) d_ptr->m_seg;
 }
 
 Segmentation::Pointer
-Rt_study::get_rtss ()
+Rt_study::get_segmentation ()
 {
-    return d_ptr->m_rtss;
+    return d_ptr->m_seg;
 }
 
 void 
-Rt_study::set_rtss (Segmentation::Pointer rtss)
+Rt_study::set_segmentation (Segmentation::Pointer seg)
 {
-    d_ptr->m_rtss = rtss;
+    d_ptr->m_seg = seg;
 }
 
 void 
@@ -612,10 +693,10 @@ Rt_study::add_structure (
     const char *structure_name,
     const char *structure_color)
 {
-    if (!have_rtss()) {
-        d_ptr->m_rtss = Segmentation::New ();
+    if (!have_segmentation()) {
+        d_ptr->m_seg = Segmentation::New ();
     }
-    d_ptr->m_rtss->add_structure (itk_image, structure_name, structure_color);
+    d_ptr->m_seg->add_structure (itk_image, structure_name, structure_color);
 }
 
 Xio_ct_transform*
@@ -628,12 +709,6 @@ const std::string&
 Rt_study::get_xio_dose_filename (void) const
 {
     return d_ptr->m_xio_dose_filename;
-}
-
-Metadata::Pointer&
-Rt_study::get_metadata (void)
-{
-    return d_ptr->m_drs->get_study_metadata();
 }
 
 Volume::Pointer
@@ -675,5 +750,5 @@ Rt_study::resample (float spacing[3])
 {
     d_ptr->m_img->set_itk (resample_image (
             d_ptr->m_img->itk_float(), spacing));
-    d_ptr->m_rtss->resample (spacing);
+    d_ptr->m_seg->resample (spacing);
 }

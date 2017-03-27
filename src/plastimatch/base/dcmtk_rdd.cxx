@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "dcmtk_loader.h"
+#include "dcmtk_rt_study.h"
 #include "plm_math.h"
 #include "plm_uid_prefix.h"
 #include "rt_study_metadata.h"
@@ -21,7 +21,7 @@ dcmtk_load_rdd (
 	return;
     }
 
-    Dcmtk_loader dss (dicom_dir);
-    dss.set_rt_study_metadata (rsm);
-    dss.parse_directory ();
+    Dcmtk_rt_study drs (dicom_dir);
+    drs.set_rt_study_metadata (rsm);
+    drs.parse_directory ();
 }

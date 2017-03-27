@@ -37,11 +37,6 @@ set (PLMDOSE_LIBRARY_DEPENDENCIES
   ${PLMDOSE_LIBRARY_DEPENDENCIES} 
   specfun)
 
-set (PLMDOSE_LIBRARY_DEPENDENCIES 
-  ${PLMDOSE_LIBRARY_DEPENDENCIES} 
-  ${PLM_FORTRAN_LIBRARIES}
-  )
-
 ##-----------------------------------------------------------------------------
 ##  BUILD TARGETS
 ##-----------------------------------------------------------------------------

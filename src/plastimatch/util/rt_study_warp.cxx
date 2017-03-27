@@ -66,7 +66,10 @@ load_input_files (Rt_study *rt_study, Plm_file_format file_type,
         rt_study->load_dose_mc (parms->input_dose_mc_fn.c_str());
     }
 
-    if (!rt_study->have_image() && !rt_study->have_rtss() && !rt_study->have_dose()) {
+    if (!rt_study->have_image()
+        && !rt_study->have_segmentation()
+        && !rt_study->have_dose())
+    {
         print_and_exit ("Sorry, could not load input as any known type.\n");
     }
 }
@@ -79,7 +82,7 @@ save_ss_img (
     Warp_parms *parms
 )
 {
-    Segmentation::Pointer seg = rt_study->get_rtss();
+    Segmentation::Pointer seg = rt_study->get_segmentation();
 
     /* labelmap */
     if (parms->output_labelmap_fn != "") {
@@ -145,11 +148,11 @@ warp_and_save_ss (
     Plm_image_header *pih, 
     Warp_parms *parms)
 {
-    if (!rt_study->have_rtss()) {
+    if (!rt_study->have_segmentation()) {
         return;
     }
 
-    Segmentation::Pointer seg = rt_study->get_rtss();
+    Segmentation::Pointer seg = rt_study->get_segmentation();
 
     /* If we have need to create image outputs, or if we have to 
        warp something, then we need to rasterize the volume */
@@ -237,7 +240,7 @@ rt_study_warp (Rt_study *rt_study, Plm_file_format file_type, Warp_parms *parms)
     rt_study->set_study_metadata (parms->m_study_metadata);
     rt_study->set_image_metadata (parms->m_image_metadata);
     rt_study->set_dose_metadata (parms->m_dose_metadata);
-    rt_study->set_rtss_metadata (parms->m_rtss_metadata);
+    rt_study->set_rtstruct_metadata (parms->m_rtstruct_metadata);
 
     /* Load transform */
     if (parms->xf_in_fn != "") {
@@ -270,28 +273,32 @@ rt_study_warp (Rt_study *rt_study, Plm_file_format file_type, Warp_parms *parms)
         /* use the spacing of the input image */
         lprintf ("Setting PIH from M_IMG\n");
         pih.set_from_plm_image (rt_study->get_image().get());
-    } else if (rt_study->have_rtss() && rt_study->get_rtss()->have_ss_img()) {
+    } else if (rt_study->have_segmentation()
+        && rt_study->get_segmentation()->have_ss_img())
+    {
         /* use the spacing of the input image */
         lprintf ("Setting PIH from M_SS_IMG\n");
-        pih.set_from_plm_image (rt_study->get_rtss()->get_ss_img());
+        pih.set_from_plm_image (rt_study->get_segmentation()->get_ss_img());
     }
-    else if (rt_study->have_rtss() &&
+    else if (rt_study->have_segmentation() &&
         /* use the spacing of the structure set */
-        rt_study->get_rtss()->have_structure_set() && 
-        rt_study->get_rtss()->get_structure_set()->have_geometry) {
+        rt_study->get_segmentation()->have_structure_set() && 
+        rt_study->get_segmentation()->get_structure_set()->have_geometry) {
         pih.set_from_gpuit (
-            rt_study->get_rtss()->get_structure_set()->m_dim, 
-            rt_study->get_rtss()->get_structure_set()->m_offset, 
-            rt_study->get_rtss()->get_structure_set()->m_spacing, 
+            rt_study->get_segmentation()->get_structure_set()->m_dim, 
+            rt_study->get_segmentation()->get_structure_set()->m_offset, 
+            rt_study->get_segmentation()->get_structure_set()->m_spacing, 
             0);
     } else if (rt_study->has_dose()) {
         /* use the spacing of dose */
         lprintf ("Setting PIH from DOSE\n");
         pih.set_from_plm_image (rt_study->get_dose());
-    } else if (rt_study->have_rtss() && rt_study->get_rtss()->have_structure_set()) {
+    } else if (rt_study->have_segmentation()
+        && rt_study->get_segmentation()->have_structure_set())
+    {
         /* we have structure set, but without geometry.  use 
            heuristics to find a good geometry for rasterization */
-        rt_study->get_rtss()->find_rasterization_geometry (&pih);
+        rt_study->get_segmentation()->find_rasterization_geometry (&pih);
     } else {
         /* use some generic default parameters */
         plm_long dim[3] = { 500, 500, 500 };
@@ -413,8 +420,8 @@ rt_study_warp (Rt_study *rt_study, Plm_file_format file_type, Warp_parms *parms)
     }
 
     /* Preprocess structure sets */
-    if (rt_study->have_rtss()) {
-        Segmentation::Pointer seg = rt_study->get_rtss();
+    if (rt_study->have_segmentation()) {
+        Segmentation::Pointer seg = rt_study->get_segmentation();
 
         /* Convert ss_img to cxt */
         lprintf ("Rt_study_warp: Convert ss_img to cxt.\n");

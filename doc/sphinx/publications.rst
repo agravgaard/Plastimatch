@@ -5,6 +5,10 @@ Publications
 
 The following references describe either technical details of plastimatch algorithms or validation studies which examine algorithm performance.
 
+Paolo Zaffino, Patrik Raudaschl, Karl Fritscher, Gregory C. Sharp, Maria Francesca Spadea, "Technical Note: Plastimatch MABS, an open source tool for automatic image segmentation", Medical Physics, Vol 43, No 9, pp 5155-5160, September 2016.
+
+Paolo Zaffino, Patrik Raudaschl, Karl Fritscher, Maria Francesca Spadea, Gregory C. Sharp , "SU-G-IeP2-14: Validation of Plastimatch MABS, a tool for automatic image segmentation", Medical Physics, Vol 43, No 6, pp 3658-3658, June 2016.
+
 James A Shackleford, Nagarajan Kandasamy, Gregory C Sharp, “On developing B-spline registration algorithms for multi-core processors,” Physics in Medicine and Biology, Vol 55, No 21, pp 6329-6351, Nov 7, 2010.
 
 Kristy K Brock, et al, “Results of a multi-institution deformable registration accuracy study (MIDRAS),” International Journal of Radiation Oncology, Biology, Physics, Vol 76, No 2, pp 583-596, Feb 1, 2010.
@@ -16,6 +20,8 @@ Gregory Sharp, Nagarajan Kandasamy, Harman Singh, and Michael Folkert, “GPU-ba
 **Medical Physics Studies**
 
 The following references describe how plastimatch has been used in retrospective studies to answer medical physics questions.
+
+Paolo Zaffino, Delia Ciardo, Gaia Piperno, Laura Lavinia Travaini, Stefania Comi, Annamaria Ferrari, Daniela Alterio, Barbara Alicja Jereczek-Fossa, Roberto Orecchia, Guido Baroni, Maria Francesca Spadea, "Radiotherapy of Hodgkin and Non-Hodgkin Lymphoma: A Nonrigid Image-Based Registration Method for Automatic Localization of Prechemotherapy Gross Tumor Volume", Technology in Cancer Research and Treatment, Vol 15, Issue 2, pp 355-364, April 1, 2016.
 
 Shinichiro Mori, Nobuyuki Kanematsu, Hiroshi Asakura, Gregory C Sharp, Motoki Kumagai, Suguru Dobashi, Mio Nakajima, Naoyoshi Yamamoto, Susumu Kandatsu, Masayuki Baba, “Four-Dimensional Lung Treatment Planning in Layer-Stacking Carbon Ion Beam Treatment: Comparison of Layer-Stacking and Conventional Ungated/Gated Irradiation,” International Journal of Radiation Oncology, Biology, Physics, To appear.
 

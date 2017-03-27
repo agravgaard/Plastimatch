@@ -66,13 +66,13 @@ do_synthetic_mha (Synthetic_mha_main_parms *parms)
 
     /* ss_img */
     if (parms->output_ss_img_fn != "") {
-        rtds.get_rtss()->convert_to_uchar_vec ();
-        rtds.get_rtss()->save_ss_image (parms->output_ss_img_fn);
+        rtds.get_segmentation()->convert_to_uchar_vec ();
+        rtds.get_segmentation()->save_ss_image (parms->output_ss_img_fn);
     }
 
     /* prefix */
     if (parms->output_prefix != "") {
-        rtds.get_rtss()->save_prefix (parms->output_prefix);
+        rtds.get_segmentation()->save_prefix (parms->output_prefix);
     }
 
     /* dose_img */
@@ -83,11 +83,11 @@ do_synthetic_mha (Synthetic_mha_main_parms *parms)
     /* list of structure names */
     if (parms->output_ss_list_fn != "") {
         printf ("save_ss_img: save_ss_list\n");
-        rtds.get_rtss()->save_ss_list (parms->output_ss_list_fn);
+        rtds.get_segmentation()->save_ss_list (parms->output_ss_list_fn);
     }
 
     if (parms->output_dicom != "") {
-        rtds.get_rtss()->convert_ss_img_to_cxt ();
+        rtds.get_segmentation()->convert_ss_img_to_cxt ();
         rtds.save_dicom (parms->output_dicom.c_str(),
             parms->dicom_with_uids);
     }

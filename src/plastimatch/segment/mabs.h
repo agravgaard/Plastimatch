@@ -21,7 +21,6 @@ public:
     Mabs_private *d_ptr;
 
 protected:
-    void sanity_checks ();
     bool check_seg_checkpoint (std::string folder);
     void load_process_dir_list (const std::string& dir);
     void convert (const std::string& input_dir, const std::string& output_dir);

@@ -8,21 +8,24 @@
 
 Bspline_score::Bspline_score ()
 {
-    this->score = 0;
+    this->total_score = 0;
+    this->total_grad = 0;
+
     this->lmetric = 0;
     this->rmetric = 0;
 
-    this->num_vox = 0;
     this->num_coeff = 0;
-    this->smetric_grad = 0;
-    this->total_grad = 0;
+
+    this->curr_num_vox = 0;
+    this->curr_smetric = 0;
+    this->curr_smetric_grad = 0;
 
     this->time_rmetric = 0;
 }
 
 Bspline_score::~Bspline_score ()
 {
-    delete[] smetric_grad;
+    delete[] curr_smetric_grad;
     delete[] total_grad;
 }
 
@@ -30,38 +33,42 @@ void
 Bspline_score::set_num_coeff (plm_long num_coeff)
 {
     this->num_coeff = num_coeff;
-    delete[] this->smetric_grad;
+    delete[] this->curr_smetric_grad;
     delete[] this->total_grad;
-    this->smetric_grad = new float[num_coeff];
+    this->curr_smetric_grad = new float[num_coeff];
     this->total_grad = new float[num_coeff];
 }
 
 void
 Bspline_score::reset_smetric_grad ()
 {
-    memset (this->smetric_grad, 0, this->num_coeff * sizeof(float));
+    memset (this->curr_smetric_grad, 0, this->num_coeff * sizeof(float));
 }
 
 void
 Bspline_score::reset_score ()
 {
-    this->score = 0;
+    this->total_score = 0;
+    memset (this->total_grad, 0, this->num_coeff * sizeof(float));
     this->lmetric = 0;
     this->rmetric = 0;
-    this->smetric.clear();
-    this->num_vox = 0;
-    memset (this->smetric_grad, 0, this->num_coeff * sizeof(float));
-    memset (this->total_grad, 0, this->num_coeff * sizeof(float));
-    this->time_smetric.clear();
+    this->metric_record.clear();
+    this->curr_num_vox = 0;
+    this->curr_smetric = 0;
+    memset (this->curr_smetric_grad, 0, this->num_coeff * sizeof(float));
     this->time_rmetric = 0;
 }
 
 void
-Bspline_score::accumulate_grad (float lambda)
+Bspline_score::accumulate (float lambda)
 {
+    this->total_score += lambda * this->curr_smetric;
     for (plm_long i = 0; i < this->num_coeff; i++) {
-        this->total_grad[i] += lambda * this->smetric_grad[i];
+        this->total_grad[i] += lambda * this->curr_smetric_grad[i];
     }
+
+    this->curr_smetric = 0;
+    this->curr_num_vox = 0;
     this->reset_smetric_grad ();
 }
 
@@ -72,7 +79,7 @@ Bspline_score::update_smetric_grad (
     plm_long qidx,
     const float dc_dv[3])
 {
-    this->update_grad (this->smetric_grad, bxf, p, qidx, dc_dv);
+    this->update_grad (this->curr_smetric_grad, bxf, p, qidx, dc_dv);
 }
 
 void
@@ -92,7 +99,7 @@ Bspline_score::update_smetric_grad_b (
     plm_long qidx, 
     const float dc_dv[3])
 {
-    this->update_grad_b (this->smetric_grad, bxf, pidx, qidx, dc_dv);
+    this->update_grad_b (this->curr_smetric_grad, bxf, pidx, qidx, dc_dv);
 }
 
 void

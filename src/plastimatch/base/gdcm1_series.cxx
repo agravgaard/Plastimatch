@@ -325,7 +325,7 @@ Gdcm_series::get_patient_position ()
 }
 
 void
-Gdcm_series::get_metadata (Metadata::Pointer& meta)
+Gdcm_series::get_metadata (const Metadata::Pointer& meta)
 {
     if (m_have_ct) {
 	gdcm::File *file = (*this->m_ct_file_list)[0];

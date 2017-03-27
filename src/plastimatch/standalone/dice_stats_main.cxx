@@ -4,7 +4,6 @@
 #include "plm_config.h"
 
 #include "dice_statistics.h"
-#include "hausdorff_statistics.h"
 #include "pcmd_resample.h"
 
 void print_usage (void)

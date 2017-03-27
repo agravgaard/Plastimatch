@@ -77,7 +77,7 @@ For more information:
 
 * `Gitlab project page (for git) <https://gitlab.com/plastimatch/plastimatch>`_
 * `Sourceforge project page (for files) <https://sourceforge.net/projects/plastimatch/>`_
-* `Plastimatch license (BSD-style) <https://gitlab.com/plastimatch/plastimatch/blob/master/LICENSE.TXT>`_
+* `Plastimatch license (BSD-style) <https://gitlab.com/plastimatch/plastimatch/blob/master/src/plastimatch/LICENSE.TXT>`_
 * `Reg-2-3 license (BSD) <https://gitlab.com/plastimatch/plastimatch/blob/master/src/reg-2-3/LICENSE.txt>`_
 * `Doxygen </doxygen>`_
 * `E-mail list <http://groups.google.com/group/plastimatch>`_

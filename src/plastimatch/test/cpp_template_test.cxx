@@ -1,5 +1,6 @@
 #include <stdio.h>
-
+#include <map>
+#include <string>
 
 /* Simple test */
 typedef void (*B) (int);
@@ -51,6 +52,17 @@ template < template<class J> class I > void l (J x) {
 }
 #endif
 
+/* This is an example inheriting from std::map */
+/* Cf. http://stackoverflow.com/questions/10477839/c-inheriting-from-stdmap 
+   (The answer from Emilio Garavaglia, not the others) */
+template <class L> class M : public std::map<std::string,L>
+{
+public:
+    typename std::map<std::string,L>::iterator get_default (std::string s) {
+        return this->begin();
+    }
+};
+
 int main 
 (
     int argc,
@@ -63,4 +75,7 @@ int main
     d< G<int> >(x);
     h< int, G >(x);
     k< G, int >(x);
+
+    M<int> m;
+    M<int>::iterator mit = m.get_default("FOO");
 }

@@ -133,21 +133,19 @@ volume_calc_grad_mag (Volume* vout, const Volume* vref)
     lprintf ("volume_calc_grad_mag complete.\n");
 }
 
-#if defined (commentout)
 Volume::Pointer
-volume_make_gradient (Volume* ref)
+volume_gradient (const Volume::Pointer& ref)
 {
     Volume::Pointer grad = Volume::New (
         ref->dim, ref->origin, ref->spacing, 
 	ref->direction_cosines, PT_VF_FLOAT_INTERLEAVED, 3);
-    volume_calc_grad (grad.get(), ref);
+    volume_calc_grad (grad.get(), ref.get());
 
     return grad;
 }
-#endif
 
 Volume* 
-volume_make_gradient (Volume* ref)
+volume_make_gradient (const Volume* ref)
 {
     Volume* grad = new Volume (
         ref->dim, ref->origin, ref->spacing, 

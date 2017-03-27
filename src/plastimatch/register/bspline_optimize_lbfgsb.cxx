@@ -140,8 +140,6 @@ Nocedal_optimizer::Nocedal_optimizer (Bspline_optimize *bod)
     /* If iprint is 1, the file iterate.dat will be created */
     iprint = 0;
 
-    //factr = 1.0e+7;
-    //pgtol = 1.0e-5;
     factr = parms->lbfgsb_factr;
     pgtol = parms->lbfgsb_pgtol;
 
@@ -220,8 +218,8 @@ bspline_optimize_lbfgsb (
             bspline_score (bod);
 
             /* Save coeff if best score */
-            if (ssd->score < best_score) {
-                best_score = ssd->score;
+            if (ssd->total_score < best_score) {
+                best_score = ssd->total_score;
                 for (int i = 0; i < bxf->num_coeff; i++) {
                     best_coeff[i] = bxf->coeff[i];
                 }
@@ -235,11 +233,11 @@ bspline_optimize_lbfgsb (
             /* Save some debugging information */
             bspline_save_debug_state (parms, bst, bxf);
             if (parms->debug) {
-                fprintf (fp, "%f\n", ssd->score);
+                fprintf (fp, "%f\n", ssd->total_score);
             }
 
             /* Copy from C to fortran (float -> double) */
-            optimizer.f = ssd->score;
+            optimizer.f = ssd->total_score;
             for (int i = 0; i < bxf->num_coeff; i++) {
                 optimizer.g[i] = ssd->total_grad[i];
             }
@@ -253,14 +251,14 @@ bspline_optimize_lbfgsb (
 
             /* Check convergence tolerance */
             if (old_best_score != DBL_MAX) {
-                double score_diff = old_best_score - ssd->score;
+                double score_diff = old_best_score - ssd->total_score;
                 if (score_diff < parms->convergence_tol 
                     && bst->it >= parms->min_its)
                 {
                     break;
                 }
             }
-            old_best_score = ssd->score;
+            old_best_score = ssd->total_score;
 
             /* Update line search start location */
             printf ("Update lss_coeff\n");

@@ -10,7 +10,7 @@
 #include "itkMetaDataObject.h"
 
 #if PLM_DCM_USE_DCMTK
-#include "dcmtk_loader.h"
+#include "dcmtk_rt_study.h"
 #endif
 #include "file_util.h"
 #include "itk_image_cast.h"
@@ -378,13 +378,12 @@ Plm_image::load_native_dicom (const char* fname)
 {
 #if PLM_DCM_USE_DCMTK
 
-    Dcmtk_loader dicom_loader (fname);
-    dicom_loader.parse_directory ();
-    this->set (dicom_loader.get_image ());
+    Dcmtk_rt_study drs (fname);
+    drs.parse_directory ();
+    this->set (drs.get_image ());
 
     /* GCS FIX: Here we need to set the metadata loaded from 
        DICOM into the Plm_image */
-//    this->set_kkk ???
 
 #else
     /* GCS FIX: We don't yet have a way of getting original pixel type 

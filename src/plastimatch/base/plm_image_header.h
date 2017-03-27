@@ -42,6 +42,7 @@ public:
     Plm_image_header (const Plm_image& pli);
     Plm_image_header (const Plm_image::Pointer& pli);
     Plm_image_header (const Volume_header& vh);
+    Plm_image_header (const Volume::Pointer& vol);
     Plm_image_header (const Volume& vol);
     Plm_image_header (const Volume* vol);
     Plm_image_header (Volume* vol);
@@ -86,6 +87,7 @@ public:
     void set_from_plm_image (const Plm_image::Pointer& pli);
     void set_from_volume_header (const Volume_header& vh);
     void set (const Volume_header& vh);
+    void set (const Volume::Pointer& vol);
     void set (const Volume& vol);
     void set (const Volume* vol);
     void set (const RegionType& region, const OriginType& origin,

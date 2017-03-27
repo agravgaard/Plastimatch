@@ -23,7 +23,7 @@ public:
 
     float* d_lut;               /* depth array (mm) */
     float* e_lut;               /* energy array (MeV) */
-    float* f_lut;				/* integrated energy array (MeV) */
+    float* f_lut;		/* integrated energy array (MeV) */
     int num_samples;	        /* number of depths */
 
     float beam_min_energy;
@@ -1276,7 +1276,6 @@ Rt_mebs::generate_part_num_from_weight(int* ap_dim)
         for (int j = 0; j < ap_dim[0] * ap_dim[1]; j++)
         {
             d_ptr->num_particles.push_back(d_ptr->depth_dose_weight[i]);
-
         }
     }
 }

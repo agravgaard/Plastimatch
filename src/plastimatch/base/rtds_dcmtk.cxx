@@ -5,7 +5,6 @@
 
 #include "compiler_warnings.h"
 #if PLM_DCM_USE_DCMTK
-#include "dcmtk_loader.h"
 #include "dcmtk_rt_study.h"
 #endif
 #include "logfile.h"
@@ -25,8 +24,8 @@ Rt_study::load_dcmtk (const char *dicom_path)
     d_ptr->m_img = drs.get_image ();
     Rtss::Pointer rtss = drs.get_rtss ();
     if (rtss) {
-        d_ptr->m_rtss = Segmentation::New ();
-        d_ptr->m_rtss->set_structure_set (drs.get_rtss ());
+        d_ptr->m_seg = Segmentation::New ();
+        d_ptr->m_seg->set_structure_set (drs.get_rtss ());
     }
     d_ptr->m_dose = drs.get_dose ();
 #endif
@@ -39,16 +38,16 @@ Rt_study::save_dcmtk (const char *dicom_dir, bool filenames_with_uid)
     Dcmtk_rt_study drs;
     drs.set_rt_study_metadata (d_ptr->m_drs);
     drs.set_image (d_ptr->m_img);
-    if (d_ptr->m_rtss) {
+    if (d_ptr->m_seg) {
         /* GCS FIX. This call to prune_empty() is a hack. 
            It should be allowed to write empty structures, but 
            current plastimatch logic sets num_structures to max 
            when performing cxt_extract().  Segmentation class 
            logic should be improved to better keep track of 
            when structure names are valid to avoid this. */
-        d_ptr->m_rtss->prune_empty ();
-
-        drs.set_rtss (d_ptr->m_rtss->get_structure_set());
+        d_ptr->m_seg->prune_empty ();
+        d_ptr->m_seg->keyholize ();
+        drs.set_rtss (d_ptr->m_seg->get_structure_set());
     }
     drs.set_dose (d_ptr->m_dose);
 

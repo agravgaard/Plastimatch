@@ -19,7 +19,7 @@
 #include "plm_clp.h"
 #include "plm_image.h"
 #include "print_and_exit.h"
-#include "registration_metric_type.h"
+#include "similarity_metric_type.h"
 #include "volume.h"
 #include "volume_grad.h"
 
@@ -53,7 +53,7 @@ public:
 
     char bsp_implementation;
     BsplineThreading bsp_threading;
-    Registration_metric_type bsp_metric;
+    Similarity_metric_type bsp_metric;
 
 public:
     Check_grad_opts () {
@@ -74,7 +74,7 @@ public:
         debug_dir = "";
         bsp_implementation = '\0';
         bsp_threading = BTHR_CPU;
-        bsp_metric = REGISTRATION_METRIC_MSE;
+        bsp_metric = SIMILARITY_METRIC_MSE;
     }
 };
 
@@ -93,19 +93,22 @@ check_gradient (
     Bspline_optimize bod;
     Bspline_xform *bxf;
     Bspline_parms *parms = new Bspline_parms;
+    Bspline_state *bst = bod.get_bspline_state ();
 
     /* Fixate images into bspline parms */
-    parms->fixed = fixed;
-    parms->moving = moving;
-    parms->moving_grad = moving_grad;
+    Metric_state::Pointer sim = Metric_state::New();
+    bst->similarity_data.push_back (sim);
     parms->implementation = options->bsp_implementation;
-    parms->metric_type[0] = options->bsp_metric;
+    sim->fixed_ss.reset (fixed);
+    sim->moving_ss.reset (moving);
+    sim->moving_grad.reset (moving_grad);
+    sim->metric_type = options->bsp_metric;
 
     /* Maybe we got a roi too */
     Plm_image::Pointer pli_fixed_roi;
     if (options->fixed_roi_fn != "") {
         pli_fixed_roi = Plm_image::New (options->fixed_roi_fn);
-        parms->fixed_roi = pli_fixed_roi->get_volume_uchar().get();
+        sim->fixed_roi = pli_fixed_roi->get_volume_uchar();
     }
 
     /* Set extra debug stuff, if desired */
@@ -140,8 +143,8 @@ check_gradient (
             }
         }
     }
-    bod.initialize (bxf, parms);
-    Bspline_state *bst = bod.get_bspline_state ();
+    bod.set_bspline_xform (bxf);
+    bod.set_bspline_parms (parms);
 
     /* Create scratch variables */
     x = (float*) malloc (sizeof(float) * bxf->num_coeff);
@@ -153,9 +156,7 @@ check_gradient (
         x[i] = bxf->coeff[i];
     }
 
-    if (parms->metric_type[0] == REGISTRATION_METRIC_MI_MATTES) {
-        bst->mi_hist->initialize (parms->fixed, parms->moving);
-    }
+    bst->initialize_mi_histograms ();
 
     /* Get score and gradient */
     bspline_score (&bod);
@@ -167,7 +168,7 @@ check_gradient (
     for (i = 0; i < bxf->num_coeff; i++) {
         grad[i] = bst->ssd.total_grad[i];
     }
-    score = bst->ssd.score;
+    score = bst->ssd.total_score;
 
     /* If a search dir was specified, use that instead of the gradient */
     if (options->input_search_dir_fn != "") {
@@ -213,7 +214,7 @@ check_gradient (
             }
         
             /* Compute difference between grad and grad_fd */
-            fprintf (fp, "%4d,%12.12f\n", i, bst->ssd.score);
+            fprintf (fp, "%4d,%12.12f\n", i, bst->ssd.total_score);
 
             // JAS 04.19.2010
             // This loop could take a while to exit.  This will
@@ -246,7 +247,7 @@ check_gradient (
             }
         
             /* Stash score difference in grad_fd */
-            grad_fd[i] = (bst->ssd.score - score) / options->step_size;
+            grad_fd[i] = (bst->ssd.total_score - score) / options->step_size;
 
             /* Compute difference between grad and grad_fd */
             fprintf (fp, "%12.12f,%12.12f\n", grad[i], grad_fd[i]);
@@ -360,9 +361,9 @@ parse_fn (
     }
     val = parser->get_string("metric").c_str();
     if (val == "mse") {
-        parms->bsp_metric = REGISTRATION_METRIC_MSE;
+        parms->bsp_metric = SIMILARITY_METRIC_MSE;
     } else if (val == "mi") {
-        parms->bsp_metric = REGISTRATION_METRIC_MI_MATTES;
+        parms->bsp_metric = SIMILARITY_METRIC_MI_MATTES;
     } else {
         throw (dlib::error ("Error parsing --metric, unknown option."));
     }

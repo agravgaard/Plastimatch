@@ -177,9 +177,10 @@ static void
 xio_ct_create_volume (
     Plm_image *pli, 
     Xio_ct_header *xch,
-    int best_chunk_len,
-    float best_chunk_diff
-)
+    int z_dim,
+    float z_origin,
+    float z_spacing
+    )
 {
     Volume *v;
     plm_long dim[3];
@@ -188,15 +189,15 @@ xio_ct_create_volume (
 
     dim[0] = xch->dim[0];
     dim[1] = xch->dim[1];
-    dim[2] = best_chunk_len;
+    dim[2] = z_dim;
 
     origin[0] = - xch->slice_size[0];
     origin[1] = - xch->slice_size[1];
-    origin[2] = xch->z_loc;
+    origin[2] = z_origin;
 
     spacing[0] = xch->spacing[0];
     spacing[1] = xch->spacing[1];
-    spacing[2] = best_chunk_diff;
+    spacing[2] = z_spacing;
 
     v = new Volume (dim, origin, spacing, 0, PT_SHORT, 1);
     pli->set_volume (v);
@@ -215,17 +216,22 @@ xio_ct_load (Plm_image *pli, Xio_studyset *studyset)
     std::string ct_file;
 
     if (studyset->number_slices > 0) {
-	ct_file = studyset->studyset_dir 
-	    + "/" + studyset->slices[0].filename_scan.c_str();
+        ct_file = studyset->studyset_dir 
+            + "/" + studyset->slices[0].filename_scan.c_str();
         xio_ct_load_header (&xch, ct_file.c_str());
-	xio_ct_create_volume (pli, &xch, studyset->number_slices, 
-	    studyset->thickness);
+        float z_origin = 0.0;
+        if (studyset->slices.size() > 0) {
+            z_origin = studyset->slices[0].location;
+        }
 
-	for (i = 0; i < studyset->number_slices; i++) {
-	    ct_file = studyset->studyset_dir 
-		+ "/" + studyset->slices[i].filename_scan.c_str();
-	    xio_ct_load_image (pli, i, ct_file.c_str());
-	}
+        xio_ct_create_volume (pli, &xch, studyset->number_slices,
+            z_origin, studyset->thickness);
+
+        for (i = 0; i < studyset->number_slices; i++) {
+            ct_file = studyset->studyset_dir
+                + "/" + studyset->slices[i].filename_scan.c_str();
+            xio_ct_load_image (pli, i, ct_file.c_str());
+        }
     }
 
     /* The code that loads the structure set needs the ct 

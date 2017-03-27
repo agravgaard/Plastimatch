@@ -19,7 +19,7 @@ public:
                                           coordinates */
     Plm_image::Pointer m_img;          /* CT image */
     Plm_image::Pointer m_dose;         /* RT dose */
-    Segmentation::Pointer m_rtss;      /* RT structure set */
+    Segmentation::Pointer m_seg;       /* RT structure set */
 
 public:
     Rt_study_private () {

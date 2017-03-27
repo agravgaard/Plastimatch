@@ -55,15 +55,16 @@ bspline_score_normalize (
        to exit prematurely.  
        However, the best score is not currently stored in the state.  
     */
-    if (ssd->num_vox < MIN_VOX) {
-        ssd->smetric[bst->sm] = FLT_MAX;
+    if (ssd->curr_num_vox < MIN_VOX) {
+        ssd->curr_smetric = FLT_MAX;
         for (int i = 0; i < bxf->num_coeff; i++) {
-            ssd->smetric_grad[i] = 0;
+            ssd->curr_smetric_grad[i] = 0;
         }
     } else {
-        ssd->smetric[bst->sm] = raw_score / ssd->num_vox;
+        ssd->curr_smetric = raw_score / ssd->curr_num_vox;
         for (int i = 0; i < bxf->num_coeff; i++) {
-            ssd->smetric_grad[i] = 2 * ssd->smetric_grad[i] / ssd->num_vox;
+            ssd->curr_smetric_grad[i] 
+                = 2 * ssd->curr_smetric_grad[i] / ssd->curr_num_vox;
         }
     }
 }
@@ -84,9 +85,9 @@ bspline_score_i_mse (
     Bspline_state *bst = bod->get_bspline_state ();
     Bspline_xform *bxf = bod->get_bspline_xform ();
 
-    Volume *fixed = parms->fixed;
-    Volume *moving = parms->moving;
-    Volume *moving_grad = parms->moving_grad;
+    Volume *fixed = bst->fixed;
+    Volume *moving = bst->moving;
+    Volume *moving_grad = bst->moving_grad;
 
     Bspline_score* ssd = &bst->ssd;
     double score_tile;
@@ -102,8 +103,8 @@ bspline_score_i_mse (
     float* cond_y = (float*)malloc(cond_size);
     float* cond_z = (float*)malloc(cond_size);
 
-    Volume* fixed_roi  = parms->fixed_roi;
-    Volume* moving_roi = parms->moving_roi;
+    Volume* fixed_roi  = bst->fixed_roi;
+    Volume* moving_roi = bst->moving_roi;
 
     static int it = 0;
 
@@ -270,7 +271,7 @@ bspline_score_i_mse (
 
     } /* LOOP_THRU_VOL_TILES */
 
-    ssd->num_vox = num_vox;
+    ssd->curr_num_vox = num_vox;
 
     /* Now we have a ton of bins and each bin's 64 slots are full.
      * Let's sum each bin's 64 slots.  The result with be dc_dp. */
@@ -311,9 +312,9 @@ bspline_score_h_mse (
     Bspline_state *bst = bod->get_bspline_state ();
     Bspline_xform *bxf = bod->get_bspline_xform ();
 
-    Volume *fixed = parms->fixed;
-    Volume *moving = parms->moving;
-    Volume *moving_grad = parms->moving_grad;
+    Volume *fixed = bst->fixed;
+    Volume *moving = bst->moving;
+    Volume *moving_grad = bst->moving_grad;
 
     Bspline_score* ssd = &bst->ssd;
     double score_tile;
@@ -456,7 +457,7 @@ bspline_score_h_mse (
 
                     // Store the score!
                     score_tile += diff * diff;
-                    ssd->num_vox++;
+                    ssd->curr_num_vox++;
 
                     // Compute dc_dv
                     dc_dv[0] = diff * m_grad[3 * idx_moving_round + 0];
@@ -527,9 +528,9 @@ bspline_score_g_mse (
     Bspline_state *bst = bod->get_bspline_state ();
     Bspline_xform *bxf = bod->get_bspline_xform ();
 
-    Volume *fixed = parms->fixed;
-    Volume *moving = parms->moving;
-    Volume *moving_grad = parms->moving_grad;
+    Volume *fixed = bst->fixed;
+    Volume *moving = bst->moving;
+    Volume *moving_grad = bst->moving_grad;
 
     Bspline_score* ssd = &bst->ssd;
     double score_tile;
@@ -706,7 +707,7 @@ bspline_score_g_mse (
 
     } /* LOOP_THRU_VOL_TILES */
 
-    ssd->num_vox = num_vox;
+    ssd->curr_num_vox = num_vox;
 
     /* Now we have a ton of bins and each bin's 64 slots are full.
      * Let's sum each bin's 64 slots.  The result with be dc_dp. */
@@ -739,9 +740,9 @@ bspline_score_c_mse (
     Bspline_state *bst = bod->get_bspline_state ();
     Bspline_xform *bxf = bod->get_bspline_xform ();
 
-    Volume *fixed = parms->fixed;
-    Volume *moving = parms->moving;
-    Volume *moving_grad = parms->moving_grad;
+    Volume *fixed = bst->fixed;
+    Volume *moving = bst->moving;
+    Volume *moving_grad = bst->moving_grad;
 
     Bspline_score* ssd = &bst->ssd;
     plm_long fijk[3], fv;         /* Indices within fixed image (vox) */
@@ -874,7 +875,7 @@ bspline_score_c_mse (
                 }
 
                 score_acc += diff * diff;
-                ssd->num_vox++;
+                ssd->curr_num_vox++;
 
             } /* LOOP_THRU_ROI_X */
         } /* LOOP_THRU_ROI_Y */
@@ -949,13 +950,9 @@ bspline_score_mse (
 {
     Bspline_parms *parms = bod->get_bspline_parms ();
     Bspline_state *bst = bod->get_bspline_state ();
-    Bspline_xform *bxf = bod->get_bspline_xform ();
 
-    Regularization_parms* reg_parms = parms->reg_parms;
-    Bspline_landmarks* blm = parms->blm;
-
-    Volume* fixed_roi  = parms->fixed_roi;
-    Volume* moving_roi = parms->moving_roi;
+    Volume* fixed_roi  = bst->fixed_roi;
+    Volume* moving_roi = bst->moving_roi;
     bool have_roi = fixed_roi || moving_roi;
 
     /* CPU Implementations */

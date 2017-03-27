@@ -50,7 +50,9 @@ template <typename T> PLMSYS_API std::string PLM_to_string(T *value, int n);
 
 PLMSYS_API std::vector<std::string>& string_split (const std::string &s, char delim, std::vector<std::string> &elems);
 PLMSYS_API std::vector<std::string> string_split (const std::string &s, char delim);
-PLMSYS_API bool split_tag_val (const std::string& s, 
-    std::string& tag, std::string& val, char delim = '=');
+PLMSYS_API bool split_key_val (const std::string& s, 
+    std::string& key, std::string& val, char delim = '=');
+PLMSYS_API bool split_array_index (const std::string& s, 
+    std::string& array, std::string& index);
 
 #endif

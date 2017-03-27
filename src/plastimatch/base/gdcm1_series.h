@@ -34,7 +34,7 @@ public:
     std::string get_patient_position ();
     const std::string& get_rtdose_filename ();
     const std::string& get_rtstruct_filename ();
-    void get_metadata (Metadata::Pointer& meta);
+    void get_metadata (const Metadata::Pointer& meta);
 
     gdcm::SerieHelper2 *m_gsh2;
 

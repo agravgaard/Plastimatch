@@ -10,12 +10,11 @@
 
 #include "dcmtk_file.h"
 #include "dcmtk_metadata.h"
-#include "dcmtk_loader.h"
-#include "dcmtk_loader_p.h"
 #include "dcmtk_rt_study.h"
 #include "dcmtk_rt_study_p.h"
 #include "dcmtk_series.h"
 #include "dcmtk_slice_data.h"
+#include "dcmtk_util.h"
 #include "file_util.h"
 #include "logfile.h"
 #include "metadata.h"
@@ -60,7 +59,7 @@ dcmtk_rtss_probe (const char *rtss_fn)
 }
 
 void
-Dcmtk_loader::rtss_load (void)
+Dcmtk_rt_study::rtss_load (void)
 {
     Dcmtk_series *ds_rtss = d_ptr->ds_rtss;
     d_ptr->rtss = Rtss::New();
@@ -248,9 +247,9 @@ Dcmtk_rt_study::save_rtss (const char *dicom_dir)
 {
     OFCondition ofc;
     Rtss::Pointer& rtss = d_ptr->rtss;
-    Metadata::Pointer rtss_metadata;
+    Metadata::Pointer rtstruct_metadata;
     if (d_ptr->rt_study_metadata) {
-        rtss_metadata = d_ptr->rt_study_metadata->get_rtss_metadata ();
+        rtstruct_metadata = d_ptr->rt_study_metadata->get_rtstruct_metadata ();
     }
 
     /* Prepare structure set with slice uids */
@@ -271,13 +270,13 @@ Dcmtk_rt_study::save_rtss (const char *dicom_dir)
     dataset->putAndInsertOFStringArray(DCM_InstanceCreatorUID, 
         PLM_UID_PREFIX);
     dataset->putAndInsertString (DCM_SOPClassUID, UID_RTStructureSetStorage);
-    dataset->putAndInsertString (DCM_SOPInstanceUID, 
-        d_ptr->rt_study_metadata->get_rtss_instance_uid());
+    dcmtk_put (dataset, DCM_SOPInstanceUID, 
+        d_ptr->rt_study_metadata->get_rtstruct_instance_uid());
     dataset->putAndInsertOFStringArray (DCM_StudyDate, 
         d_ptr->rt_study_metadata->get_study_date());
     dataset->putAndInsertOFStringArray (DCM_StudyTime, 
         d_ptr->rt_study_metadata->get_study_time());
-    dcmtk_copy_from_metadata (dataset, rtss_metadata, 
+    dcmtk_copy_from_metadata (dataset, rtstruct_metadata, 
         DCM_StudyDescription, "");
 
     dataset->putAndInsertOFStringArray (DCM_AccessionNumber, "");
@@ -286,14 +285,14 @@ Dcmtk_rt_study::save_rtss (const char *dicom_dir)
     dataset->putAndInsertString (DCM_InstitutionName, "");
     dataset->putAndInsertString (DCM_ReferringPhysicianName, "");
     dataset->putAndInsertString (DCM_StationName, "");
-    dcmtk_copy_from_metadata (dataset, rtss_metadata, 
+    dcmtk_copy_from_metadata (dataset, rtstruct_metadata, 
         DCM_SeriesDescription, "");
     dataset->putAndInsertString (DCM_ManufacturerModelName, "Plastimatch");
 
-    dcmtk_copy_from_metadata (dataset, rtss_metadata, DCM_PatientName, "");
-    dcmtk_copy_from_metadata (dataset, rtss_metadata, DCM_PatientID, "");
+    dcmtk_copy_from_metadata (dataset, rtstruct_metadata, DCM_PatientName, "");
+    dcmtk_copy_from_metadata (dataset, rtstruct_metadata, DCM_PatientID, "");
     dataset->putAndInsertString (DCM_PatientBirthDate, "");
-    dcmtk_copy_from_metadata (dataset, rtss_metadata, DCM_PatientSex, "O");
+    dcmtk_copy_from_metadata (dataset, rtstruct_metadata, DCM_PatientSex, "O");
     dataset->putAndInsertString (DCM_SoftwareVersions,
         PLASTIMATCH_VERSION_STRING);
 
@@ -306,9 +305,9 @@ Dcmtk_rt_study::save_rtss (const char *dicom_dir)
     dataset->putAndInsertString (DCM_StudyInstanceUID, 
         d_ptr->rt_study_metadata->get_study_uid());
     dataset->putAndInsertString (DCM_SeriesInstanceUID, 
-        d_ptr->rt_study_metadata->get_rtss_series_uid());
-    dcmtk_copy_from_metadata (dataset, rtss_metadata, DCM_StudyID, "10001");
-    dcmtk_copy_from_metadata (dataset, rtss_metadata, DCM_SeriesNumber, "1");
+        d_ptr->rt_study_metadata->get_rtstruct_series_uid());
+    dcmtk_copy_from_metadata (dataset, rtstruct_metadata, DCM_StudyID, "10001");
+    dcmtk_copy_from_metadata (dataset, rtstruct_metadata, DCM_SeriesNumber, "1");
     dataset->putAndInsertString (DCM_InstanceNumber, "1");
     dataset->putAndInsertString (DCM_StructureSetLabel, "AutoSS");
     dataset->putAndInsertString (DCM_StructureSetName, "AutoSS");
@@ -426,7 +425,7 @@ Dcmtk_rt_study::save_rtss (const char *dicom_dir)
                 curr_contour->x[0],
                 curr_contour->y[0],
                 curr_contour->z[0]);
-	    for (int k = 1; k < curr_contour->num_vertices; k++) {
+	    for (size_t k = 1; k < curr_contour->num_vertices; k++) {
                 std::string tmp2 = string_format ("\\%.8g\\%.8g\\%.8g",
 		    curr_contour->x[k],
 		    curr_contour->y[k],
@@ -479,7 +478,7 @@ Dcmtk_rt_study::save_rtss (const char *dicom_dir)
     std::string rtss_fn;
     if (d_ptr->filenames_with_uid) {
         rtss_fn = string_format ("%s/rtss_%s.dcm", dicom_dir, 
-            d_ptr->rt_study_metadata->get_rtss_series_uid());
+            d_ptr->rt_study_metadata->get_rtstruct_series_uid());
     } else {
         rtss_fn = string_format ("%s/rtss.dcm", dicom_dir);
     }

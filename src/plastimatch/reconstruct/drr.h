@@ -29,6 +29,13 @@ enum drr_algorithm {
 };
 typedef enum drr_algorithm Drr_algorithm;
 
+enum hu_conversion_type {
+    PREPROCESS_CONVERSION,
+    INLINE_CONVERSION,
+    NO_CONVERSION
+};
+typedef enum hu_conversion_type Hu_conversion;
+
 class Drr_options {
 public:
     Threading threading;
@@ -54,7 +61,7 @@ public:
     float scale;
     int exponential_mapping;
     int output_format;
-    bool preprocess_attenuation;
+    Hu_conversion hu_conversion;
     Drr_algorithm algorithm;
     char* input_file;
     int geometry_only;

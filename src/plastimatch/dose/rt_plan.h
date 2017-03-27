@@ -28,6 +28,7 @@ public:
 
 public:
     Plm_return_code parse_args (int argc, char* argv[]);
+    Plm_return_code set_command_file (const char *command_file);
 
     /* Set the CT volume for dose calculation.
        The Rt_plan takes ownership of this CT/Patient. */

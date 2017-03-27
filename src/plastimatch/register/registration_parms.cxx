@@ -62,6 +62,8 @@ public:
     Registration_parms_parser (Registration_parms *rp)
     {
         this->rp = rp;
+		this->enable_key_regularization(true);
+		this->set_default_index(DEFAULT_IMAGE_KEY);
     }
 public:
     virtual Plm_return_code begin_section (
@@ -572,7 +574,7 @@ Registration_parms::set_key_value (
         if (stage->metric_lambda.size() == 0) {
             goto error_exit;
         }
-    }
+    } /* 
     else if (key == "histogram_type") {
         if (!section_stage) goto key_only_allowed_in_section_stage;
         if (val == "eqsp" || val == "EQSP") {
@@ -584,7 +586,7 @@ Registration_parms::set_key_value (
         else {
             goto error_exit;
         }
-    }
+    } */
     else if (key == "regularization")
     {
         if (!section_stage) goto key_only_allowed_in_section_stage;
@@ -1083,7 +1085,7 @@ error_exit:
     return PLM_ERROR;
 }
 
-int
+Plm_return_code
 Registration_parms::set_command_string (
     const std::string& command_string
 )
@@ -1093,7 +1095,7 @@ Registration_parms::set_command_string (
     return rpp.parse_config_string (command_string);
 }
 
-int
+Plm_return_code
 Registration_parms::parse_command_file (const char* options_fn)
 {
     /* Read file into string */

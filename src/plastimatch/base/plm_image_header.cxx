@@ -82,6 +82,12 @@ Plm_image_header::Plm_image_header (const Volume_header& vh)
     this->set (vh);
 }
 
+Plm_image_header::Plm_image_header (const Volume::Pointer& vol) 
+{
+    d_ptr = new Plm_image_header_private;
+    this->set (vol);
+}
+
 Plm_image_header::Plm_image_header (const Volume& vol) 
 {
     d_ptr = new Plm_image_header_private;
@@ -319,6 +325,13 @@ void
 Plm_image_header::set_from_volume_header (const Volume_header& vh)
 {
     this->set (vh);
+}
+
+void
+Plm_image_header::set (const Volume::Pointer& vol)
+{
+    this->set_from_gpuit (vol->dim, vol->origin,
+	vol->spacing, vol->direction_cosines);
 }
 
 void

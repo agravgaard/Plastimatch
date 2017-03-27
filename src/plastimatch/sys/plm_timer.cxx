@@ -17,6 +17,7 @@ Plm_timer_private::Plm_timer_private ()
 #endif
     acc_time = 0.;
     running = true;
+    start_time = get_time ();
 }
 
 double

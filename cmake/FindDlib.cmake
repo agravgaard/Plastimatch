@@ -35,8 +35,25 @@ find_package_handle_standard_args (DLIB DEFAULT_MSG
   DLIB_LIBRARY 
   DLIB_INCLUDE_DIR)
 
+# Dlib on debian is linked against lapack and blas
+if (DLIB_LIBRARY)
+    find_package (BLAS)
+    if (BLAS_FOUND)
+	find_package (LAPACK)
+    endif ()
+    if (LAPACK_FOUND)
+	list (APPEND DLIB_LIBRARY ${LAPACK_LIBRARIES})
+    else ()
+	set (DLIB_FOUND FALSE)
+    endif ()
+endif ()
+
+set (DLIB_HAVE_LIBRARY FALSE)
 if (DLIB_FOUND)
-  set (DLIB_LIBRARIES ${DLIB_LIBRARY})
+    set (DLIB_LIBRARIES ${DLIB_LIBRARY})
+    if (DLIB_LIBRARY)
+	set (DLIB_HAVE_LIBRARY TRUE)
+    endif ()
 else (DLIB_FOUND)
   set (DLIB_LIBRARIES)
 endif (DLIB_FOUND)

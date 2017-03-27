@@ -23,7 +23,16 @@ else ()
 
   # GCS 2012-05-07: Workaround for poor, troubled FindCUDA
   set (CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE FALSE)
+
   find_package (CUDA QUIET)
+
+  # GCS 2016-12-23: Tell FindCUDA to tell nvcc to use the c++ compiler,
+  # which it doesn't do even if CUDA_HOST_COMPILATION_CPP is true.
+  # This has to be done after calling FindCUDA, because FindCUDA overwrites
+  # the variable.  PS: Merry Christmas!
+  if (NOT MSVC)
+    set (CUDA_HOST_COMPILER "${CMAKE_CXX_COMPILER}")
+  endif ()
 endif ()
 
 # 14-5-2016 PAOLO: WORKAROUND GCC 6.1 AND CUDA 7.5 INCOMPATIBILITY

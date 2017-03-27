@@ -14,7 +14,6 @@
 #cmakedefine APPLE 1
 
 /* Compiler attributes */
-#cmakedefine FORTRAN_COMPILER_FOUND 1
 #cmakedefine HAVE_SYS_STAT_H 1
 #cmakedefine HAVE_STDINT_H 1
 #cmakedefine HAVE_SYS_STAT_H 1
@@ -33,6 +32,7 @@
 #cmakedefine DCMTK_FOUND 1
 #cmakedefine DCMTK_HAVE_CFUNIX_H 1
 #cmakedefine DLIB_FOUND 1
+#cmakedefine DLIB_HAVE_LIBRARY 1
 #cmakedefine FFTW_FOUND 1
 #cmakedefine GDCM_FOUND 1
 #cmakedefine LIBLBFGS_FOUND 1
@@ -45,7 +45,6 @@
 
 /* User options */
 #cmakedefine PLM_BUILD_SHARED_LIBS 1
-#cmakedefine PLM_CONFIG_KEYHOLIZE 1
 #cmakedefine PLM_CONFIG_USE_PATCHED_ITK 1
 #cmakedefine PLM_CONFIG_VOL_LIST 1
 
@@ -55,9 +54,6 @@
 
 /* Needed for dynamic loading */
 #cmakedefine PLM_USE_GPU_PLUGINS 1
-
-/* Did we find fortran? -- always true now. */
-#define FORTRAN_FOUND 1
 
 /* Dicom attributes.  One and only one of these will be true. */
 #cmakedefine PLM_DCM_USE_DCMTK 1

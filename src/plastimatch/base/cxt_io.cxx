@@ -330,13 +330,12 @@ cxt_save (
 	    continue;
 	}
 	for (size_t j = 0; j < curr_structure->num_contours; j++) {
-	    int k;
 	    Rtss_contour *curr_polyline = curr_structure->pslist[j];
 
 	    /* struct_no|contour_thickness|num_points|slice_no|slice_uid|points */
 	    /* I don't think contour thickness is used. */
 	    fprintf (fp, "%d||%d|", curr_structure->id, 
-		curr_polyline->num_vertices);
+		(int) curr_polyline->num_vertices);
 	    /* slice_no and slice_uid are optional */
 	    if (curr_polyline->slice_no >= 0) {
 		fprintf (fp, "%d|", curr_polyline->slice_no);
@@ -348,7 +347,7 @@ cxt_save (
 	    } else {
 		fprintf (fp, "%s|", curr_polyline->ct_slice_uid.c_str());
 	    }
-	    for (k = 0; k < curr_polyline->num_vertices; k++) {
+	    for (size_t k = 0; k < curr_polyline->num_vertices; k++) {
 		if (k > 0) {
 		    fprintf (fp, "\\");
 		}

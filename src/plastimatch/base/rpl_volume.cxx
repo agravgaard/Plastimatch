@@ -592,12 +592,6 @@ Rpl_volume::compute_rpl_HU ()
     const double *src = proj_vol->get_src();
     ires[0] = d_ptr->proj_vol->get_image_dim (0);
     ires[1] = d_ptr->proj_vol->get_image_dim (1);
-    unsigned char *ap_img = 0;
-    if (d_ptr->aperture->have_aperture_image()) {
-        Volume::Pointer ap_vol = d_ptr->aperture->get_aperture_volume ();
-        ap_img = (unsigned char*) ap_vol->img;
-    }
-
     Volume *ct_vol = d_ptr->ct->get_vol();
 
     /* We don't need to do the first pass, as it was already done for the real rpl_volume */
@@ -649,25 +643,10 @@ Rpl_volume::compute_rpl_HU ()
 void 
 Rpl_volume::compute_rpl_void ()
 {
-    int ires[2];
-
     /* A couple of abbreviations */
-    Proj_volume *proj_vol = d_ptr->proj_vol;
-    const double *src = proj_vol->get_src();
+    int ires[2];
     ires[0] = d_ptr->proj_vol->get_image_dim (0);
     ires[1] = d_ptr->proj_vol->get_image_dim (1);
-    unsigned char *ap_img = 0;
-    float *rc_img = 0;
-    if (d_ptr->aperture->have_aperture_image()) {
-        Volume::Pointer ap_vol = d_ptr->aperture->get_aperture_volume ();
-        ap_img = (unsigned char*) ap_vol->img;
-    }
-    if (d_ptr->aperture->have_range_compensator_image()) {
-        Volume::Pointer rc_vol 
-            = d_ptr->aperture->get_range_compensator_volume ();
-        rc_img = (float*) rc_vol->img;
-    }
-    Volume *ct_vol = d_ptr->ct->get_vol();
 
     /* Preprocess data by clipping against volume */
     this->compute_ray_data ();
@@ -713,12 +692,7 @@ Rpl_volume::compute_rpl_range_length_rgc ()
     const double *src = proj_vol->get_src();
     ires[0] = d_ptr->proj_vol->get_image_dim (0);
     ires[1] = d_ptr->proj_vol->get_image_dim (1);
-    unsigned char *ap_img = 0;
     float *rc_img = 0;
-    if (d_ptr->aperture->have_aperture_image()) {
-        Volume::Pointer ap_vol = d_ptr->aperture->get_aperture_volume ();
-        ap_img = (unsigned char*) ap_vol->img;
-    }
     if (d_ptr->aperture->have_range_compensator_image()) {
         Volume::Pointer rc_vol 
             = d_ptr->aperture->get_range_compensator_volume ();
@@ -795,11 +769,6 @@ Rpl_volume::compute_rpl_PrSTRP_no_rgc ()
     const double *src = proj_vol->get_src();
     ires[0] = d_ptr->proj_vol->get_image_dim (0);
     ires[1] = d_ptr->proj_vol->get_image_dim (1);
-    unsigned char *ap_img = 0;
-    if (d_ptr->aperture->have_aperture_image()) {
-        Volume::Pointer ap_vol = d_ptr->aperture->get_aperture_volume ();
-        ap_img = (unsigned char*) ap_vol->img;
-    }
 
     Volume *ct_vol = d_ptr->ct->get_vol();
     /* Preprocess data by clipping against volume */
@@ -867,7 +836,6 @@ double Rpl_volume::compute_farthest_penetrating_ray_on_nrm(float range)
     int idx = 0;
     double POI[3] = {0.0, 0.0, 0.0};
     double tmp[3] = {0.0, 0.0, 0.0};
-    double nrm[3] = {0.0, 0.0, 0.0};
 
     double dist = 0;
     double max_dist = 0;
@@ -1341,10 +1309,8 @@ Rpl_volume::apply_smearing_to_target(float smearing, std::vector <double>& map_m
 
     /* Found the min of the target to be sure the smearing (margins) at the minimal depth */
     double min = DBL_MAX;
-    for (int i = 0; i < map_min_distance.size(); i++)
-    {
-        if (map_min_distance[i] > 0 && map_min_distance[i] < min)
-        {
+    for (size_t i = 0; i < map_min_distance.size(); i++) {
+        if (map_min_distance[i] > 0 && map_min_distance[i] < min) {
             min = map_min_distance[i];
         }
     }
@@ -1441,8 +1407,7 @@ Rpl_volume::apply_smearing_to_target(float smearing, std::vector <double>& map_m
     }
 
     /* update the initial distance map */
-    for (int i = 0; i < map_min_distance.size(); i++)
-    {
+    for (size_t i = 0; i < map_min_distance.size(); i++) {
         map_min_distance[i] = min_distance_tmp[i];
         map_max_distance[i] = max_distance_tmp[i];
     }
@@ -1817,8 +1782,7 @@ Rpl_volume::rpl_ray_trace (
     cd.ires = ires;
 
     /* Figure out how many steps to first step within volume */
-    double dist = ray_data->front_dist - d_ptr->front_clipping_dist;
-    cd.step_offset = 0; //(int) ceil (dist / d_ptr->proj_vol->get_step_length ());
+    cd.step_offset = 0;
     ray_data->step_offset = cd.step_offset;
 
     /* Find location of first step within volume */
@@ -2103,14 +2067,12 @@ Rpl_volume::compute_beam_modifiers_core (Volume *seg_vol, bool active, float sme
 
     printf("Apply longitudinal margins...\n");
     /* add the margins */
-    for (int i = 0; i < map_wed_min.size(); i++)
-    {
+    for (size_t i = 0; i < map_wed_min.size(); i++) {
         map_wed_min[i] -= proximal_margin;
         if (map_wed_min[i] < 0) {
             map_wed_min[i] = 0;
         }
-        if (map_wed_max[i] > 0)
-        {
+        if (map_wed_max[i] > 0) {
             map_wed_max[i] += distal_margin;
         }
     }
@@ -2217,14 +2179,12 @@ Rpl_volume::compute_beam_modifiers_core_slicerRt (Plm_image::Pointer& plmTgt, bo
 
     printf("Apply longitudinal margins...\n");
     /* add the margins */
-    for (int i = 0; i < map_wed_min.size(); i++)
-    {
+    for (size_t i = 0; i < map_wed_min.size(); i++) {
         map_wed_min[i] -= proximal_margin;
         if (map_wed_min[i] < 0) {
             map_wed_min[i] = 0;
         }
-        if (map_wed_max[i] > 0)
-        {
+        if (map_wed_max[i] > 0) {
             map_wed_max[i] += distal_margin;
         }
     }
@@ -2444,9 +2404,9 @@ Rpl_volume::compute_target_distance_limits_slicerRt(Plm_image::Pointer& plmTgt, 
     //Interpolated seg_volume value
     double interp_seg_value;
 
-    printf ("tgt dim = %d,%d,%d\n", plmTgt->dim(0), plmTgt->dim(1), plmTgt->dim(2));
-    printf ("tgt origin = %g,%g,%g\n", plmTgt->origin(0), plmTgt->origin(1), plmTgt->origin(2));
-    printf ("tgt spacing = %g,%g,%g\n", plmTgt->spacing(0), plmTgt->spacing(1), plmTgt->spacing(2));
+    lprintf ("tgt dim = %d,%d,%d\n", (int) plmTgt->dim(0), (int) plmTgt->dim(1), (int) plmTgt->dim(2));
+    lprintf ("tgt origin = %g,%g,%g\n", plmTgt->origin(0), plmTgt->origin(1), plmTgt->origin(2));
+    lprintf ("tgt spacing = %g,%g,%g\n", plmTgt->spacing(0), plmTgt->spacing(1), plmTgt->spacing(2));
     fflush (stdout);
     plm_long dim[3] = {(plm_long) plmTgt->dim(0), (plm_long) plmTgt->dim(1), (plm_long) plmTgt->dim(2)};
 

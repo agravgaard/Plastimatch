@@ -22,8 +22,7 @@
 float
 translation_mse (
     const Stage_parms *stage,
-    const Volume::Pointer& fixed,
-    const Volume::Pointer& moving,
+    const Metric_state::Pointer& ssi,
     const float dxyz[3])
 {
     plm_long fijk[3], fv;         /* Indices within fixed image (vox) */
@@ -37,7 +36,8 @@ translation_mse (
     plm_long mijk_r[3];           /* Round */
     float m_val;
 
-    Volume *mvol = moving.get();
+    Volume *fixed = ssi->fixed_ss.get();
+    Volume *moving = ssi->moving_ss.get();
     float* f_img = (float*) fixed->img;
     float* m_img = (float*) moving->img;
 
@@ -59,7 +59,7 @@ translation_mse (
                 if (!moving->is_inside (mijk)) continue;
 
                 /* Compute interpolation fractions */
-                li_clamp_3d (mijk, mijk_f, mijk_r, li_1, li_2, mvol);
+                li_clamp_3d (mijk, mijk_f, mijk_r, li_1, li_2, moving);
 
                 /* Find linear index of "corner voxel" in moving image */
                 mvf = volume_index (moving->dim, mijk_f);

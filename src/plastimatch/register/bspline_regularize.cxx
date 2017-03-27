@@ -12,8 +12,6 @@ Bspline_regularize::Bspline_regularize ()
     /* all methods */
     this->reg_parms = 0;
     this->bxf = 0;
-    this->fixed = 0;
-    this->moving = 0;
     this->fixed_stiffness = 0;
 
     /* semi-analytic method */

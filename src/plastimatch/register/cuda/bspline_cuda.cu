@@ -12,12 +12,12 @@
 #include "bspline.h"
 #include "bspline_cuda.h"
 #include "bspline_cuda_kernels.h"
-#include "bspline_mi_hist.h"
 #include "bspline_state.h"
 #include "bspline_xform.h"
 #include "cuda_util.h"
 #include "cuda_mem.h"
 #include "cuda_kernel_util.h"
+#include "joint_histogram.h"
 #include "plm_int.h"
 #include "volume.h"
 
@@ -78,7 +78,7 @@ CUDA_bspline_mi_init_a (
     Volume* moving_grad
 )
 {
-    Bspline_mi_hist_set* mi_hist = bst->mi_hist;
+    Joint_histogram* mi_hist = bst->get_mi_hist();
 
     // Keep track of how much memory we allocated in the GPU global memory.
     long unsigned GPU_Memory_Bytes = 0;
@@ -400,7 +400,8 @@ CUDA_bspline_mse_init_j (
     long unsigned GPU_Memory_Bytes = 0;
 
     printf ("Allocating GPU Memory");
-
+    fflush (stdout);
+    
     // Fixed Image (zero copy if possible)
     // ----------------------------------------------------------
     dev_ptrs->fixed_image_size = fixed->npix * fixed->pix_size;
@@ -761,7 +762,7 @@ CUDA_bspline_mi_cleanup_a (
 int
 CUDA_bspline_mi_hist (
     Dev_Pointers_Bspline *dev_ptrs,
-    Bspline_mi_hist_set* mi_hist,
+    Joint_histogram* mi_hist,
     Volume* fixed,
     Volume* moving,
     Bspline_xform* bxf)
@@ -781,7 +782,7 @@ CUDA_bspline_mi_hist (
 void
 CUDA_bspline_mi_hist_fix (
     Dev_Pointers_Bspline *dev_ptrs,
-    Bspline_mi_hist_set* mi_hist,
+    Joint_histogram* mi_hist,
     Volume* fixed,
     Volume* moving,
     Bspline_xform *bxf)
@@ -883,7 +884,7 @@ CUDA_bspline_mi_hist_fix (
 void
 CUDA_bspline_mi_hist_mov (
     Dev_Pointers_Bspline *dev_ptrs,
-    Bspline_mi_hist_set* mi_hist,
+    Joint_histogram* mi_hist,
     Volume* fixed,
     Volume* moving,
     Bspline_xform *bxf)
@@ -986,7 +987,7 @@ CUDA_bspline_mi_hist_mov (
 int
 CUDA_bspline_mi_hist_jnt (
     Dev_Pointers_Bspline *dev_ptrs,
-    Bspline_mi_hist_set* mi_hist,
+    Joint_histogram* mi_hist,
     Volume* fixed,
     Volume* moving,
     Bspline_xform *bxf)
@@ -1157,12 +1158,12 @@ CUDA_bspline_mi_grad (
     Dev_Pointers_Bspline *dev_ptrs
 )
 {
-    Bspline_mi_hist_set* mi_hist = bst->mi_hist;
+    Joint_histogram* mi_hist = bst->get_mi_hist();
     GPU_Bspline_Data gbd;
     build_gbd (&gbd, bxf, fixed, moving);
 
     Bspline_score* ssd = &bst->ssd;
-    float* host_grad = ssd->smetric_grad;
+    float* host_grad = ssd->curr_smetric_grad;
 
     if ((mi_hist->fixed.bins > GPU_MAX_BINS) ||
         (mi_hist->moving.bins > GPU_MAX_BINS)) {

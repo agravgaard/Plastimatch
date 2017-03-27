@@ -1,4 +1,4 @@
-﻿#include "qt_util.h"
+#include "qt_util.h"
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -15,13 +15,23 @@
 #include "gamma_gui.h"
 #include <QDir>
 #include <QMessageBox>
+#include "itk_resample.h" //plm
+
+bool QUTIL::QPointF_Compare(QPointF& ptData1, QPointF& ptData2)
+{
+    //return (ptData1.x() > ptData2.x()); //ASCENDING
+    return (ptData1.x() < ptData2.x()); //DESCENDING
+}
+
 
 void QUTIL::Set2DTo3D(FloatImage2DType::Pointer& spSrcImg2D, UShortImageType::Pointer& spTargetImg3D, int idx, enPLANE iDirection)
 {
     if (!spSrcImg2D || !spTargetImg3D) //Target image should be also ready.
         return;
 
-    int idxHor, idxVer, idxZ;
+    int idxHor = 0;
+    int idxVer = 0;
+    int idxZ = 0;
 
     switch (iDirection)
     {
@@ -121,7 +131,9 @@ void QUTIL::Get2DFrom3DByIndex(UShortImageType::Pointer& spSrcImg3D, UShortImage
     if (!spSrcImg3D)
         return;
 
-    int idxHor, idxVer, idxZ;
+    int idxHor = 0;
+    int idxVer = 0;
+    int idxZ = 0;
 
     switch (iDirection)
     {
@@ -246,7 +258,9 @@ void QUTIL::Get2DFrom3DByIndex(FloatImageType::Pointer& spSrcImg3D, FloatImage2D
     if (!spSrcImg3D)
         return;
 
-    int idxHor, idxVer, idxZ;
+    int idxHor = 0;
+    int idxVer = 0;
+    int idxZ = 0;
 
     switch (iDirection)
     {
@@ -365,7 +379,9 @@ void QUTIL::Get2DFrom3DByPosition(UShortImageType::Pointer& spSrcImg3D, UShortIm
     if (!spSrcImg3D)
         return;
 
-    int idxHor, idxVer, idxZ;
+    int idxHor = 0;
+    int idxVer = 0;
+    int idxZ = 0;
 
     switch (iDirection)
     {
@@ -491,7 +507,9 @@ void QUTIL::Get2DFrom3DByPosition(FloatImageType::Pointer& spSrcImg3D, FloatImag
     if (!spSrcImg3D)
         return;
 
-    int idxHor, idxVer, idxZ;
+    int idxHor = 0;
+    int idxVer = 0;
+    int idxZ = 0;
     //bool bUpDownFlip = false;
 
     switch (iDirection)
@@ -1061,7 +1079,7 @@ QStringList QUTIL::LoadTextFile(const char* txtFilePath)
     return resultStrList;
 }
 
-void QUTIL::LoadColorTable(const char* filePath, vector<VEC3D>& vRGBTable)
+void QUTIL::LoadColorTableFromFile(const char* filePath, vector<VEC3D>& vRGBTable)
 {
     vRGBTable.clear();
 
@@ -1096,6 +1114,44 @@ void QUTIL::LoadColorTable(const char* filePath, vector<VEC3D>& vRGBTable)
     fin.close();
     return;
 }
+
+void QUTIL::LoadColorTableInternal(vector<VEC3D>& vRGBTable, enCOLOR_TABLE col_table)
+{
+    vRGBTable.clear();   
+
+    int i = 0;
+
+    int iCntItem = 0;
+    VEC3D curRGB;
+
+    if (col_table == COL_TABLE_JET)
+    {
+        iCntItem = NUM_OF_TBL_ITEM_JET;
+
+        for (int i = 0; i < iCntItem; i++)
+        {
+            curRGB.x = (float)colormap_jet[i][0];
+            curRGB.y = (float)colormap_jet[i][1];
+            curRGB.z = (float)colormap_jet[i][2];
+        }       
+        vRGBTable.push_back(curRGB);
+    }
+    else if (col_table == COL_TABLE_GAMMA)
+    {
+        iCntItem = NUM_OF_TBL_ITEM_GAMMA;
+
+        for (int i = 0; i < iCntItem; i++)
+        {
+            curRGB.x = (float)colormap_customgamma[i][0];
+            curRGB.y = (float)colormap_customgamma[i][1];
+            curRGB.z = (float)colormap_customgamma[i][2];
+        }
+        vRGBTable.push_back(curRGB);
+    }    
+
+    return;
+}
+
 
 VEC3D QUTIL::GetRGBValueFromTable(vector<VEC3D>& vRGBTable, float fMinGray, float fMaxGray, float fLookupGray)
 {
@@ -1159,9 +1215,12 @@ QString QUTIL::GetTimeStampDirName(const QString& preFix, const QString& endFix)
 
 void QUTIL::ShowErrorMessage(QString str)
 {
+    cout << str.toLocal8Bit().constData() << endl;
+
     QMessageBox msgBox;
     msgBox.setText(str);
     msgBox.exec();
+    
 }
 
 void QUTIL::CreateItkDummyImg(FloatImageType::Pointer& spTarget, int sizeX, int sizeY, int sizeZ, float fillVal)
@@ -1433,4 +1492,66 @@ void QUTIL::GetGeometricLimitFloatImg(FloatImageType::Pointer& spFloatImg, VEC3D
     limitEnd.x = limitStart.x + (imgSize[0] - 1)*spacing[0];
     limitEnd.y = limitStart.y + (imgSize[1] - 1)*spacing[1];
     limitEnd.z = limitStart.z + (imgSize[2] - 1)*spacing[2];
+}
+
+void QUTIL::Get1DProfileFromTable(QStandardItemModel* pTable, int iCol_X, int iCol_Y, vector<QPointF>& vOutDoseProfile)
+{
+    vOutDoseProfile.clear();
+
+    QStringList list;
+
+    int rowCnt = pTable->rowCount();
+    int columnCnt = pTable->columnCount();
+
+    if (iCol_X >= columnCnt && iCol_Y >= columnCnt)
+    {
+        cout << "Error! Wrong column number." << endl;
+        return;
+    }
+    if (rowCnt < 1)
+    {
+        cout << "Error! This table is empty" << endl;
+        return;
+    }
+
+    for (int i = 0; i < rowCnt; i++)
+    {
+        QPointF dataPt;
+
+        QStandardItem* itemX = pTable->item(i, iCol_X);
+        QStandardItem* itemY = pTable->item(i, iCol_Y);
+
+        dataPt.setX(itemX->text().toDouble());
+        dataPt.setY(itemY->text().toDouble());
+
+        vOutDoseProfile.push_back(dataPt);
+    }
+}
+
+void QUTIL::ResampleFloatImg(FloatImageType::Pointer& spFloatInput, FloatImageType::Pointer& spFloatOutput, VEC3D& newSpacing)
+{
+    float old_spacing[3];
+
+    old_spacing[0] = spFloatInput->GetSpacing()[0];
+    old_spacing[1] = spFloatInput->GetSpacing()[1];
+    old_spacing[2] = spFloatInput->GetSpacing()[2];
+
+    float NewSpacing[3];
+    NewSpacing[0] = newSpacing.x;
+    NewSpacing[1] = newSpacing.y;
+    NewSpacing[2] = newSpacing.z;
+    
+    
+    spFloatOutput = resample_image(spFloatInput, NewSpacing);
+
+    if (spFloatOutput)
+    {
+        //cout << "Resampling is done" << "From " << old_spacing << " To " << NewSpacing << endl;
+    }  
+}
+
+const char *
+QUTIL::c_str (const QString& s)
+{
+    return s.toUtf8().constData();
 }

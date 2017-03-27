@@ -1,4 +1,4 @@
-﻿#include "gamma_gui.h"
+#include "gamma_gui.h"
 #include <QString>
 #include <QFileDialog>
 #include <QListView>
@@ -20,8 +20,8 @@
 #include <QStandardItemModel>
 #include <QClipboard>
 
-#include "dcmtk_loader.h"
-#include "dcmtk_loader_p.h"
+#include "dcmtk_rt_study.h"
+#include "dcmtk_rt_study_p.h"
 #include "dcmtk_series.h"
 
 #include "dcmtk_config.h"
@@ -47,8 +47,11 @@ gamma_gui::gamma_gui(QWidget *parent, Qt::WFlags flags)
     m_pCurImageGamma3D = new YK16GrayImage();
     m_pCurImageGamma2D = new YK16GrayImage();
 
-    QUTIL::LoadColorTable("colormap_jet.txt", m_vColormapDose);
-    QUTIL::LoadColorTable("colormap_customgamma.txt", m_vColormapGamma);
+    //QUTIL::LoadColorTableFromFile("colormap_jet.txt", m_vColormapDose);
+    //QUTIL::LoadColorTableFromFile("colormap_customgamma.txt", m_vColormapGamma);
+
+    QUTIL::LoadColorTableInternal(m_vColormapDose, COL_TABLE_JET);
+    QUTIL::LoadColorTableInternal(m_vColormapGamma, COL_TABLE_GAMMA);
     
 
     m_pCurImageRef->SetColorTable(m_vColormapDose);
@@ -92,9 +95,9 @@ gamma_gui::gamma_gui(QWidget *parent, Qt::WFlags flags)
     connect(ui.labelGammaMap2D, SIGNAL(Mouse_Released_Right()), this, SLOT(SLT_MouseReleasedRightGamma2D())); //added    
 
 
-    if (m_vColormapDose.size() < 1 || m_vColormapGamma.size() < 1 || m_vColormapGamma.size() < 1)
+    if (m_vColormapDose.size() < 1 || m_vColormapGamma.size() < 1)
     {
-        cout << "Fatal error!: colormap is not ready. Text files such as colormap_jet.txt should be checked." << endl;
+        cout << "Fatal error!: colormap is not ready. Colormap table should be checked." << endl;
     }
 
     m_pTableModel = NULL;
@@ -2538,7 +2541,7 @@ void gamma_gui::RenameFileByDCMInfo(QStringList& filenameList)
         crntFilePath = filenameList.at(a);
 
         //1) contructor
-        Dcmtk_loader dss(crntFilePath.toLocal8Bit().constData());
+        Dcmtk_rt_study dss(crntFilePath.toLocal8Bit().constData());
         //2) parse directory: this will link dicome seriese to proper one (e.g. ds_dose)
         dss.parse_directory();       
 
@@ -3350,4 +3353,321 @@ QString gamma_gui::ConvertMGHProtonDoseToMha(QString& strPathBinary, VEC3D& fDim
     
     
     return strResult;
+}
+
+void gamma_gui::SLTM_ConvertIBAOPG_Files()
+{
+	QStringList files = QFileDialog::getOpenFileNames(this, "Select one or more files to open",
+		m_strPathInputDir, "IBA OPG files (*.opg)");
+
+	int cnt = files.size();
+	if (cnt <= 0)
+		return;
+
+	QString strPathOPG;
+	QString strPathMHA;
+	int filePathLen;
+	for (int i = 0; i < cnt; i++)
+	{
+		strPathOPG = files.at(i);
+		filePathLen = strPathOPG.length();
+		//replace extention
+		strPathMHA = strPathOPG.left(filePathLen - 4);
+		strPathMHA = strPathMHA + ".mha";
+		ConvertOPG2FloatMHA(strPathOPG, strPathMHA);
+	}
+}
+
+
+//From IBA generic Txt (OPG) to float mha
+bool gamma_gui::ConvertOPG2FloatMHA(QString& strFilePathOPG, QString& strFilePathMHA)
+{
+	//FloatImage2DType::Pointer spFloatDose;       
+
+
+	//Data Type:          Abs. Dose
+	//Data Factor : 1.814
+	//Data Unit : Should be mGy
+	// Length unit: should be cm
+	//No.of Columns : 32
+	//  No.of Rows : 32
+	//Number of Bodies:   1
+	//Operators Note : Corr. : Unif.Calib., Bkgnd, Calib Output, Temp., Press.,
+
+	bool bAbsDose = false;
+	double fDataFactor = 0.0;
+	QString strDataUnit;
+	QString strLengthUnit;
+	int iColumns = 0;
+	int iRows = 0;
+	int iBody = 0;
+	QString strNote;
+
+	double fPlanePos = 0.0;
+
+	ifstream fin;
+	fin.open(strFilePathOPG.toLocal8Bit().constData());
+
+	if (fin.fail())
+	{
+		cout << "Error occurred in file reading!" << endl;
+		return false;
+	}
+	char str[MAX_LINE_LENGTH];
+
+	vector<double> vXVal;
+	vector<double> vYVal;
+	float* pFloatImg = NULL;
+	int imgSize = 0;
+
+	while (!fin.eof())
+	{
+		memset(str, 0, MAX_LINE_LENGTH);
+		fin.getline(str, MAX_LINE_LENGTH);
+		QString tmpStr = QString(str);
+		QString trimmed;
+		QStringList strListLine;
+		QString strHeader;
+		QString strData;
+
+		if (tmpStr.contains("<asciiheader>")) //go into subloop
+		{
+			while (!fin.eof())
+			{
+				strHeader = "";
+				strData = "";
+
+				memset(str, 0, MAX_LINE_LENGTH);
+				fin.getline(str, MAX_LINE_LENGTH);
+				tmpStr = QString(str);
+
+				strListLine = tmpStr.split("  ");// at least two consec. spaces
+
+				if (strListLine.count() >= 2)
+				{
+					strHeader = strListLine.at(0);
+					strData = tmpStr.right(tmpStr.length() - strHeader.length());
+					strData = strData.trimmed();
+				}
+
+				//trimmed = tmpStr.trimmed(); //if any blank line found
+				//if (trimmed.length() < 1)
+				//    break;
+
+				if (strHeader.contains("Data Type:") && strData.length() > 0) //go into subloop                
+				{
+					if (strData.contains("Abs. Dose"))
+						bAbsDose = true;
+					else
+						bAbsDose = false;
+				}
+				else if (strHeader.contains("Data Factor:") && strData.length() > 0) //go into subloop                
+				{
+					fDataFactor = strData.toDouble();
+				}
+				else if (strHeader.contains("Data Unit:") && strData.length() > 0) //go into subloop                
+				{
+					strDataUnit = strData;
+					if (!strDataUnit.contains("mGy"))
+					{
+						cout << "Error! unit should be mGy. Current = " << strDataUnit.toLocal8Bit().constData() << endl;
+					}
+				}
+				else if (strHeader.contains("Length Unit:") && strData.length() > 0) //go into subloop                
+				{
+					strLengthUnit = strData;
+
+					if (!strLengthUnit.contains("cm"))
+					{
+						cout << "Error! unit should be cm. Current = " << strLengthUnit.toLocal8Bit().constData() << endl;
+					}
+				}
+				else if (strHeader.contains("No. of Columns:") && strData.length() > 0) //go into subloop                
+				{
+					iColumns = strData.toInt();
+				}
+				else if (strHeader.contains("No. of Rows:") && strData.length() > 0) //go into subloop                
+				{
+					iRows = strData.toInt();
+				}
+				else if (strHeader.contains("Number of Bodies:") && strData.length() > 0) //go into subloop                
+				{
+					iBody = strData.toInt();
+				}
+				else if (strHeader.contains("Operators Note:") && strData.length() > 0) //go into subloop                
+				{
+					strNote = strData;
+				}
+				//else if (strHeader.contains("</asciiheader>")) //go into subloop                          
+				else if (tmpStr.contains("</asciiheader>")) //go into subloop                                            
+				{
+					break;
+				}
+			}// end of while
+		}//end of if tmpStr.contains("<asciiheader>"     
+
+		if (tmpStr.contains("<asciibody>")) //go into subloop
+		{
+			imgSize = iColumns*iRows;
+
+			if (imgSize > 1)
+				pFloatImg = new float[imgSize];
+
+			while (!fin.eof())
+			{
+				memset(str, 0, MAX_LINE_LENGTH);
+				fin.getline(str, MAX_LINE_LENGTH);
+				tmpStr = QString(str);
+
+				if (tmpStr.contains("X[cm]"))
+				{
+					strListLine = tmpStr.split(" ");
+					int iCntItem = strListLine.count();
+					vXVal.clear();
+
+					QStringList strListValidX;
+					QString strTestX;
+
+					for (int i = 1; i<iCntItem; i++)
+					{
+						strTestX = strListLine.at(i);
+						cout << strTestX.toLocal8Bit().constData() << endl;
+
+						strTestX = strTestX.trimmed();
+						if (strTestX.length() > 0)
+						{
+							strListValidX.push_back(strTestX);
+						}
+					}
+
+					int iValidXCnt = strListValidX.count();
+
+					cout << "Valid only" << endl;
+					for (int i = 0; i < iValidXCnt; i++)
+					{
+						vXVal.push_back(strListValidX.at(i).toDouble());
+						cout << strListValidX.at(i).toDouble() << endl;
+					}
+
+					/*if ((int)(vXVal.size()) != iColumns)
+					{
+					cout << "Error! X[cm] data count = " << vXVal.size() << ", X header info = " << iColumns << endl;
+					return false;
+					}    */
+				}
+				else if (tmpStr.contains("Y[cm]"))
+				{
+					vYVal.clear();
+					int iYLineCnt = 0;
+
+					while (!fin.eof())
+					{
+						memset(str, 0, MAX_LINE_LENGTH);
+						fin.getline(str, MAX_LINE_LENGTH);
+						tmpStr = QString(str);
+
+						if (tmpStr.contains("</asciibody>"))
+							break;
+
+						strListLine = tmpStr.split("\t");// at least two consec. spaces
+
+						int iDataCnt = strListLine.count();
+
+						if (iDataCnt > 1)
+						{
+							vYVal.push_back(strListLine.at(0).toDouble());
+						}
+
+						QStringList strListValid;
+						QString strTest;
+						for (int i = 1; i<iDataCnt; i++)
+						{
+							strTest = strListLine.at(i);
+							strTest = strTest.trimmed();
+							if (strTest.length() > 0)
+							{
+								strListValid.push_back(strTest);
+							}
+						}
+
+						if (strListValid.count() != iColumns)
+						{
+							cout << "Error! X data count = " << strListValid.count() << " vs " << iColumns << endl;
+							return false;
+						}
+
+						int curIdx = 0;
+						for (int i = 0; i < iColumns; i++)
+						{
+							curIdx = iColumns*iYLineCnt + i;
+							if (curIdx < imgSize)
+								pFloatImg[curIdx] = (strListValid.at(i).toDouble())*fDataFactor / 1000.0; //Unit: Gy
+						}
+						iYLineCnt++;
+					}//end of sub while
+
+					if (iYLineCnt != iRows)
+					{
+						cout << "Error! Y data count = " << iYLineCnt << " vs " << iRows << endl;
+						return false;
+					}
+				}// end of Y cm
+			}//end of asciibody while
+		}//if asciibody       
+	} // main while
+	fin.close();
+
+	//img array to itk image
+
+	if (vXVal.size() < 2 || vYVal.size() < 2)
+		return false;
+
+	FloatImage2DType::PointType ptOriginItk;
+	FloatImage2DType::SizeType imgSizeItk;
+	FloatImage2DType::SpacingType imgSpacingItk;
+
+	ptOriginItk[0] = vXVal.at(0)*10.0;
+	ptOriginItk[1] = vYVal.at(0)*10.0;
+
+	imgSizeItk[0] = iColumns;
+	imgSizeItk[1] = iRows;
+
+	imgSpacingItk[0] = fabs(vXVal.at(1) - vXVal.at(0))*10.0; // cm to mm
+	imgSpacingItk[1] = fabs(vYVal.at(1) - vYVal.at(0))*10.0;
+
+	FloatImage2DType::IndexType idxStart;
+	idxStart[0] = 0;
+	idxStart[1] = 0;
+
+	FloatImage2DType::RegionType region;
+	region.SetSize(imgSizeItk);
+	region.SetIndex(idxStart);
+
+	FloatImage2DType::Pointer spFloatDoseImg = FloatImage2DType::New();
+	spFloatDoseImg->SetRegions(region);
+	spFloatDoseImg->SetSpacing(imgSpacingItk);
+	spFloatDoseImg->SetOrigin(ptOriginItk);
+
+	spFloatDoseImg->Allocate();
+	spFloatDoseImg->FillBuffer(0.0);
+
+	itk::ImageRegionIterator<FloatImage2DType> it(spFloatDoseImg, spFloatDoseImg->GetLargestPossibleRegion());
+
+	int idx = 0;
+	for (it.GoToBegin(); !it.IsAtEnd(); ++it)
+	{
+		if (idx < imgSize)
+		{
+			float curVal = pFloatImg[idx];
+			it.Set(curVal);
+		}
+		idx++;
+	}
+
+	if (pFloatImg != NULL)
+		delete[] pFloatImg;
+
+	QUTIL::SaveFloatImage2D(strFilePathMHA.toLocal8Bit().constData(), spFloatDoseImg);
+
+	return true;
 }

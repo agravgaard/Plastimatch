@@ -33,6 +33,7 @@
 #include "itk_registration_private.h"
 #include "itk_resample.h"
 #include "logfile.h"
+#include "metric_parms.h"
 #include "plm_image.h"
 #include "plm_image_header.h"
 #include "print_and_exit.h"
@@ -202,14 +203,25 @@ Itk_registration_private::set_best_xform ()
 void
 Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
 {
-    switch (stage->metric_type[0]) {
-    case REGISTRATION_METRIC_MSE:
+    /* GCS FIX, split metric vector into separate items in 
+       Stage_similarity_data list */
+    Metric_parms metric_parms;
+    const Shared_parms *shared = stage->get_shared_parms();
+    std::map<std::string,Metric_parms>::const_iterator metric_it;
+    for (metric_it = shared->metric.begin();
+         metric_it != shared->metric.end(); ++metric_it) {
+        metric_parms = metric_it->second;
+        break;
+    }
+    
+    switch (metric_parms.metric_type) {
+    case SIMILARITY_METRIC_MSE:
     {
         MSEMetricType::Pointer metric = MSEMetricType::New();
         registration->SetMetric(metric);
     }
     break;
-    case REGISTRATION_METRIC_MI_VW:
+    case SIMILARITY_METRIC_MI_VW:
     {
         /*  The metric requires a number of parameters to be
             selected, including the standard deviation of the
@@ -229,7 +241,7 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
         registration->SetMetric(metric);
     }
     break;
-    case REGISTRATION_METRIC_MI_MATTES:
+    case SIMILARITY_METRIC_MI_MATTES:
     {
         /*  The metric requires two parameters to be selected: the 
             number of bins used to compute the entropy and the
@@ -263,7 +275,7 @@ Itk_registration_private::set_metric (FloatImageType::Pointer& fixed_ss)
         registration->SetMetric(metric);
     }
     break;
-    case REGISTRATION_METRIC_NMI:
+    case SIMILARITY_METRIC_NMI:
     {
         NMIMetricType::Pointer metric = NMIMetricType::New();
 
@@ -308,15 +320,15 @@ void
 Itk_registration_private::set_roi_images ()
 {
     const Shared_parms *shared = stage->get_shared_parms();
-    if (shared->fixed_roi_enable && regd->fixed_roi) {
+    if (shared->fixed_roi_enable && regd->get_fixed_roi()) {
         Mask_SOType::Pointer roi_so = Mask_SOType::New();
-        roi_so->SetImage(regd->fixed_roi->itk_uchar());
+        roi_so->SetImage(regd->get_fixed_roi()->itk_uchar());
         roi_so->Update();
         registration->GetMetric()->SetFixedImageMask (roi_so);
     }
-    if (shared->moving_roi_enable && regd->moving_roi) {
+    if (shared->moving_roi_enable && regd->get_moving_roi()) {
         Mask_SOType::Pointer roi_so = Mask_SOType::New();
-        roi_so->SetImage(regd->moving_roi->itk_uchar());
+        roi_so->SetImage(regd->get_moving_roi()->itk_uchar());
         roi_so->Update();
         registration->GetMetric()->SetMovingImageMask (roi_so);
     }
@@ -680,14 +692,16 @@ itk_registration_stage (
     irp.registration = RegistrationType::New();
 
     /* Subsample fixed & moving images */
+    Plm_image::Pointer fixed_image = regd->get_fixed_image();
+    Plm_image::Pointer moving_image = regd->get_moving_image();
     FloatImageType::Pointer fixed_ss = subsample_image (
-        regd->fixed_image->itk_float(), 
+        fixed_image->itk_float(), 
         stage->resample_rate_fixed[0], 
         stage->resample_rate_fixed[1], 
         stage->resample_rate_fixed[2], 
         stage->default_value);
     FloatImageType::Pointer moving_ss = subsample_image (
-        regd->moving_image->itk_float(), 
+        moving_image->itk_float(), 
         stage->resample_rate_moving[0], 
         stage->resample_rate_moving[1], 
         stage->resample_rate_moving[2], 
@@ -742,10 +756,12 @@ itk_align_center (
     Registration_data* regd, Xform *xf_out, 
     const Xform *xf_in, const Stage_parms* stage)
 {
+    Plm_image::Pointer fixed_image = regd->get_fixed_image();
+    Plm_image::Pointer moving_image = regd->get_moving_image();
     float fixed_center[3];
     float moving_center[3];
-    itk_volume_center (fixed_center, regd->fixed_image->itk_float());
-    itk_volume_center (moving_center, regd->moving_image->itk_float());
+    itk_volume_center (fixed_center, fixed_image->itk_float());
+    itk_volume_center (moving_center, moving_image->itk_float());
 
     itk::Array<double> trn_parms (3);
     trn_parms[0] = moving_center[0] - fixed_center[0];
@@ -760,15 +776,15 @@ itk_align_center_of_gravity (
     const Xform *xf_in, const Stage_parms* stage)
 {
 
-    if (regd->fixed_roi != NULL && regd->moving_roi != NULL) {
+    if (regd->get_fixed_roi() && regd->get_moving_roi()) {
         typedef itk::ImageMomentsCalculator<UCharImageType> ImageMomentsCalculatorType;
         
         ImageMomentsCalculatorType::Pointer fixedCalculator = ImageMomentsCalculatorType::New();
-        fixedCalculator->SetImage(regd->fixed_roi->itk_uchar());
+        fixedCalculator->SetImage(regd->get_fixed_roi()->itk_uchar());
         fixedCalculator->Compute();
 
         ImageMomentsCalculatorType::Pointer movingCalculator = ImageMomentsCalculatorType::New();
-        movingCalculator->SetImage(regd->moving_roi->itk_uchar());
+        movingCalculator->SetImage(regd->get_moving_roi()->itk_uchar());
         movingCalculator->Compute();
 
         ImageMomentsCalculatorType::VectorType fixedCenter; 

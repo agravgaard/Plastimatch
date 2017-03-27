@@ -52,6 +52,7 @@ public:
     bool output_dij_dose_volumes;
 
     /* Algorithm options */
+    bool force_resample;
     float default_val;
     bool have_dose_scale;       /* should we scale the dose image? */
     float dose_scale;           /* how much to scale the dose image */
@@ -75,7 +76,7 @@ public:
     std::vector<std::string> m_study_metadata;
     std::vector<std::string> m_image_metadata;
     std::vector<std::string> m_dose_metadata;
-    std::vector<std::string> m_rtss_metadata;
+    std::vector<std::string> m_rtstruct_metadata;
 
 public:
     Warp_parms () {
@@ -89,6 +90,7 @@ public:
 	/* Misc options */
 	have_dose_scale = false;
 	dose_scale = 1.0f;
+        force_resample = false;
 	default_val = 0.0f;
 	interp_lin = 1;
 	output_type = PLM_IMG_TYPE_UNDEFINED;

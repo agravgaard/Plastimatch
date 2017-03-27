@@ -38,10 +38,10 @@ bspline_loop_voxel_serial (
     Bspline_xform *bxf = bod->get_bspline_xform ();
     Bspline_score* ssd = &bst->ssd;
 
-    Volume *fixed = parms->fixed;
-    Volume *moving = parms->moving;
-    Volume *fixed_roi  = parms->fixed_roi;
-    Volume *moving_roi = parms->moving_roi;
+    Volume *fixed = bst->fixed;
+    Volume *moving = bst->moving;
+    Volume *fixed_roi  = bst->fixed_roi;
+    Volume *moving_roi = bst->moving_roi;
 
     plm_long fijk[3], fidx;     /* Indices within fixed image (vox) */
     float mijk[3];              /* Indices within moving image (vox) */
@@ -164,10 +164,10 @@ bspline_loop_tile_serial (
     Bspline_xform *bxf = bod->get_bspline_xform ();
     Bspline_score* ssd = &bst->ssd;
 
-    Volume *fixed = parms->fixed;
-    Volume *moving = parms->moving;
-    Volume *fixed_roi  = parms->fixed_roi;
-    Volume *moving_roi = parms->moving_roi;
+    Volume *fixed = bst->fixed;
+    Volume *moving = bst->moving;
+    Volume *fixed_roi  = bst->fixed_roi;
+    Volume *moving_roi = bst->moving_roi;
 
     float* f_img = (float*) fixed->img;
     float* m_img = (float*) moving->img;
@@ -357,10 +357,10 @@ bspline_loop_tile_parallel (
     Bspline_xform *bxf = bod->get_bspline_xform ();
     Bspline_score* ssd = &bst->ssd;
 
-    Volume *fixed = parms->fixed;
-    Volume *moving = parms->moving;
-    Volume *fixed_roi  = parms->fixed_roi;
-    Volume *moving_roi = parms->moving_roi;
+    Volume *fixed = bst->fixed;
+    Volume *moving = bst->moving;
+    Volume *fixed_roi  = bst->fixed_roi;
+    Volume *moving_roi = bst->moving_roi;
 
     float* f_img = (float*) fixed->img;
     float* m_img = (float*) moving->img;

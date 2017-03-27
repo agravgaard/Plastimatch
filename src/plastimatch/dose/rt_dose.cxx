@@ -110,7 +110,7 @@ energy_direct (
     }
 
     /* return the dose at this radiographic depth */
-	return (double) beam->get_mebs()->get_depth_dose()[beam_idx]->lookup_energy(rgdepth);
+    return (double) beam->get_mebs()->get_depth_dose()[beam_idx]->lookup_energy(rgdepth);
 }
 
 void compute_dose_ray_desplanques (
@@ -157,7 +157,7 @@ void compute_dose_ray_desplanques (
     int i_max = 0;
     int j_min = 0;
     int j_max = 0;
-	bool test = true;
+    bool test = true;
     bool* in = &test;
 
     float* img = (float*) dose_volume->img;
@@ -176,30 +176,30 @@ void compute_dose_ray_desplanques (
         ap_img = (unsigned char*) ap_vol->img;
     }
 
-	std::vector<float> num_part = beam->get_mebs()->get_num_particles();
+    std::vector<float> num_part = beam->get_mebs()->get_num_particles();
 
     double dist = 0;
     int offset_step = 0;
 
-	double vec_pdn_tmp[3] = {0,0,0};
-	double vec_prt_tmp[3] = {0,0,0};
-	double vec_nrm_tmp[3] = {0,0,0};
+    double vec_pdn_tmp[3] = {0,0,0};
+    double vec_prt_tmp[3] = {0,0,0};
+    double vec_nrm_tmp[3] = {0,0,0};
 
-	vec3_copy(vec_pdn_tmp, beam->rpl_vol->get_proj_volume()->get_incr_c());
-	vec3_normalize1(vec_pdn_tmp);
-	vec3_copy(vec_prt_tmp, beam->rpl_vol->get_proj_volume()->get_incr_r());
-	vec3_normalize1(vec_prt_tmp);
-	vec3_copy(vec_nrm_tmp, beam->rpl_vol->get_proj_volume()->get_nrm());
-	vec3_normalize1(vec_nrm_tmp);
+    vec3_copy(vec_pdn_tmp, beam->rpl_vol->get_proj_volume()->get_incr_c());
+    vec3_normalize1(vec_pdn_tmp);
+    vec3_copy(vec_prt_tmp, beam->rpl_vol->get_proj_volume()->get_incr_r());
+    vec3_normalize1(vec_prt_tmp);
+    vec3_copy(vec_nrm_tmp, beam->rpl_vol->get_proj_volume()->get_nrm());
+    vec3_normalize1(vec_nrm_tmp);
 
     for (int i = 0; i < dim[0]*dim[1]; i++)
     {
-		if (ap_img[i] == 0 || num_part[beam_index * dim[0] * dim[1] + i] == 0) 
-		{
+        if (ap_img[i] == 0 || num_part[beam_index * dim[0] * dim[1] + i] == 0) 
+        {
             continue;
         }
         
-		Ray_data* ray_data = &beam->sigma_vol->get_Ray_data()[i]; //MD Fix: Why ray_daya->ray for rpl_vol is wrong at this point?
+        Ray_data* ray_data = &beam->sigma_vol->get_Ray_data()[i]; //MD Fix: Why ray_daya->ray for rpl_vol is wrong at this point?
 
         ap_ij[1] = i / dim[0];
         ap_ij[0] = i- ap_ij[1]*dim[0];
@@ -207,11 +207,11 @@ void compute_dose_ray_desplanques (
         ray_bev[1] = vec3_dot (ray_data->ray, vec_pdn_tmp);
         ray_bev[2] = -vec3_dot (ray_data->ray, vec_nrm_tmp); // ray_beam_eye_view is already normalized
 
-		/* printf("prt: %lg %lg %lg\n",vec_prt_tmp[0], vec_prt_tmp[1], vec_prt_tmp[2]);
-		printf("pdn: %lg %lg %lg\n",vec_pdn_tmp[0], vec_pdn_tmp[1], vec_pdn_tmp[2]);
-		printf("nrm: %lg %lg %lg\n",vec_nrm_tmp[0], vec_nrm_tmp[1], vec_nrm_tmp[2]);
-		printf("ray: %lg %lg %lg\n",ray_data->ray[0], ray_data->ray[1], ray_data->ray[2]);
-		printf("bev: %lg %lg %lg\n", ray_bev[0], ray_bev[1], ray_bev[2]); */
+        /* printf("prt: %lg %lg %lg\n",vec_prt_tmp[0], vec_prt_tmp[1], vec_prt_tmp[2]);
+           printf("pdn: %lg %lg %lg\n",vec_pdn_tmp[0], vec_pdn_tmp[1], vec_pdn_tmp[2]);
+           printf("nrm: %lg %lg %lg\n",vec_nrm_tmp[0], vec_nrm_tmp[1], vec_nrm_tmp[2]);
+           printf("ray: %lg %lg %lg\n",ray_data->ray[0], ray_data->ray[1], ray_data->ray[2]);
+           printf("bev: %lg %lg %lg\n", ray_bev[0], ray_bev[1], ray_bev[2]); */
 
         /* Calculation of the coordinates of the intersection of the ray with the clipping plane */
         entrance_length = vec3_dist(beam->rpl_vol->get_proj_volume()->get_src(), ray_data->cp);
@@ -233,7 +233,7 @@ void compute_dose_ray_desplanques (
             {
                 find_xyz_center(xyz_ray_center, ray_bev, dose_volume->origin[2],k, dose_volume->spacing[2]);
                 distance = vec3_dist(xyz_ray_center, entrance_bev);
-				ct_density = compute_density_from_HU(beam->rpl_ct_vol_HU->get_rgdepth(ap_ij, distance));
+                ct_density = compute_density_from_HU(beam->rpl_ct_vol_HU->get_rgdepth(ap_ij, distance));
                 STPR = compute_PrSTPR_from_HU(beam->rpl_ct_vol_HU->get_rgdepth(ap_ij, distance));
                 rg_length = range_comp + beam->rpl_vol->get_rgdepth(ap_ij, distance);
                 central_axis_dose = beam->get_mebs()->get_depth_dose()[beam_index]->lookup_energy_integration((float)rg_length, ct_density * dose_volume->spacing[2]) * STPR;

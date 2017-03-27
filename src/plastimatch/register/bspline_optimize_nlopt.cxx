@@ -46,7 +46,7 @@ bspline_optimize_nlopt_score (
     }
 
     /* Return cost */
-    return (double) bst->ssd.score;
+    return (double) bst->ssd.total_score;
 }
 
 void

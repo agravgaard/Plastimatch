@@ -137,6 +137,11 @@ The ordering is:
     smaller, then larger,
     unsigned, then signed.
 
+get, set
+--------
+The ordering is:
+    get, then set
+
 Plm_image, ITK image, Volume
 ----------------------------
 Overloaded functions which return specific types should specify 

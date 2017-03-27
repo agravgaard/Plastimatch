@@ -9,7 +9,7 @@
 static inline void
 bspline_mi_pvi_8_dc_dv_dcos (
     float dc_dv[3],                /* Output */
-    Bspline_mi_hist_set* mi_hist,  /* Input */
+    Joint_histogram* mi_hist,  /* Input */
     Bspline_state *bst,            /* Input */
     const Volume *fixed,           /* Input */
     const Volume *moving,          /* Input */
@@ -94,7 +94,7 @@ bspline_mi_pvi_8_dc_dv_dcos (
         }
         idx_jbin = offset_fbin + idx_mbin;
         if (j_hist[idx_jbin] > 0.0001) {
-            dS_dP = logf((num_vox_f * j_hist[idx_jbin]) / (f_hist[idx_fbin] * m_hist[idx_mbin])) - ssd->smetric[0];
+            dS_dP = logf((num_vox_f * j_hist[idx_jbin]) / (f_hist[idx_fbin] * m_hist[idx_mbin])) - ssd->curr_smetric;
             dc_dv[0] -= dw[3*idx_pv+0] * dS_dP;
             dc_dv[1] -= dw[3*idx_pv+1] * dS_dP;
             dc_dv[2] -= dw[3*idx_pv+2] * dS_dP;
@@ -123,12 +123,12 @@ class Bspline_mi_k_pass_1
 {
 public:
     double score_acc;
-    Bspline_mi_hist_set *mi_hist;
+    Joint_histogram *mi_hist;
 public:
     Bspline_mi_k_pass_1 (Bspline_optimize *bod) {
         score_acc = 0.f;
     }
-    void set_mi_hist (Bspline_mi_hist_set *mi_hist) {
+    void set_mi_hist (Joint_histogram *mi_hist) {
         this->mi_hist = mi_hist;
     }
 public:
@@ -168,7 +168,7 @@ public:
         );
 
         /* Keep track of voxels used */
-        ssd->num_vox++;
+        ssd->curr_num_vox++;
     }
 };
 
@@ -176,13 +176,13 @@ class Bspline_mi_k_pass_2
 {
 public:
     float num_vox_f;
-    Bspline_mi_hist_set *mi_hist;
+    Joint_histogram *mi_hist;
 public:
     Bspline_mi_k_pass_2 (Bspline_optimize *bod) {
         Bspline_score* ssd = bod->get_bspline_state()->get_bspline_score();
-        num_vox_f = (float) ssd->num_vox;
+        num_vox_f = (float) ssd->curr_num_vox;
     }
-    void set_mi_hist (Bspline_mi_hist_set *mi_hist) {
+    void set_mi_hist (Joint_histogram *mi_hist) {
         this->mi_hist = mi_hist;
     }
 public:

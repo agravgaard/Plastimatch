@@ -32,7 +32,6 @@ create_ker (float coeff, int half_width)
     for (i = 0; i < width; i++) {
 	ker[i] = ker[i] / sum;
     }
-
     return ker;
 }
 

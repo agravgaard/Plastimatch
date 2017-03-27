@@ -19,16 +19,21 @@
    ** Needs fix for multiple reference studies **
 
    ----------------------------------------------------------------------- */
+#include "plm_config.h"
 #include <stdlib.h>
 #include <string.h>
 #include "INIReader.h"
+#if PLM_DCM_USE_DCMTK
+#include "dcmtk_config.h"
+#include "dcmtk/dcmdata/dctk.h"
+#endif
 
-#include "plm_config.h"
 #include "dcmtk_sro.h"
 #include "dir_list.h"
 #include "file_util.h"
 #include "path_util.h"
 #include "plm_clp.h"
+#include "plm_math.h"
 #include "print_and_exit.h"
 #include "rt_study.h"
 #include "string_util.h"
@@ -88,11 +93,13 @@ do_xvi_archive (Xvi_archive_parms *parms)
                 string_format ("%s.INI.XVI", recon_uid.c_str()));
             break;
         }
+        printf ("Recon dir is \"%s\".\n", recon_dir.c_str());
         if (scan_fn == ""
             || !file_exists (scan_fn) 
             || !file_exists (recon_ini_fn)
             || !file_exists (recon_xvi_fn))
         {
+            printf ("Missing file in Recon dir.  Skipping.\n");
             continue;
         }
 
@@ -171,9 +178,16 @@ do_xvi_archive (Xvi_archive_parms *parms)
             }
             printf ("time = |%s|\n", time_string.c_str());
         }
+        std::string unmatched_transform_string = 
+            recon_xvi.Get ("ALIGNMENT", "OnlineToRefTransformUnmatched", "");
+        printf ("unmatched xform = %s\n", unmatched_transform_string.c_str());
         std::string registration_string = 
             recon_xvi.Get ("ALIGNMENT", "OnlineToRefTransformCorrection", "");
-        printf ("xform = %s\n", registration_string.c_str());
+        printf ("correction xform = %s\n", registration_string.c_str());
+        if (unmatched_transform_string == "") {
+            printf ("No unmatched xform for this CBCT.  Skipping.\n");
+            continue;
+        }
 
         /* Load the .SCAN */
         Rt_study cbct_study;
@@ -197,41 +211,68 @@ do_xvi_archive (Xvi_archive_parms *parms)
         if (date_string != "" && time_string != "") {
             cbct_meta->set_study_date (date_string);
             cbct_meta->set_study_time (time_string);
-            cbct_meta->set_image_metadata(0x0008, 0x0012, date_string);
-            cbct_meta->set_image_metadata(0x0008, 0x0013, time_string);
+            cbct_meta->set_image_metadata(DCM_InstanceCreationDate, date_string);
+            cbct_meta->set_image_metadata(DCM_InstanceCreationTime, time_string);
         }
         std::string study_description = "CBCT: " + linac_string;
-        cbct_meta->set_study_metadata (0x0008, 0x1030, study_description);
-        cbct_meta->set_image_metadata (0x0028, 0x1050, "500");  // Window
-        cbct_meta->set_image_metadata (0x0028, 0x1051, "2000"); // Level
+        cbct_meta->set_study_metadata (DCM_StudyDescription, study_description);
+        cbct_meta->set_study_uid (reference_meta->get_study_uid());
+        cbct_meta->set_image_metadata (DCM_WindowCenter, "500");
+        cbct_meta->set_image_metadata (DCM_WindowWidth, "2000");
         std::string patient_position
-            = reference_meta->get_image_metadata(0x0018, 0x5100);
-        cbct_meta->set_image_metadata (0x0018, 0x5100, patient_position);
-        printf ("Patient position is %s\n", patient_position.c_str());
+            = reference_meta->get_image_metadata (DCM_PatientPosition);
+        cbct_meta->set_image_metadata (DCM_PatientPosition, patient_position);
+        std::string cbct_series_description
+            = "CBCT " + date_string + " " + time_string;
+        cbct_meta->set_image_metadata (DCM_SeriesDescription,
+            cbct_series_description);
+
+        /* Set DICOM SRO header fields */
+        std::string sro_series_description
+            = "REG " + date_string + " " + time_string;
+        reference_meta->set_sro_metadata (DCM_SeriesDescription,
+            sro_series_description);
+        
+        printf ("REF CT patient position is %s\n", patient_position.c_str());
+
+        // XiO incorrectly sets patient position metadata in their header
+        // This maneuver is intended to correct this
+        std::vector<float> uta
+            = parse_float_string (unmatched_transform_string);
+        if (within_abs_tolerance (uta[2], 1.f, 0.001f)
+            && within_abs_tolerance (uta[5], 1.f, 0.001f)
+            && within_abs_tolerance (uta[8], -1.f, 0.001f))
+        {
+            if (patient_position == "HFP") {
+                patient_position = "FFP";
+                printf ("Patient position corrected to %s\n",
+                    patient_position.c_str());
+            } else if (patient_position == "HFS") {
+                patient_position = "FFS";
+                printf ("Patient position corrected to %s\n",
+                    patient_position.c_str());
+            }
+        }
 
         /* Fix patient orientation based on reference CT */
         float dc[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
         if (patient_position == "HFS") {
             /* Do nothing */
-            //continue;
         }
         else if (patient_position == "HFP") {
             // dc = { -1, 0, 0, 0, -1, 0, 0, 0, 1 };
             dc[0] = dc[4] = -1;
             cbct_study.get_image()->get_volume()->set_direction_cosines (dc);
-            //continue;
         }
         else if (patient_position == "FFS") {
             // dc = { -1, 0, 0, 0, 1, 0, 0, 0, -1 };
             dc[0] = dc[8] = -1;
             cbct_study.get_image()->get_volume()->set_direction_cosines (dc);
-            //continue;
         }
         else if (patient_position == "FFP") {
             // dc = { 1, 0, 0, 0, -1, 0, 0, 0, -1 };
             dc[4] = dc[8] = -1;
             cbct_study.get_image()->get_volume()->set_direction_cosines (dc);
-            //continue;
         }
         else {
             /* Punt */
@@ -244,7 +285,11 @@ do_xvi_archive (Xvi_archive_parms *parms)
         origin[2] = dc[8] * origin[2];
         cbct_study.get_image()->get_volume()->set_origin (origin);
 
-//        cbct_study.save_image ("cbct.mha");
+        if (parms->write_debug_files) {
+            /* Nb this has to be done before writing dicom, since 
+               that operation scrambles the image (!) */
+            cbct_study.save_image ("cbct.nrrd");
+        }
 
         /* Write the DICOM image */
         std::string output_dir = string_format (
@@ -419,19 +464,16 @@ do_xvi_archive (Xvi_archive_parms *parms)
             xfp[11]
         );
 
-//        reference_study->save_image ("ct.nrrd");
-//        xf->save ("xf.tfm");
+        if (parms->write_debug_files) {
+            reference_study->save_image ("ct.nrrd");
+            xf->save ("xf.tfm");
+        }
         
-#if defined (commentout)
-#endif
-
         Dcmtk_sro::save (
             xf,
             reference_study->get_rt_study_metadata (),
             cbct_study.get_rt_study_metadata (),
             output_dir, true);
-
-        //break;
     }
 }
 
@@ -460,7 +502,9 @@ parse_fn (
 
     /* Other options */
     parser->add_long_option ("", "patient-id-override", 
-        "set the patient id", 1);
+        "set the patient id", 1, "");
+    parser->add_long_option ("", "write-debug-files",
+        "write converted image and xform files for debugging", 0);
     
     /* Parse options */
     parser->parse (argc,argv);
@@ -477,6 +521,9 @@ parse_fn (
 
     /* Other options */
     parms->patient_id_override = parser->get_string("patient-id-override");
+    if (parser->have_option ("write-debug-files")) {
+        parms->write_debug_files = true;
+    }
 }
 
 
@@ -484,7 +531,7 @@ int
 main (int argc, char *argv[])
 {
     Xvi_archive_parms parms;
-
+    
     /* Parse command line parameters */
     plm_clp_parse (&parms, &parse_fn, &usage_fn, argc, argv, 0);
 

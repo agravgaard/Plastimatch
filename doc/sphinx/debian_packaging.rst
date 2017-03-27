@@ -20,7 +20,8 @@ Setting up a build system for the first time
 
 #. Install the requisite packages::
 
-     sudo apt-get install devscripts pbuilder debhelper git-buildpackage cowbuilder
+   sudo apt-get install devscripts pbuilder debhelper \
+     git-buildpackage cowbuilder
 
    Note: if your host is not sid, you might need to install a newer gcc version 
    than exists on the native release.  You can do something like this:
@@ -60,14 +61,20 @@ Setting up a build system for the first time
      sudo apt-get install debian-archive-keyring
      git-pbuilder create
 
-Install packages into git-pbuilder.  This saves time when running
-multiple times::
+   Install packages into git-pbuilder.  This saves time when running
+   multiple times::
 
-  git-pbuilder login --save-after-login
-  apt-get update
-  apt-get install libfftw3-dev libinsighttoolkit4-dev libpng-dev libtiff-dev uuid-dev zlib1g-dev
+     git-pbuilder login --save-after-login
+     apt-get update
+     apt-get install \
+       apt-utils fakeroot debhelper \
+       cmake \
+       libblas-dev liblapack-dev libsqlite-dev \
+       libdcmtk-dev libdlib-dev libfftw3-dev \
+       libgdcm2-dev libinsighttoolkit4-dev \
+       libpng-dev libtiff-dev uuid-dev zlib1g-dev
   
-See this link for more information https://wiki.debian.org/git-pbuilder
+   See this link for more information https://wiki.debian.org/git-pbuilder
 
 
 Step 1: Preliminary testing
@@ -75,9 +82,13 @@ Step 1: Preliminary testing
 The preliminary testing is performed to make sure that the upstream 
 tarball has everything it needs.
 
+#. Clean pbuilder environment (if needed)::
+
+     pbuilder clean
+
 #. Refresh your git-pbuilder environment (if needed)::
 
-     sudo git-pbuilder --update
+     git-pbuilder update
 
 #. Test parallel regression tests::
 
@@ -87,14 +98,19 @@ tarball has everything it needs.
 #. Update changelog (in an terminal, not emacs)::
 
      cd plastimatch
-     dch -v 1.6.3+dfsg-1
+     dch -v 1.6.5+dfsg-1
      git commit -a -m "Update changelog"
+
+#. Make a tarball::
+
+     V=1.6.5 bash -c 'git archive --prefix=plastimatch-${V}/ master | bzip2 > ../plastimatch-${V}.tar.bz2'
 
 #. Run gbp import-orig.  This will update your source code from the tarball
    into the directory and local git repository, without pushing these changes
    onto the remote server::
 
-     gbp import-orig --pristine-tar -u 1.6.3+dfsg \
+     cd ~/debian-med/plastimatch
+     gbp import-orig --pristine-tar -u 1.6.5+dfsg \
      --filter=doc/*.doc \
      --filter=doc/*.odt \
      --filter=doc/*.pdf \
@@ -116,8 +132,11 @@ tarball has everything it needs.
      --filter=libs/msinttypes \
      --filter=libs/sqlite-3.6.21 \
      --filter-pristine-tar \
-     ~/build/plastimatch-pristine/plastimatch-1.6.3-Source.tar.bz2
-   
+     ~/work/plastimatch-1.6.5.tar.bz2
+
+   This didn't work for me the last time I tried it.  Instead, I went ahead
+   and created the version, and then downloaded with uscan.
+     
 #. If you make changes and you want to reset your repository, try this::
 
      git checkout pristine-tar
@@ -126,7 +145,7 @@ tarball has everything it needs.
      git reset --hard origin/upstream --
      git checkout master
      git reset --hard origin/master --
-     git tag -d upstream/1.6.3+dfsg
+     git tag -d upstream/1.6.5+dfsg
 
 #. Run gbp buildpackage to create the dsc::
 
@@ -150,20 +169,34 @@ tarball has everything it needs.
       
 Step 2: Build the tarball
 -------------------------
-Follow instructions in making_a_tarball
+Follow instructions in :ref:`making_a_tarball`.
 
 Step 3: Build the debian package
 --------------------------------
 #. Patch git with upstream::
 
-     gbp import-orig --pristine-tar --uscan -u 1.6.3+dfsg
+     gbp import-orig --pristine-tar --uscan 
 
+#. The above won't work if you already edited and committed the
+   debian changelog.  Instead, download and then patch.::
+
+     uscan --verbose --force-download
+     gbp import-orig --pristine-tar ../plastimatch_1.6.5+dfsg.1.orig.tar.gz
+     
 #. Test::
 
      gbp buildpackage
 
-Do I need --pristine-tar here?
-     
+   Do I need --pristine-tar here?
+
+   Another way this might be done is::
+
+     gbp buildpackage --git-pbuilder --git-ignore-new -j16
+   
+#. If you need select a patch from git, do somthing like this::
+
+     git format-patch HEAD~
+
 #. Push changes to server::
 
      git push --all --tags origin
@@ -174,18 +207,19 @@ Various hints
 Switching between git branches
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Like this::
- git checkout pristine-tar
- git checkout upstream
- git checkout master
+
+  git checkout pristine-tar
+  git checkout upstream
+  git checkout master
 
 
 Rebuilding an existing debian source package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Like this::
 
- apt-get source foo
- cd foo-0.0.1
- sudo apt-get build-dep foo
- debuild -i -us -uc -b
+  apt-get source foo
+  cd foo-0.0.1
+  sudo apt-get build-dep foo
+  debuild -i -us -uc -b
 
 See: https://wiki.debian.org/HowToPackageForDebian

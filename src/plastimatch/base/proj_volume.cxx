@@ -355,8 +355,7 @@ Proj_volume::load_header (const char* filename)
             break;
         }
 
-        std::string tag, val;
-        if (!split_tag_val (line, tag, val)) {
+        if (line.find('=') == std::string::npos) {
             /* No "=" found. */
             break;
         }

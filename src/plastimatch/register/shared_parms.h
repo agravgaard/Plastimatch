@@ -5,7 +5,9 @@
 #define _shared_parms_h_
 
 #include "plmregister_config.h"
+#include <map>
 #include <string>
+#include "metric_parms.h"
 
 class PLMREGISTER_API Shared_parms {
 public:
@@ -14,11 +16,14 @@ public:
     ~Shared_parms ();
 
 public:
+    /* Similarity parms */
+    std::map<std::string, Metric_parms> metric;
+    
     /* ROI */
     bool fixed_roi_enable;
     bool moving_roi_enable;
-    std::string fixed_roi_fn;
-    std::string moving_roi_fn;
+	std::string fixed_roi_fn;
+	std::string moving_roi_fn;
     std::string valid_roi_out_fn;
 
     /* Stiffness map */
@@ -37,6 +42,7 @@ public:
 
 public:
     void copy (const Shared_parms *s);
+    void log ();
 };
 
 #endif

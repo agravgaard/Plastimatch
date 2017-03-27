@@ -26,6 +26,8 @@ extern "C" {
 #define PCMD_JACOBIAN          "jacobian"
 #define PCMD_FILL            "fill"
 #define PCMD_MASK            "mask"
+#define PCMD_MAXIMUM         "maximum"
+#define PCMD_MULTIPLY        "multiply"
 #define PCMD_PROBE           "probe"
 //#define PCMD_REGISTER        "register"
 #define PCMD_RESAMPLE        "resample"
@@ -54,6 +56,8 @@ static const char* pcmds[] = {
     PCMD_JACOBIAN,
     PCMD_FILL,
     PCMD_MASK,
+    PCMD_MAXIMUM,
+    PCMD_MULTIPLY,
     PCMD_PROBE,
 //    PCMD_REGISTER,
     PCMD_RESAMPLE,

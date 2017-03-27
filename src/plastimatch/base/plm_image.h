@@ -60,12 +60,10 @@ public:
 
 private:
     /* Please don't use copy constructors.  They suck. */
-    Plm_image (Plm_image& xf) {
-        UNUSED_VARIABLE (xf);
+    Plm_image (Plm_image&) {
     }
     /* Please don't use overloaded operators.  They suck. */
-    Plm_image& operator= (Plm_image& xf) {
-        UNUSED_VARIABLE (xf);
+    Plm_image& operator= (Plm_image&) {
         return *this;
     }
     

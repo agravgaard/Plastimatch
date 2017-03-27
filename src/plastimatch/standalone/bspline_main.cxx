@@ -49,22 +49,6 @@ main (int argc, char* argv[])
     }
 #endif
 
-    fixed = read_mha (options.fixed_fn);
-    if (!fixed) exit (-1);
-    moving = read_mha (options.moving_fn);
-    if (!moving) exit (-1);
-
-    parms->fixed = fixed;
-    parms->moving = moving;
-
-    volume_convert_to_float (moving);
-    volume_convert_to_float (fixed);
-
-    printf ("Making gradient\n");
-    moving_grad = volume_make_gradient (moving);
-
-    parms->moving_grad = moving_grad;
-
 #if defined (commentout)
     /* Load and adjust landmarks */
     if (options.fixed_landmarks && options.moving_landmarks) {
@@ -76,6 +60,12 @@ main (int argc, char* argv[])
 
     /* Debug */
     //write_mha ("moving_grad.mha", moving_grad);
+
+    /* Load images */
+    fixed = read_mha (options.fixed_fn);
+    if (!fixed) exit (-1);
+    moving = read_mha (options.moving_fn);
+    if (!moving) exit (-1);
 
     /* Allocate memory and build lookup tables */
     printf ("Allocating lookup tables\n");
@@ -99,9 +89,31 @@ main (int argc, char* argv[])
         );
     }
 
+    /* Initialize Bspline_optimize data structure */
+    Bspline_optimize bod;
+    Bspline_state *bst = bod.get_bspline_state();
+
+    /* Set up Metric_state */
+    Metric_state::Pointer ms = Metric_state::New ();
+    ms->metric_type = options.metric_type;
+    printf ("Metric type %d\n", ms->metric_type);
+    ms->metric_lambda = 1.f;
+    ms->fixed_ss.reset (fixed);
+    ms->moving_ss.reset (moving);
+    bst->similarity_data.push_back (ms);
+
+    volume_convert_to_float (moving);
+    volume_convert_to_float (fixed);
+
+    printf ("Making gradient\n");
+    moving_grad = volume_make_gradient (ms->moving_ss.get());
+    ms->moving_grad.reset (moving_grad);
+
     /* Run the optimization */
     printf ("Running optimization.\n");
-    bspline_optimize (bxf, parms);
+    bod.set_bspline_parms (parms);
+    bod.set_bspline_xform (bxf);
+    bod.optimize ();
     printf ("Done running optimization.\n");
 
     /* Save output transform */
@@ -157,9 +169,6 @@ main (int argc, char* argv[])
     /* Free memory */
     printf ("Done warping images.\n");
     delete bxf;
-    delete fixed;
-    delete moving;
-    delete moving_grad;
     delete moving_warped;
     delete vector_field;
 

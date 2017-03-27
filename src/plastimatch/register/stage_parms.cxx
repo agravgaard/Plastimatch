@@ -96,7 +96,7 @@ Stage_parms::Stage_parms ()
     mi_hist_moving_bins = 20;
     mi_num_spatial_samples = -1;
     mi_num_spatial_samples_pct = 0.3;
-    mi_hist_type = HIST_EQSP;
+    //mi_hist_type = HIST_EQSP;
     /* MI threshold values */
     /*Setting values to zero by default. In this case minVal and 
       maxVal will be calculated from image*/

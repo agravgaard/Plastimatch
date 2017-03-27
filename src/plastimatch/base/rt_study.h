@@ -17,7 +17,6 @@ class Metadata;
 class Plm_image;
 class Rt_plan;
 class Rt_study_private;
-class Slice_index;
 class Volume;
 class Xio_ct_transform;
 
@@ -47,6 +46,8 @@ public:
     void load_image (const char *fn);
     void load_image (const std::string& fn);
     void load_xio (const char *xio_dir);
+    void load_rt_study_dir (const char *rt_study_dir);
+    void load_rt_study_dir (const std::string& rt_study_dir);
     void load_ss_img (const char *ss_img, const char *ss_list);
     void load_dose_img (const char *dose_img);
     void load_dose_xio (const char *dose_xio);
@@ -58,12 +59,17 @@ public:
 
     void load_cxt (const char *input_fn);
     void load_prefix (const char *input_fn);
+    void load_prefix (const std::string& input_fn);
 
     void save_dicom (const std::string& output_dir,
         bool filenames_with_uid = true);
     void save_dicom (const char *output_dir,
         bool filenames_with_uid = true);
     void save_dicom_dose (const char *output_dir);
+
+    void save_image (const std::string& fname);
+    void save_image (const char* fname);
+    void save_image (const char* fname, Plm_image_type image_type);
 
     void save_dose (const std::string& fname);
     void save_dose (const char* fname);
@@ -72,10 +78,26 @@ public:
     void save_prefix (const std::string& output_prefix, 
         const std::string& extension = "mha");
 
+    /*! \brief Get the Rt_study_metadata */
     const Rt_study_metadata::Pointer& get_rt_study_metadata () const;
     Rt_study_metadata::Pointer& get_rt_study_metadata ();
-    void set_study_metadata (std::vector<std::string>& metadata);
-    Metadata::Pointer& get_metadata ();
+    /*! \brief Set metadata items into study_metadata portion of Rt_study_metadata */
+    void set_study_metadata (const std::vector<std::string>& metadata);
+    /*! \brief Get the study_metadata portion of Rt_study_metadata */
+    Metadata::Pointer& get_study_metadata ();
+    /*! \brief Set metadata items into image portion of Rt_study_metadata */
+    void set_image_metadata (const std::vector<std::string>& metadata);
+    /*! \brief Get the image portion of Rt_study_metadata */
+    Metadata::Pointer& get_image_metadata ();
+    /*! \brief Set metadata items into dose portion of Rt_study_metadata */
+    void set_dose_metadata (const std::vector<std::string>& metadata);
+    /*! \brief Get the dose portion of Rt_study_metadata */
+    Metadata::Pointer& get_dose_metadata ();
+    /*! \brief Set metadata items into rtstruct portion 
+      of Rt_study_metadata */
+    void set_rtstruct_metadata (const std::vector<std::string>& metadata);
+    /*! \brief Get the rtstruct portion of Rt_study_metadata */
+    Metadata::Pointer& get_rtstruct_metadata ();
 
     bool have_image ();
     void set_image (ShortImageType::Pointer& itk_image);
@@ -91,9 +113,9 @@ public:
     void set_dose (const Plm_image::Pointer& pli);
     Plm_image::Pointer get_dose ();
 
-    bool have_rtss ();
-    Segmentation::Pointer get_rtss ();
-    void set_rtss (Segmentation::Pointer rtss);
+    bool have_segmentation ();
+    Segmentation::Pointer get_segmentation ();
+    void set_segmentation (Segmentation::Pointer seg);
 
     void add_structure (
         const UCharImageType::Pointer& itk_image, 

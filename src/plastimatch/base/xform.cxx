@@ -15,6 +15,7 @@
 
 #include "bspline_interpolate.h"
 #include "bspline_xform.h"
+#include "bspline_xform_legacy.h"
 #include "file_util.h"
 #include "itk_directions.h"
 #include "itk_image_create.h"
@@ -402,7 +403,12 @@ load_gpuit_bsp (Xform *xf, const char* fn)
 {
     Bspline_xform* bxf;
 
+#if PLM_CONFIG_LEGACY_BSPLINE_XFORM_IO
+    bxf = bspline_xform_legacy_load ((char*)fn);
+#else
     bxf = bspline_xform_load ((char*)fn);
+#endif
+
     if (!bxf) {
         print_and_exit ("Error loading bxf format file: %s\n", fn);
     }

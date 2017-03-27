@@ -58,7 +58,7 @@ Rtss_contour::find_direction_cosines ()
     float p23_dist = vec3_distsq (p2, p3);
     float p31_dist = vec3_distsq (p3, p1);
     printf ("%g %g %g\n", p12_dist, p23_dist, p31_dist);
-    for (int k = 3; k < this->num_vertices; k++) {
+    for (size_t k = 3; k < this->num_vertices; k++) {
         float pk[3];
         pk[0] = this->x[k];
         pk[1] = this->y[k];

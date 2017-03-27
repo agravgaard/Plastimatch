@@ -18,15 +18,25 @@
 #include "string_util.h"
 #include "xio_dir.h"
 
-static int
+static bool
 is_xio_directory (const char* path)
 {
     Xio_dir xd (path);
     if (xd.num_patients () > 0) {
-	printf ("Found an XiO directory!!!!\n");
-	return 1;
+	return true;
     } else {
-	return 0;
+	return false;
+    }
+}
+
+static bool
+is_rt_study_directory (const char* path)
+{
+    std::string img_fn = compose_filename (path, "img.nrrd");
+    if (file_exists (img_fn)) {
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -40,12 +50,12 @@ plm_file_format_deduce (const char* path)
     }
     
     if (itksys::SystemTools::FileIsDirectory (path)) {
-
 	if (is_xio_directory (path)) {
 	    return PLM_FILE_FMT_XIO_DIR;
 	}
-
-	/* GCS TODO:  Distinguish rtog directories */
+	if (is_rt_study_directory (path)) {
+	    return PLM_FILE_FMT_RT_STUDY_DIR;
+	}
 	return PLM_FILE_FMT_DICOM_DIR;
     }
 
@@ -98,7 +108,6 @@ plm_file_format_deduce (const char* path)
 	return PLM_FILE_FMT_IMG;
     }
 
-    //Check DICOM first
     /* Maybe dicom rtss? */
     if (dicom_probe_rtss(path)) {
         return PLM_FILE_FMT_DICOM_RTSS;
@@ -114,12 +123,11 @@ plm_file_format_deduce (const char* path)
         return PLM_FILE_FMT_DICOM_RTPLAN;
     }
 
-
     itk::ImageIOBase::IOPixelType pixel_type;
     itk::ImageIOBase::IOComponentType component_type;
     int num_dimensions, num_components;
     itk_image_get_props (std::string (path), &num_dimensions, &pixel_type, 
-	&component_type, &num_components);//this tries to read the file with itkReader
+	&component_type, &num_components);
     if (pixel_type == itk::ImageIOBase::VECTOR) {
 	/* Maybe vector field? */
 	if (component_type == itk::ImageIOBase::FLOAT
@@ -133,7 +141,9 @@ plm_file_format_deduce (const char* path)
 	    return PLM_FILE_FMT_SS_IMG_VEC;
 	}
 	/* else fall through */
-    }   
+    }
+
+ 
 
     return PLM_FILE_FMT_IMG;
 }
@@ -168,6 +178,8 @@ plm_file_format_string (Plm_file_format file_type)
 	return "XiO directory";
     case PLM_FILE_FMT_RTOG_DIR:
 	return "RTOG directory";
+    case PLM_FILE_FMT_RT_STUDY_DIR:
+	return "RT study directory";
     case PLM_FILE_FMT_PROJ_IMG:
 	return "Projection image";
     case PLM_FILE_FMT_DICOM_RTSS:
@@ -206,6 +218,9 @@ plm_file_format_parse (const char* string)
 	return PLM_FILE_FMT_XIO_DIR;
     }
     else if (!strcmp (string, "rtog")) {
+	return PLM_FILE_FMT_RTOG_DIR;
+    }
+    else if (!strcmp (string, "rtstudy")) {
 	return PLM_FILE_FMT_RTOG_DIR;
     }
     else if (!strcmp (string, "proj")) {

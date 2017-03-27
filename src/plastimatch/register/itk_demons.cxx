@@ -88,31 +88,31 @@ set_and_subsample_masks (
     const Stage_parms* stage)
 {
     /* Subsample fixed & moving images */
-    if(regd->fixed_roi)
+    if (regd->get_fixed_roi())
     {
-      MaskType::Pointer fixedSpatialObjectMask = MaskType::New();
-      UCharImageType::Pointer fixed_mask
-        = subsample_image (regd->fixed_roi->itk_uchar(),
-        stage->resample_rate_fixed[0],
-        stage->resample_rate_fixed[1],
-        stage->resample_rate_fixed[2],
-        0);
-      fixedSpatialObjectMask->SetImage(fixed_mask);
-      fixedSpatialObjectMask->Update();
-      m_filter->SetFixedImageMask (fixedSpatialObjectMask);
+        MaskType::Pointer fixedSpatialObjectMask = MaskType::New();
+        UCharImageType::Pointer fixed_mask
+            = subsample_image (regd->get_fixed_roi()->itk_uchar(),
+                stage->resample_rate_fixed[0],
+                stage->resample_rate_fixed[1],
+                stage->resample_rate_fixed[2],
+                0);
+        fixedSpatialObjectMask->SetImage(fixed_mask);
+        fixedSpatialObjectMask->Update();
+        m_filter->SetFixedImageMask (fixedSpatialObjectMask);
     }
-    if(regd->moving_roi)
+    if(regd->get_moving_roi())
     {
-      MaskType::Pointer movingSpatialObjectMask = MaskType::New();
-      UCharImageType::Pointer moving_mask
-        = subsample_image (regd->moving_roi->itk_uchar(),
-        stage->resample_rate_fixed[0],
-        stage->resample_rate_fixed[1],
-        stage->resample_rate_fixed[2],
-        0);
-      movingSpatialObjectMask->SetImage(moving_mask);
-      movingSpatialObjectMask->Update();
-      m_filter->SetMovingImageMask(movingSpatialObjectMask);
+        MaskType::Pointer movingSpatialObjectMask = MaskType::New();
+        UCharImageType::Pointer moving_mask
+            = subsample_image (regd->get_moving_roi()->itk_uchar(),
+                stage->resample_rate_fixed[0],
+                stage->resample_rate_fixed[1],
+                stage->resample_rate_fixed[2],
+                0);
+        movingSpatialObjectMask->SetImage(moving_mask);
+        movingSpatialObjectMask->Update();
+        m_filter->SetMovingImageMask(movingSpatialObjectMask);
     }
 }
 
@@ -133,30 +133,31 @@ do_demons_stage_internal (
     const Stage_parms* stage)
 {
     /* Subsample fixed & moving images */
+    Plm_image::Pointer fixed_image = regd->get_fixed_image();
+    Plm_image::Pointer moving_image = regd->get_moving_image();
     FloatImageType::Pointer fixed_ss
-    = subsample_image (regd->fixed_image->itk_float(),
-        stage->resample_rate_fixed[0],
-        stage->resample_rate_fixed[1],
-        stage->resample_rate_fixed[2],
-        stage->default_value);
+        = subsample_image (fixed_image->itk_float(),
+            stage->resample_rate_fixed[0],
+            stage->resample_rate_fixed[1],
+            stage->resample_rate_fixed[2],
+            stage->default_value);
     FloatImageType::Pointer moving_ss
-    = subsample_image (regd->moving_image->itk_float(),
-        stage->resample_rate_moving[0],
-        stage->resample_rate_moving[1],
-        stage->resample_rate_moving[2],
-        stage->default_value);
+        = subsample_image (moving_image->itk_float(),
+            stage->resample_rate_moving[0],
+            stage->resample_rate_moving[1],
+            stage->resample_rate_moving[2],
+            stage->default_value);
 
-    if(stage->histoeq)
-      {
+    if (stage->histoeq) {
         histo_equ=HistogramMatchingFilter::New();
         histo_equ->SetInput(moving_ss);
         histo_equ->SetReferenceImage(fixed_ss);
         histo_equ->SetNumberOfHistogramLevels(stage->num_hist_levels);
         histo_equ->SetNumberOfMatchPoints(stage->num_matching_points);
         m_filter->SetMovingImage (histo_equ->GetOutput());
-      }
-    else
-      m_filter->SetMovingImage (moving_ss);
+    } else {
+        m_filter->SetMovingImage (moving_ss);
+    }
 
     m_filter->SetFixedImage (fixed_ss);
 
@@ -164,8 +165,8 @@ do_demons_stage_internal (
     if (xf_in->m_type != XFORM_NONE) {
 	xform_to_itk_vf (xf_out, xf_in, fixed_ss);
 
-    //Set initial deformation field
-    m_filter->SetInput (xf_out->get_itk_vf());
+        //Set initial deformation field
+        m_filter->SetInput (xf_out->get_itk_vf());
     }
 
     if (stage->max_its <= 0) {

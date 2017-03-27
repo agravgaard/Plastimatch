@@ -6,14 +6,12 @@
 #include "bspline_parms.h"
 #include "bspline_landmarks.h"
 #include "bspline_regularize.h"
+#include "logfile.h"
 
 Bspline_parms::Bspline_parms ()
 {
     this->threading = BTHR_CPU;
     this->optimization = BOPT_LBFGSB;
-    this->metric_type.push_back (REGISTRATION_METRIC_MSE);
-    this->metric_lambda.push_back (1.0);
-    this->implementation = '\0';
     this->min_its = 0;
     this->max_its = 10;
     this->max_feval = 10;
@@ -36,12 +34,6 @@ Bspline_parms::Bspline_parms ()
     this->lbfgsb_pgtol = 1.0e-5;
     this->lbfgsb_mmax = -1;
 
-    this->fixed = 0;
-    this->moving = 0;
-    this->fixed_grad = 0;
-    this->moving_grad = 0;
-    this->fixed_roi = 0;
-    this->moving_roi = 0;
     this->fixed_stiffness = 0;
 
     this->reg_parms = new Regularization_parms;
@@ -56,4 +48,12 @@ Bspline_parms::~Bspline_parms ()
 {
     delete this->blm;
     delete this->reg_parms;
+}
+
+void
+Bspline_parms::log ()
+{
+    logfile_printf ("BSPLINE PARMS\n");
+    logfile_printf ("max_its = %d\n", this->max_its);
+    logfile_printf ("max_feval = %d\n", this->max_feval);
 }

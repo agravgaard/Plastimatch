@@ -57,6 +57,7 @@ public:
     std::string atlas_dir;
     std::string training_dir;
     std::string convert_dir;
+    std::string prealign_dir;
 
     std::string fusion_criteria;
 

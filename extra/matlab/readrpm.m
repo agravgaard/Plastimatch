@@ -1,10 +1,11 @@
 function rpm = readrpm(fn)
 % READRPM Read Varian RPM format file
-%    RPM = READRPM(FN)
+%    RPM = readrpm (FILENAME)
 %
 %    Read Varian RPM format, either DAT or VXP, and store the results
 %    in the structure RPM, which has the following fields:
 %
+%    RPM.HEADER   The header portion of the VXP file
 %    RPM.VERSION  String indicating the file type.  Valid values are 
 %                   'DAT 1.4', 'DAT 1.7', 'VXP 1.5', or 'VXP 1.6'
 %    RPM.AMP      Nx1 array with position in centimeters relative to 
@@ -55,18 +56,22 @@ function rpm = readrpm(fn)
 %      14-May-2008  GCS  1.4  - Update for DAT 1.7 format
 %      23-Nov-2009  GCS  1.5  - Add Octave support
 %      26-Nov-2009  GCS  1.5  - Update comments
+%      10-Oct-2016  GCS  1.6  - Add support for reading header
 
 rpm = [];
 fp = fopen(fn,'r');
 scale_factor = 1;     %% By default, DAT files are in cm units (?)
 
 %% Use the first line to determine the version
-s = deblank(fgetl(fp));
+rpm.header = fgets(fp);
+s = deblank(rpm.header);
 if (strcmp(s(1:3),'CRC'))
     rpm.version = 'DAT';
 elseif (strcmp(s,'[Header]'))
-    s = deblank(fgetl(fp));
-    s = deblank(fgetl(fp));
+    rpm.header = [rpm.header, fgets(fp)];
+    l = fgets(fp);
+    rpm.header = [rpm.header, l];
+    s = deblank(l);
     if (strcmp(s,'Version=1.5'))
         rpm.version = 'VXP 1.5';
     elseif (strcmp(s,'Version=1.6'))
@@ -80,16 +85,16 @@ end
 
 if (strcmp(rpm.version,'DAT'))
     %% Parse header for DAT 1.4, DAT 1.7
-    s = deblank(fgetl(fp));
+    s = deblank(fgets(fp));
     [p,cnt] = sscanf(s,'VERSION = %s,',inf);
     rpm.version = ['DAT ', p];
-    s = deblank(fgetl(fp));
+    s = deblank(fgets(fp));
     [p,cnt] = sscanf(s,'%g,',inf);
     if (cnt ~= 2)
         error(sprintf('Unexpected input in %s rpm file',rpm.version));
     end
     reference_position = p(1);
-    s = deblank(fgetl(fp));
+    s = deblank(fgets(fp));
     if (~isempty(strfind(s,'#FALSE#')))
         rpm.gattyp = 'AMP';
     elseif (~isempty(strfind(s,'#TRUE#')))
@@ -97,29 +102,30 @@ if (strcmp(rpm.version,'DAT'))
     else
         error(sprintf('Unexpected input in %s rpm file',rpm.version));
     end
-    s = deblank(fgetl(fp));
+    s = deblank(fgets(fp));
     [p,cnt] = sscanf(s,'%g,',inf);
     if (cnt ~= 2)
         error(sprintf('Unexpected input in %s rpm file',rpm.version));
     end
     rpm.gatwin = reference_position + p;
     for i=6:10
-        deblank(fgetl(fp));
-    end
-elseif (strcmp(rpm.version,'VXP 1.5'))
-    %% Parse header for VXP 1.5
-    for i=4:9
-        tmp = deblank(fgetl(fp));
-        if (strncmp(tmp,'Scale_factor=',13))
-            scale_factor = str2num(tmp(14:end)) / 10;
-        end
+        deblank(fgets(fp));
     end
 else
-    %% Parse header for VXP 1.6
-    for i=4:10
-        tmp = deblank(fgetl(fp));
-        if (strncmp(tmp,'Scale_factor=',13))
-            scale_factor = str2num(tmp(14:end)) / 10;
+    %% Parse header for VXP 1.5 or VXP 1.6
+    while (true)
+        l = fgets(fp);
+        if (l == -1)
+            disp('error loading header.');
+            rpm = [];
+            return;
+        end
+        rpm.header = [rpm.header, l];
+        s = deblank(l);
+        if (strncmp(s,'Scale_factor=',13))
+            scale_factor = str2num(s(14:end)) / 10;
+        elseif (strcmp(s,'[Data]'))
+            break;
         end
     end
 end
@@ -142,7 +148,7 @@ if (strcmp(rpm.version,'DAT 1.4'))
     %%   <TTL_In>,<Beam_On>
     while (1)
         %% Store this line into p, break if end
-	s = fgetl(fp);
+	s = fgets(fp);
         if ~ischar(s), break, end
         s = deblank(s);
         p = sscanf(s,'%g,',inf);
@@ -166,11 +172,12 @@ if (strcmp(rpm.version,'DAT 1.4'))
     rpm.ttlin = rpm_data(:,6);
     rpm.beam = rpm_data(:,7);
 elseif (strcmp(rpm.version,'DAT 1.7'))
-    %% <Signal_Value>,<Phase_Value>,<Timestamp>,<Valid_Flag>,<Video_Idx>,
-    %%   <TTL_In>,<Beam_On>
+    %% <Signal_Value>,<Unknown>,<Unknown>,<Phase_Value>,
+    %%   <Timestamp>,<Valid_Flag>,<Video_Idx>,
+    %%   <TTL_In>,<Beam_On>,<Unknown>,<Unknown>
     while (1)
         %% Store this line into p, break if end
-	s = fgetl(fp);
+	s = fgets(fp);
         if ~ischar(s), break, end
         s = deblank(s);
         if ~ischar(s), break, end
@@ -210,7 +217,7 @@ else
     while (1)
 
         %% Get line, break if end of file
-	s = fgetl(fp);
+	s = fgets(fp);
         if ~ischar(s), break, end
         s = deblank(s);
         

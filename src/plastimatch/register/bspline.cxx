@@ -38,7 +38,6 @@
 #include "bspline_interpolate.h"
 #include "bspline_landmarks.h"
 #include "bspline_mi.h"
-#include "bspline_mi_hist.h"
 #include "bspline_mse.h"
 #include "bspline_optimize.h"
 #include "bspline_parms.h"
@@ -48,6 +47,7 @@
 #include "delayload.h"
 #include "file_util.h"
 #include "interpolate_macros.h"
+#include "joint_histogram.h"
 #include "logfile.h"
 #include "plm_math.h"
 #include "plm_timer.h"
@@ -68,7 +68,8 @@
 // Author: James Shackleford
 // Data: July 30th, 2009
 ////////////////////////////////////////////////////////////////////////////////
-int* calc_offsets(int* tile_dims, int* cdims)
+int*
+calc_offsets (int* tile_dims, int* cdims)
 {
     int vox_per_tile = (tile_dims[0] * tile_dims[1] * tile_dims[2]);
     int pad = 32 - (vox_per_tile % 32);
@@ -99,7 +100,8 @@ int* calc_offsets(int* tile_dims, int* cdims)
 // Author: James Shackleford
 // Data: July 13th, 2009
 ////////////////////////////////////////////////////////////////////////////////
-void find_knots (
+void
+find_knots (
     plm_long* knots, 
     plm_long tile_num, 
     plm_long* rdims, 
@@ -117,11 +119,6 @@ void find_knots (
     tile_loc[0] = tile_num % num_tiles_x;
     tile_loc[1] = ((tile_num - tile_loc[0]) / num_tiles_x) % num_tiles_y;
     tile_loc[2] = ((((tile_num - tile_loc[0]) / num_tiles_x) / num_tiles_y) % num_tiles_z);
-    /*
-      tile_loc[0] = tile_num % rdims[0];
-      tile_loc[1] = ((tile_num - tile_loc[0]) / rdims[0]) % rdims[1];
-      tile_loc[2] = ((((tile_num - tile_loc[0]) / rdims[0]) / rdims[1]) % rdims[2]);
-    */
 
     // Tiles do not start on the edges of the grid, so we
     // push them to the center of the control grid.
@@ -131,15 +128,15 @@ void find_knots (
 
     // Find 64 knots' [x,y,z] coordinates
     // and convert into a linear knot index
-    for (k = -1; k < 3; k++)
-        for (j = -1; j < 3; j++)
+    for (k = -1; k < 3; k++) {
+        for (j = -1; j < 3; j++) {
             for (i = -1; i < 3; i++)
             {
                 knots[idx++] = (cdims[0]*cdims[1]*(tile_loc[2]+k)) + (cdims[0]*(tile_loc[1]+j)) + (tile_loc[0]+i);
             }
-
+        }
+    }
 }
-
 
 
 /* -----------------------------------------------------------------------
@@ -198,10 +195,10 @@ bspline_save_debug_state (
         fn = parms->debug_dir + "/" + buf;
         bxf->save (fn.c_str());
 
-        if (parms->metric_type[0] == REGISTRATION_METRIC_MI_MATTES) {
+        if (bst->has_metric_type (SIMILARITY_METRIC_MI_MATTES)) {
             sprintf (buf, "%02d_", parms->debug_stage);
             fn = parms->debug_dir + "/" + buf;
-            bst->mi_hist->dump_hist (bst->feval, fn);
+            bst->get_mi_hist()->dump_hist (bst->feval, fn);
         }
     }
 }
@@ -297,9 +294,9 @@ bspline_condense_smetric_grad (float* cond_x, float* cond_y, float* cond_z,
 
     for (kidx=0; kidx < bxf->num_knots; kidx++) {
         for (sidx=0; sidx<64; sidx++) {
-            ssd->smetric_grad[3*kidx + 0] += cond_x[64*kidx + sidx];
-            ssd->smetric_grad[3*kidx + 1] += cond_y[64*kidx + sidx];
-            ssd->smetric_grad[3*kidx + 2] += cond_z[64*kidx + sidx];
+            ssd->curr_smetric_grad[3*kidx + 0] += cond_x[64*kidx + sidx];
+            ssd->curr_smetric_grad[3*kidx + 1] += cond_y[64*kidx + sidx];
+            ssd->curr_smetric_grad[3*kidx + 2] += cond_z[64*kidx + sidx];
         }
     }
 }
@@ -308,7 +305,7 @@ static void
 logfile_print_score (float score)
 {
     if (score < 10. && score > -10.) {
-        logfile_printf (" %1.8f ", score);
+        logfile_printf (" %1.7f ", score);
     } else {
         logfile_printf (" %9.3f ", score);
     }
@@ -338,45 +335,56 @@ report_score (
     }
 
     /* Compute total time */
+    double total_smetric_time = 0;
     double total_time = 0;
-    std::vector<double>::const_iterator it_time = ssd->time_smetric.begin();
-    while (it_time != ssd->time_smetric.end()) {
-        total_time += *it_time;
-        ++it_time;
+    plm_long hack_num_vox = 0;
+    std::vector<Metric_score>::const_iterator it_mr 
+        = ssd->metric_record.begin();
+    while (it_mr != ssd->metric_record.end()) {
+        total_time += it_mr->time;
+        if (hack_num_vox == 0) {
+            hack_num_vox = it_mr->num_vox;
+        }
+        ++it_mr;
     }
+    total_smetric_time = total_time;
     total_time += ssd->time_rmetric;
     
     /* First line, iterations, score, misc stats */
     logfile_printf ("[%2d,%3d] ", bst->it, bst->feval);
-    if (reg_parms->lambda > 0 || blm->num_landmarks > 0
-        || parms->metric_type.size() > 1)
+    if (reg_parms->lambda > 0
+        || blm->num_landmarks > 0
+        || bst->similarity_data.size() > 1)
     {
         logfile_printf ("SCORE ");
     } else {
-        logfile_printf ("%-6s", registration_metric_type_string (
-                parms->metric_type[0]));
+        logfile_printf ("%-6s", 
+            bst->similarity_data.front()->metric_string());
     }
-    logfile_print_score (ssd->score);
+    logfile_print_score (ssd->total_score);
     logfile_printf (
         "NV %6d GM %9.3f GN %9.3g [ %9.3f s ]\n",
-        ssd->num_vox, ssd_grad_mean, sqrt (ssd_grad_norm), total_time);
+        hack_num_vox, ssd_grad_mean, sqrt (ssd_grad_norm), total_time);
     
     /* Second line */
-    if (reg_parms->lambda > 0 || blm->num_landmarks > 0
-        || parms->metric_type.size() > 1)
+    if (reg_parms->lambda > 0
+        || blm->num_landmarks > 0
+        || bst->similarity_data.size() > 1)
     {
         logfile_printf ("         ");
-        /* Part 1 - smetric(s) */   
-        std::vector<float>::const_iterator it_sm = ssd->smetric.begin();
-        std::vector<Registration_metric_type>::const_iterator it_st
-            = parms->metric_type.begin();
-        while (it_sm != ssd->smetric.end()) {
-            logfile_printf ("%-6s",
-                registration_metric_type_string (*it_st));
-            logfile_print_score (*it_sm);
-            ++it_sm, ++it_st;
+        /* Part 1 - smetric(s) */
+        /* GCS FIX: It should not be that one of these is a list 
+           and the other is a vector. */
+        std::vector<Metric_score>::const_iterator it_mr 
+            = ssd->metric_record.begin();
+        std::list<Metric_state::Pointer>::const_iterator it_st
+            = bst->similarity_data.begin();
+        while (it_mr != ssd->metric_record.end()) {
+            logfile_printf ("%-6s", (*it_st)->metric_string());
+            logfile_print_score (it_mr->score);
+            ++it_mr, ++it_st;
         }
-        if (ssd->smetric.size() > 1
+        if (ssd->metric_record.size() > 1
             && (reg_parms->lambda > 0 || blm->num_landmarks > 0))
         {
             logfile_printf ("\n");
@@ -396,7 +404,7 @@ report_score (
             /* Part 4 - timing */
             if (reg_parms->lambda > 0) {
                 logfile_printf ("[ %9.3f | %9.3f ]", 
-                    ssd->time_smetric[0], ssd->time_rmetric);
+                    total_smetric_time, ssd->time_rmetric);
             }
         }
         logfile_printf ("\n");
@@ -416,37 +424,48 @@ bspline_score (Bspline_optimize *bod)
     /* Zero out the score for this iteration */
     bst->ssd.reset_score ();
 
-    /* Compute similarity metrics */
-    std::vector<Registration_metric_type>::const_iterator it_metric
-        = parms->metric_type.begin();
-    std::vector<float>::const_iterator it_lambda
-        = parms->metric_lambda.begin();
+    /* Compute similarity metric.  This is done for each metric 
+       and each similarity metric within each image plane. */
+    std::list<Metric_state::Pointer>::const_iterator it_sd;
     bst->sm = 0;
-    while (it_metric != parms->metric_type.end()
-        && it_lambda != parms->metric_lambda.end())
+    for (it_sd = bst->similarity_data.begin();
+         it_sd != bst->similarity_data.end(); ++it_sd)
     {
+        bst->set_metric_state (*it_sd);
+        bst->initialize_similarity_images ();
         Plm_timer timer;
         timer.start ();
-        bst->ssd.smetric.push_back (0.f);
-        if (*it_metric == REGISTRATION_METRIC_MSE) {
+
+        switch ((*it_sd)->metric_type) {
+        case SIMILARITY_METRIC_DMAP:
+        case SIMILARITY_METRIC_MSE:
             bspline_score_mse (bod);
-        }
-        else if (*it_metric == REGISTRATION_METRIC_MI_MATTES) {
+            break;
+        case SIMILARITY_METRIC_MI_MATTES:
             bspline_score_mi (bod);
-        }
-        else if (*it_metric == REGISTRATION_METRIC_GM) {
+            break;
+        case SIMILARITY_METRIC_GM:
             bspline_score_gm (bod);
-        }
-        else {
-            print_and_exit ("Unknown similarity metric in bspline_score()\n");
+            break;
+        default:
+            print_and_exit (
+                "Unknown similarity metric in bspline_score()\n");
+            break;
         }
 
-        bst->ssd.accumulate_grad (*it_lambda);
-
-        bst->ssd.time_smetric.push_back (timer.report ());
+        bst->ssd.metric_record.push_back (
+            Metric_score (bst->ssd.curr_smetric, timer.report (),
+                bst->ssd.curr_num_vox));
+#if defined (commentout)
+        printf (">> %f + %f * %f ->",
+            bst->ssd.total_score, (*it_sd)->metric_lambda, 
+            bst->ssd.curr_smetric);
+#endif
+        bst->ssd.accumulate ((*it_sd)->metric_lambda);
+#if defined (commentout)
+        printf (" %f\n", bst->ssd.total_score);
+#endif
         bst->sm ++;
-        ++it_metric;
-        ++it_lambda;
     }
 
     /* Compute regularization */
@@ -459,10 +478,10 @@ bspline_score (Bspline_optimize *bod)
         bspline_landmarks_score (parms, bst, bxf);
     }
 
-    /* Compute total score */
-    bst->ssd.score = bst->ssd.smetric[0] + reg_parms->lambda * bst->ssd.rmetric;
+    /* Update total score with regularization and landmarks */
+    bst->ssd.total_score += reg_parms->lambda * bst->ssd.rmetric;
     if (blm->num_landmarks > 0) {
-        bst->ssd.score += blm->landmark_stiffness * bst->ssd.lmetric;
+        bst->ssd.total_score += blm->landmark_stiffness * bst->ssd.lmetric;
     }
 
     /* Report results of this iteration */

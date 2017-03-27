@@ -18,6 +18,8 @@
 #include "pcmd_dvh.h"
 #include "pcmd_xio_dvh.h"
 #include "pcmd_mask.h"
+#include "pcmd_maximum.h"
+#include "pcmd_multiply.h"
 #include "pcmd_header.h"
 #include "pcmd_jacobian.h"
 #include "pcmd_probe.h"
@@ -81,6 +83,12 @@ do_tty_command_pcmd (int argc, char** argv)
     else if (!strcmp (command, PCMD_MASK)) {
         /* fill and mask are the same */
         do_command_mask (argc, argv);
+    }
+    else if (!strcmp (command, PCMD_MAXIMUM)) {
+        do_command_mask (argc, argv);
+    }
+    else if (!strcmp (command, PCMD_MULTIPLY)) {
+        do_command_multiply (argc, argv);
     }
     else if (!strcmp (command, PCMD_PROBE)) {
         do_command_probe (argc, argv);

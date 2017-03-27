@@ -6,6 +6,7 @@
 
 #include "bspline.h"
 #include "bspline_parms.h"
+#include "similarity_metric_type.h"
 
 class Bspline_options
 {
@@ -20,6 +21,7 @@ public:
     char* moving_landmarks;
     char* warped_landmarks;
     char* method;
+    Similarity_metric_type metric_type;
     float landmark_stiffness;
     float young_modulus;
     plm_long vox_per_rgn[3];
@@ -36,6 +38,7 @@ public:
 	moving_landmarks = 0;
 	warped_landmarks = 0;
 	method = 0;
+        metric_type = SIMILARITY_METRIC_MSE;
 	landmark_stiffness = 0;
 	young_modulus = 0;
 	for (int d = 0; d < 3; d++) {

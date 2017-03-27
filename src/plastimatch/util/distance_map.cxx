@@ -403,6 +403,13 @@ Distance_map::set_input_image (UCharImageType::Pointer image)
     d_ptr->input = image;
 }
 
+void
+Distance_map::set_input_image (const Plm_image::Pointer& image)
+{
+    Plm_image::Pointer pi_clone = image->clone ();
+    d_ptr->input = pi_clone->itk_uchar ();
+}
+
 void 
 Distance_map::set_use_squared_distance (bool use_squared_distance)
 {

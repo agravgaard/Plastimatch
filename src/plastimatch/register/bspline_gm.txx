@@ -15,8 +15,8 @@ public:
 public:
     Bspline_gm_k (Bspline_optimize *bod)
     {
-        Bspline_parms *parms = bod->get_bspline_parms ();
-        Volume *moving_grad = parms->moving_grad;
+        Bspline_state *bst = bod->get_bspline_state ();
+        Volume *moving_grad = bst->moving_grad;
         m_grad = (float*) moving_grad->img;
         score_acc = 0.;
     }
@@ -70,7 +70,7 @@ public:
 
         /* Update cost function gradient */
         ssd->update_smetric_grad_b (bxf, pidx, qidx, dc_dv);
-        ssd->num_vox++;
+        ssd->curr_num_vox++;
     }
 };
 

@@ -21,14 +21,16 @@ dcmtk_copy_from_metadata (
     const char* default_value)
 {
     if (meta) {
-        const char* md = meta->get_metadata_ (
+        const std::string& md = meta->get_metadata (
             tagkey.getGroup(), tagkey.getElement());
-        if (md) {
-            dataset->putAndInsertString (tagkey, md);
+        if (md != "") {
+            dataset->putAndInsertString (tagkey, md.c_str());
             return;
         }
     }
-    dataset->putAndInsertString (tagkey, default_value);
+    if (default_value) {
+        dataset->putAndInsertString (tagkey, default_value);
+    }
 }
 
 void

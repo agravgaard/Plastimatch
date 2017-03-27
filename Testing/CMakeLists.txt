@@ -31,6 +31,7 @@ set (CONFIG_FILE_LIST
   "plm-bsp-mi-c.txt"
   "plm-bsp-mi-k.txt"
   "plm-bsp-gm-k.txt"
+  "plm-bsp-dmap-k.txt"
   "plm-bsp-sm-multi-a.txt"
   "plm-bsp-cuda.txt"
   "plm-bsp-rect.txt"
@@ -49,6 +50,7 @@ set (CONFIG_FILE_LIST
   "plm-bsp-landmark-e.txt"
   "plm-bsp-double.txt"
   "plm-bsp-regularize-numeric.txt"
+  "plm-reg-align-center.txt"
   "plm-reg-itk-translation.txt"
   "plm-reg-roi-a.txt"
   "plm-reg-roi-b.txt"
@@ -254,6 +256,11 @@ add_custom_target (speedtest
 ##   rect-7            Standard rect, centered, direction cosines alt-3
 ##   rect-8            Uchar rect, off-center
 ##   rect-9            Uchar rect, centered, higher resolution
+##   rect-10-roi-1
+##   rect-10-roi-2
+##   rect-10
+##   rect-11
+##   rect-11-roi
 ##   rect-12           Small rect, bg=0, fg=10
 ##   rect-13           Small rect, bg=0, fg=11
 ##   rect-14           Small, off-center rect, bg=0, fg=10
@@ -285,7 +292,7 @@ plm_add_test (
 plm_add_test (
   "donut-1"
   ${PLM_PLASTIMATCH_PATH}/plastimatch
-  "synth;--output;${PLM_BUILD_TESTING_DIR}/donut-1.mha;--output-ss-img;${PLM_BUILD_TESTING_DIR}/donut-ss-1.mha;--output-type;float;--pattern;donut;--origin;-25 -25 -25;--dim;${SYNTH_MHA_SIZE} ${SYNTH_MHA_SIZE} ${SYNTH_MHA_SIZE};--volume-size;50 50 50;--donut-radius;10 10 10;--background;-1000;--foreground;0;--output-dicom;${PLM_BUILD_TESTING_DIR}/donut-1-dicom"
+  "synth;--output;${PLM_BUILD_TESTING_DIR}/donut-1.mha;--output-ss-img;${PLM_BUILD_TESTING_DIR}/donut-1-ss.mha;--output-ss-list;${PLM_BUILD_TESTING_DIR}/donut-1-ss-list.txt;--output-type;float;--pattern;donut;--origin;-25 -25 -25;--dim;${SYNTH_MHA_SIZE} ${SYNTH_MHA_SIZE} ${SYNTH_MHA_SIZE};--volume-size;50 50 50;--donut-radius;10 10 10;--background;-1000;--foreground;0;--dicom-with-uids;false;--output-dicom;${PLM_BUILD_TESTING_DIR}/donut-1-dicom;--output-prefix;${PLM_BUILD_TESTING_DIR}/donut-1-prefix/"
   )
 plm_add_test (
   "gabor-01"
@@ -1435,8 +1442,8 @@ set_tests_properties (plm-convert-dicom-f PROPERTIES DEPENDS "rect-1;rect2")
 ## These tests are designed to check the handling of overlapping structures 
 ## in DICOM-RT format.  The tests assume that the original synthetic donut 
 ## DICOM-RT files are generated without keyholing.
-##   plastimatch-convert-dicom-donut-a   From DICOM to ss-img (or semantics)
-##   plastimatch-convert-dicom-donut-b   From DICOM to ss-img (xor semantics)
+##   plm-convert-dicom-donut-a   From DICOM to ss-img (or semantics)
+##   plm-convert-dicom-donut-b   From DICOM to ss-img (xor semantics)
 ## -------------------------------------------------------------------------
 plm_add_test (
   "plm-convert-dicom-donut-a"
@@ -1482,6 +1489,19 @@ set_tests_properties (plm-convert-dicom-donut-b-stats PROPERTIES
   DEPENDS plm-convert-dicom-donut-b)
 set_tests_properties (plm-convert-dicom-donut-b-check PROPERTIES 
   DEPENDS plm-convert-dicom-donut-b-stats)
+
+## -------------------------------------------------------------------------
+## These tests are designed to check the handling of overlapping structures 
+## in DICOM-RT format.  Converts donut topology structure into keyholized 
+## rtstruct.
+##   plm-convert-dicom-donut-c   From ss-img to DICOM
+## -------------------------------------------------------------------------
+plm_add_test (
+  "plm-convert-dicom-donut-c"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "convert;--input;${PLM_BUILD_TESTING_DIR}/donut-1.mha;--input-ss-img;${PLM_BUILD_TESTING_DIR}/donut-1-ss.mha;--input-ss-list;${PLM_BUILD_TESTING_DIR}/donut-1-ss-list.txt;--dicom-with-uids;false;--output-dicom;${PLM_BUILD_TESTING_DIR}/plm-convert-dicom-donut-c"
+  )
+set_tests_properties (plm-convert-dicom-donut-c PROPERTIES DEPENDS donut-1)
 
 ## -------------------------------------------------------------------------
 ## plastimatch convert rtog (corvus)
@@ -1923,7 +1943,7 @@ set_tests_properties (plm-warp-xio-a-check-6 PROPERTIES DEPENDS plm-warp-xio-a)
 plm_add_test (
   "plm-convert-prefix-fcsv"
   ${PLM_PLASTIMATCH_PATH}/plastimatch
-  "convert;--input-ss-img;${PLM_BUILD_TESTING_DIR}/donut-ss-1.mha;--output-prefix-fcsv;${PLM_BUILD_TESTING_DIR}/plm-convert-prefix-fcsv"
+  "convert;--input-ss-img;${PLM_BUILD_TESTING_DIR}/donut-1-ss.mha;--output-prefix-fcsv;${PLM_BUILD_TESTING_DIR}/plm-convert-prefix-fcsv"
   )
 set_tests_properties (plm-convert-prefix-fcsv PROPERTIES DEPENDS donut-1)
 
@@ -2190,6 +2210,75 @@ plmtest_check_interval ("plm-gamma-d-check"
 set_tests_properties (plm-gamma-d PROPERTIES DEPENDS "rectarr-03;rectarr-04")
 set_tests_properties (plm-gamma-d-check PROPERTIES DEPENDS plm-gamma-d)
 
+## -------------------------------------------------------------------------
+## plastimatch maximum
+##  plm-maximum       Set image containing maximum pixel values across list of images
+## -------------------------------------------------------------------------
+plm_add_test (
+  "plm-maximum-a"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "maximum;--output;${PLM_BUILD_TESTING_DIR}/plm-maximum-a.nrrd;${PLM_BUILD_TESTING_DIR}/rect-1.mha;${PLM_BUILD_TESTING_DIR}/rect-3.mha"
+  )
+plm_add_test (
+  "plm-maximum-a-stats"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "stats;${PLM_BUILD_TESTING_DIR}/plm-maximum-a.nrrd"
+  )
+plmtest_check_interval ("plm-maximum-a-check"
+  "${PLM_BUILD_TESTING_DIR}/plm-maximum-a-stats.stdout.txt"
+  "AVE *([-0-9.]*)"
+  "0.0"
+  "0.0"
+  )
+set_tests_properties (plm-maximum-a PROPERTIES DEPENDS "rect-1;rect-3")
+set_tests_properties (plm-maximum-a-stats PROPERTIES DEPENDS plm-maximum-a)
+set_tests_properties (plm-maximum-a-check PROPERTIES DEPENDS plm-maximum-a-stats)
+
+## -------------------------------------------------------------------------
+## plastimatch multiply
+##  plm-multiply-a      Multiply two images
+##  plm-multiply-vf-a   Multiply two vector fields
+## -------------------------------------------------------------------------
+plm_add_test (
+  "plm-multiply-a"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "multiply;--output;${PLM_BUILD_TESTING_DIR}/plm-multiply-a.nrrd;${PLM_BUILD_TESTING_DIR}/rect-1.mha;${PLM_BUILD_TESTING_DIR}/rect-3.mha"
+  )
+plm_add_test (
+  "plm-multiply-a-stats"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "stats;${PLM_BUILD_TESTING_DIR}/plm-multiply-a.nrrd"
+  )
+plmtest_check_interval ("plm-multiply-a-check"
+  "${PLM_BUILD_TESTING_DIR}/plm-multiply-a-stats.stdout.txt"
+  "AVE *([-0-9.]*)"
+  "0.0"
+  "0.0"
+  )
+set_tests_properties (plm-multiply-a PROPERTIES DEPENDS "rect-1;rect-3")
+set_tests_properties (plm-multiply-a-stats PROPERTIES DEPENDS plm-multiply-a)
+set_tests_properties (plm-multiply-a-check PROPERTIES DEPENDS plm-multiply-a-stats)
+
+
+plm_add_test (
+  "plm-multiply-vf-a"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "multiply;--output;${PLM_BUILD_TESTING_DIR}/plm-multiply-vf-a.nrrd;${PLM_BUILD_TESTING_DIR}/vf-trans-1.mha;${PLM_BUILD_TESTING_DIR}/vf-trans-1.mha"
+  )
+plm_add_test (
+  "plm-multiply-vf-a-stats"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "stats;${PLM_BUILD_TESTING_DIR}/plm-multiply-vf-a.nrrd"
+  )
+plmtest_check_interval ("plm-multiply-vf-a-check"
+  "${PLM_BUILD_TESTING_DIR}/plm-multiply-vf-a-stats.stdout.txt"
+  "Mean: *([-0-9.]*)"
+  "100.000"
+  "100.000"
+  )
+set_tests_properties (plm-multiply-vf-a PROPERTIES DEPENDS vf-trans-1)
+set_tests_properties (plm-multiply-vf-a-stats PROPERTIES DEPENDS plm-multiply-vf-a)
+set_tests_properties (plm-multiply-vf-a-check PROPERTIES DEPENDS plm-multiply-vf-a-stats)
 
 ## -------------------------------------------------------------------------
 ## plastimatch usage
@@ -2219,7 +2308,7 @@ set (PLM_BSPLINE_TEST_UPPER_THRESH "-744.5")
 plm_add_test (
   "plm-reg-align-center"
   ${PLM_PLASTIMATCH_PATH}/plastimatch
-  "${PLM_TESTING_DATA_DIR}/plm-reg-align-center.txt"
+  "${PLM_BUILD_TESTING_DIR}/plm-reg-align-center.txt"
   )
 plm_add_test (
   "plm-reg-align-center-stats"
@@ -2639,6 +2728,29 @@ set_tests_properties (plm-bsp-gm-k-stats PROPERTIES
   DEPENDS plm-bsp-gm-k)
 set_tests_properties (plm-bsp-gm-k-check PROPERTIES 
   DEPENDS plm-bsp-gm-k-stats)
+
+plm_add_test (
+  "plm-bsp-dmap-k" 
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "${PLM_BUILD_TESTING_DIR}/plm-bsp-dmap-k.txt"
+  )
+plm_add_test (
+  "plm-bsp-dmap-k-stats"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "stats;${PLM_BUILD_TESTING_DIR}/plm-bsp-dmap-k-img.mha"
+  )
+plmtest_check_interval ("plm-bsp-dmap-k-check"
+  "${PLM_BUILD_TESTING_DIR}/plm-bsp-dmap-k-stats.stdout.txt"
+  "AVE *([-0-9.]*)"
+  "-122.5"
+  "-121.5"
+  )
+set_property (TEST plm-bsp-dmap-k APPEND PROPERTY DEPENDS rect-4)
+set_property (TEST plm-bsp-dmap-k APPEND PROPERTY DEPENDS rect-8)
+set_tests_properties (plm-bsp-dmap-k-stats PROPERTIES 
+  DEPENDS plm-bsp-dmap-k)
+set_tests_properties (plm-bsp-dmap-k-check PROPERTIES 
+  DEPENDS plm-bsp-dmap-k-stats)
 
 plm_add_test (
   "plm-bsp-sm-multi-a" 
@@ -4166,8 +4278,8 @@ set_tests_properties (plm-xf-convert-f PROPERTIES DEPENDS "rect-2;rect-3")
 ## -------------------------------------------------------------------------
 plm_add_test (
   "vf-invert-zero-1"
-  ${PLM_PLASTIMATCH_PATH}/vf_invert
-  "--input;${PLM_BUILD_TESTING_DIR}/vf-zero.mha;--fixed;${PLM_BUILD_TESTING_DIR}/vf-zero.mha;--output;${PLM_BUILD_TESTING_DIR}/vf-invert-zero-1.mha"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "vf-invert;--input;${PLM_BUILD_TESTING_DIR}/vf-zero.mha;--fixed;${PLM_BUILD_TESTING_DIR}/vf-zero.mha;--output;${PLM_BUILD_TESTING_DIR}/vf-invert-zero-1.mha"
   )
 plm_add_test (
   "vf-invert-zero-1-stats"
@@ -4188,8 +4300,8 @@ set_tests_properties (vf-invert-zero-1-check
 
 plm_add_test (
   "vf-invert-trans-1"
-  ${PLM_PLASTIMATCH_PATH}/vf_invert
-  "--input;${PLM_BUILD_TESTING_DIR}/vf-trans-1.mha;--fixed;${PLM_BUILD_TESTING_DIR}/vf-trans-1.mha;--output;${PLM_BUILD_TESTING_DIR}/vf-invert-trans-1.mha;--iterations;10"
+  ${PLM_PLASTIMATCH_PATH}/plastimatch
+  "vf-invert;--input;${PLM_BUILD_TESTING_DIR}/vf-trans-1.mha;--fixed;${PLM_BUILD_TESTING_DIR}/vf-trans-1.mha;--output;${PLM_BUILD_TESTING_DIR}/vf-invert-trans-1.mha;--iterations;10"
   )
 plm_add_test (
   "vf-invert-trans-1-stats"
@@ -4202,7 +4314,7 @@ plmtest_check_interval ("vf-invert-trans-1-check"
   "-10.0"
   "-9.9"
   )
-set_tests_properties (vf-invert-trans-1 PROPERTIES DEPENDS vf-trans)
+set_tests_properties (vf-invert-trans-1 PROPERTIES DEPENDS vf-trans-1)
 set_tests_properties (vf-invert-trans-1-stats 
   PROPERTIES DEPENDS vf-invert-trans-1)
 set_tests_properties (vf-invert-trans-1-check 
@@ -4401,8 +4513,8 @@ plm_add_test (
   ${PLM_PLASTIMATCH_PATH}/wed
   "${PLM_BUILD_TESTING_DIR}/wed-c.txt"
   )
-set_tests_properties (wed-b PROPERTIES DEPENDS lung-1)
-set_tests_properties (wed-b PROPERTIES DEPENDS wed-a)
+set_tests_properties (wed-c PROPERTIES DEPENDS lung-1)
+set_tests_properties (wed-c PROPERTIES DEPENDS wed-a)
 
 ## -------------------------------------------------------------------------
 ## i hate myself

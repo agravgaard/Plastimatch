@@ -75,11 +75,11 @@ The attribute type tells us which of these holds.
 - 2C Conditionally required, can be empty
 - 3 Optional
 
-I still don't know which section of the standard explains this.
+This is explained in section 7.4 of the standard.
 
 DICOM RT
 ~~~~~~~~
 These are extra IODs (information objects) defined in the DICOM standard: 
-RT Image, RT Plan, RT Dose, and RT Structure Set.
+RT Image, RT Plan, RT Ion Plan, RT Dose, and RT Structure Set.
 
 Explanation of DICOM RT is found in section 3 of the standard.

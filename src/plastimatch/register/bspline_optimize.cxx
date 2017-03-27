@@ -32,46 +32,12 @@ public:
 Bspline_optimize::Bspline_optimize ()
 {
     d_ptr = new Bspline_optimize_private;
-
-    fixed = 0;
-    moving = 0;
-    moving_grad = 0;
+    d_ptr->bst = Bspline_state::New ();
 }
 
 Bspline_optimize::~Bspline_optimize ()
 {
     delete d_ptr;
-}
-
-void 
-Bspline_optimize::initialize (Bspline_xform *bxf, Bspline_parms *parms)
-{
-    d_ptr->parms = parms;
-    d_ptr->bst = Bspline_state::New ();
-    d_ptr->bxf = bxf;
-
-    d_ptr->bst->initialize (bxf, parms);
-}
-
-static void
-log_parms (Bspline_parms* parms)
-{
-    logfile_printf ("BSPLINE PARMS\n");
-    logfile_printf ("max_its = %d\n", parms->max_its);
-    logfile_printf ("max_feval = %d\n", parms->max_feval);
-}
-
-static void
-log_bxf_header (Bspline_xform* bxf)
-{
-    logfile_printf ("BSPLINE XFORM HEADER\n");
-    logfile_printf ("vox_per_rgn = %d %d %d\n", 
-        bxf->vox_per_rgn[0], bxf->vox_per_rgn[1], bxf->vox_per_rgn[2]);
-    logfile_printf ("roi_offset = %d %d %d\n", 
-        bxf->roi_offset[0], bxf->roi_offset[1], bxf->roi_offset[2]);
-    logfile_printf ("roi_dim = %d %d %d\n", 
-        bxf->roi_dim[0], bxf->roi_dim[1], bxf->roi_dim[2]);
-    logfile_printf ("img_dc = %s\n", bxf->dc.get_string().c_str());
 }
 
 static void
@@ -83,16 +49,7 @@ bspline_optimize_select (
 
     switch (parms->optimization) {
     case BOPT_LBFGSB:
-#if (FORTRAN_FOUND)
-        //bspline_optimize_lbfgsb (bxf, bst, parms, fixed, moving, moving_grad);
         bspline_optimize_lbfgsb (bod);
-#else
-        logfile_printf (
-            "Plastimatch was not compiled against Nocedal LBFGSB.\n"
-            "Reverting to liblbfgs.\n"
-        );
-        bspline_optimize_liblbfgs (bod);
-#endif
         break;
     case BOPT_STEEPEST:
         bspline_optimize_steepest (bod);
@@ -128,26 +85,36 @@ bspline_optimize_select (
 }
 
 void
-bspline_optimize (
-    Bspline_xform *bxf, 
-    Bspline_parms *parms
+Bspline_optimize::optimize (
 )
 {
-    Bspline_optimize bod;
-    bod.initialize (bxf, parms);
+    Bspline_parms *parms = this->get_bspline_parms ();
+    Bspline_state *bst = this->get_bspline_state ();
+    Bspline_xform *bxf = this->get_bspline_xform ();
+    
+    d_ptr->bst->initialize (bxf, parms);
 
-    log_parms (parms);
-    log_bxf_header (bxf);
-
-    /* GCS FIX -- this should move into Bspline_state() constructor */
-    /* Initialize histograms */
-    if (parms->metric_type[0] == REGISTRATION_METRIC_MI_MATTES) {
-        bod.get_bspline_state()->mi_hist->initialize (
-            parms->fixed, parms->moving);
+    /* GCS FIX: The below does not belong in bspline_state.  And it should 
+       be done if any similarity metric is MI. */
+    /* JAS Fix 2011.09.14
+     *   The MI algorithm will get stuck for a set of coefficients all equaling
+     *   zero due to the method we use to compute the cost function gradient.
+     *   However, it is possible we could be inheriting coefficients from a
+     *   prior stage, so we must check for inherited coefficients before
+     *   applying an initial offset to the coefficient array. */
+    if (bst->has_metric_type (SIMILARITY_METRIC_MI_MATTES)) {
+        bxf->jitter_if_zero ();
     }
 
+    parms->log ();
+    bxf->log_header ();
+    bst->log_metric ();
+
+    /* Initialize histograms */
+    bst->initialize_mi_histograms ();
+
     /* Do the optimization */
-    bspline_optimize_select (&bod);
+    bspline_optimize_select (this);
 }
 
 Bspline_parms* 
@@ -166,4 +133,16 @@ Bspline_xform*
 Bspline_optimize::get_bspline_xform ()
 {
     return d_ptr->bxf;
+}
+
+void 
+Bspline_optimize::set_bspline_parms (Bspline_parms *parms)
+{
+    d_ptr->parms = parms;
+}
+
+void 
+Bspline_optimize::set_bspline_xform (Bspline_xform *bxf)
+{
+    d_ptr->bxf = bxf;
 }

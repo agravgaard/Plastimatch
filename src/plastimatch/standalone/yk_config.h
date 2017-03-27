@@ -51,6 +51,12 @@ enum enPLANE{
 };
 
 
+enum enCOLOR_TABLE{
+    COL_TABLE_GAMMA = 0,
+    COL_TABLE_JET,
+};
+
+
 enum enPROFILE_DIRECTON{
     PRIFLE_HOR = 0,
     PRIFLE_VER,
@@ -96,6 +102,10 @@ enum enPlmCommandInfo{
     PLM_TEMP1,
     PLM_TEMP2,
 };
+
+
+
+
 
 
 class CRegiQueString {

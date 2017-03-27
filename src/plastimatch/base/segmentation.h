@@ -71,6 +71,7 @@ public:
     void cxt_extract (void);
     void cxt_re_extract (void);
     void prune_empty (void);
+    void keyholize ();
     void rasterize (Plm_image_header *pih, bool want_labelmap, 
         bool xor_overlapping);
     void set_geometry (const Plm_image_header *pih);

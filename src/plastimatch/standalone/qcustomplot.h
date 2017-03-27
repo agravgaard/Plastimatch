@@ -260,7 +260,7 @@ public:
                      ,esLineArrow    ///< A non-filled arrow head with open back
                      ,esDisc         ///< A filled circle
                      ,esSquare       ///< A filled square
-                     ,esDiamond      ///< A filled diamond (45° rotated square)
+                     ,esDiamond      ///< A filled diamond (45?rotated square)
                      ,esBar          ///< A bar perpendicular to the line
                    };
   

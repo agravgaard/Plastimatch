@@ -242,4 +242,12 @@ clamp (T value, T min_value, T max_value) {
     return value;
 }
 
+// Cf. http://realtimecollisiondetection.net/blog/?p=89
+// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+static inline bool
+within_abs_tolerance (float value, float comp_value, float tolerance)
+{
+    return (fabsf (value - comp_value) <= tolerance);
+}
+
 #endif

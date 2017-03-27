@@ -21,11 +21,11 @@ typedef std::pair<std::string, Dcmtk_series*> Dcmtk_series_map_pair;
 
 class Dcmtk_loader_private {
 public:
-    Rt_study_metadata::Pointer m_drs;
+	Rt_study_metadata::Pointer rt_meta; // m_drs;
 
     Plm_image::Pointer img;
     Plm_image::Pointer dose;
-    Rtss::Pointer cxt;
+	Rtss::Pointer rtss; // cxt;
     Rtplan::Pointer rtplan;
 
     //Rtplan::Pointer plan; //to be implemented

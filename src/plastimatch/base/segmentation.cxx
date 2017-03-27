@@ -460,7 +460,7 @@ Segmentation::save_fcsv (
 
     for (size_t j = 0; j < curr_structure->num_contours; j++) {
         Rtss_contour *curr_polyline = curr_structure->pslist[j];
-        for (int k = 0; k < curr_polyline->num_vertices; k++) {
+        for (size_t k = 0; k < curr_polyline->num_vertices; k++) {
             pointset.insert_lps ("", curr_polyline->x[k],
                 curr_polyline->y[k], curr_polyline->z[k]);
         }
@@ -688,8 +688,16 @@ Segmentation::cxt_re_extract (void)
 void
 Segmentation::prune_empty (void)
 {
-    if (d_ptr->m_rtss) {
+    if (d_ptr->m_rtss && d_ptr->m_rtss_valid) {
         d_ptr->m_rtss->prune_empty ();
+    }
+}
+
+void
+Segmentation::keyholize ()
+{
+    if (d_ptr->m_rtss && d_ptr->m_rtss_valid) {
+        d_ptr->m_rtss->keyholize ();
     }
 }
 

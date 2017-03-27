@@ -50,6 +50,9 @@ if (PLM_CONFIG_BUILD_TEST_PROGRAMS)
 	plm_add_executable (dcmtk_test dcmtk_test.cxx
 	    "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
 	    ${BUILD_ALWAYS} ${INSTALL_NEVER})
+	plm_add_executable (rtplan_test rtplan_test.cxx 
+	    "${PLASTIMATCH_LIBS}" "${PLASTIMATCH_LDFLAGS}" 
+	    ${BUILD_ALWAYS} ${INSTALL_NEVER})
     endif ()
 
     # Test executable -- dlib

@@ -151,7 +151,7 @@ Proj_matrix::set (
 
     vec3_copy (this->cam, cam);
     this->sid = sid;
-    this->sad = vec3_len (cam);
+    this->sad = vec3_dist (cam, tgt);
     this->ic[0] = ic[0];
     this->ic[1] = ic[1];
 

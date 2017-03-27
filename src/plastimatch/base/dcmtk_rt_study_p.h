@@ -5,6 +5,7 @@
 #define _dcmtk_rt_study_p_h_
 
 #include "plmbase_config.h"
+#include "dcmtk_series_map.h"
 #include "plm_image.h"
 //#include "plm_image_set.h"
 #include "rt_study_metadata.h"
@@ -28,13 +29,16 @@ public:
     char study_uid[100];
     std::vector<Dcmtk_slice_data>* slice_data;
 
-    Dcmtk_series *ds_rtdose; //not used in anywhere?
-    Dcmtk_series *ds_rtss; //not used in anywhere?
-    Dcmtk_series *ds_rtplan; //not used in anywhere?
+    /*! The m_smap is used during loading to map filenames to series UIDs */
+    Dcmtk_series_map m_smap;
+    Dcmtk_series *ds_image;
+    Dcmtk_series *ds_rtdose;
+    Dcmtk_series *ds_rtss;
+    Dcmtk_series *ds_rtplan;
 
-    Rtss::Pointer cxt;
-    Rtplan::Pointer plan;
-    Metadata *cxt_metadata;
+    Rtss::Pointer rtss;
+    Metadata *rtss_metadata;
+    Rtplan::Pointer rtplan;
     //Plm_image_set::Pointer img;
     Plm_image::Pointer img;
     Plm_image::Pointer dose;

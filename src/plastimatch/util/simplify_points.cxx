@@ -44,7 +44,7 @@ do_simplify (Rt_study *rtds, float percentage)
 //      exit(-1);
 //    }
 
-    Rtss *rtss_ss = rtds->get_rtss()->get_structure_set_raw ();
+    Rtss *rtss_ss = rtds->get_segmentation()->get_structure_set_raw ();
     num_structures = rtss_ss->num_structures;
 
     for(int j=0;j<num_structures;j++){
@@ -61,7 +61,7 @@ do_simplify (Rt_study *rtds, float percentage)
             index = new int[curr_polyline->num_vertices];
             ordered_index = new int[curr_polyline->num_vertices];
             //extract vertices of the current contour and extract random indices
-            for(int j=0;j<curr_polyline->num_vertices;j++){
+            for (size_t j = 0; j < curr_polyline->num_vertices; j++) {
                 curr_point[0]=curr_polyline->x[j];
                 curr_point[1]=curr_polyline->y[j];
                 curr_point[2]=curr_polyline->z[j];

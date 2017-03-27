@@ -34,7 +34,6 @@ set (PLMSYS_LIBRARY_SRC
   plm_sleep.cxx plm_sleep.h 
   plm_timer.cxx plm_timer.h plm_timer_p.h
   plm_va_copy.h
-  plm_version.h 
   print_and_exit.cxx print_and_exit.h
   smart_pointer.h
   string_util.cxx string_util.h
@@ -54,8 +53,9 @@ endforeach ()
 ##-----------------------------------------------------------------------------
 ##  LIBRARY DEPENDENCIES
 ##-----------------------------------------------------------------------------
-set (PLMSYS_LIBRARY_DEPENDENCIES 
-    )
+set (PLMSYS_LIBRARY_DEPENDENCIES
+  ${DLIB_LIBRARIES}
+  )
 if (LIBDL_FOUND)
     set (PLMSYS_LIBRARY_DEPENDENCIES
 	${PLMSYS_LIBRARY_DEPENDENCIES}

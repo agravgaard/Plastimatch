@@ -398,7 +398,7 @@ gdcm1_dose_save (
        dose. */
 
     /* Copy the image so we don't corrupt the original */
-    Plm_image *tmp = pli->clone ();
+    Plm_image::Pointer tmp = pli->clone ();
     /* Find the maximum value in the image */
     double min_val, max_val, avg;
     int non_zero, num_vox;
@@ -441,8 +441,6 @@ gdcm1_dose_save (
 
     /* Do the actual writing out to file */
     gfh.WriteDcmExplVR (dose_fn);
-
-    delete tmp;
 }
 
 /* Explicit instantiations */

@@ -1,5 +1,6 @@
 function writerpm(filename,rpm)
-% function writerpm(filename,rpm)
+% WRITERPM Write a Varian VXP 1.6 format file
+%    writerpm (FILENAME, RPM)
 
 [fp,error_msg] = fopen(filename,'w');
 if (fp == -1)

@@ -134,8 +134,6 @@ set (XF_TO_EMPIREFMT_SRC
 set (CMD_PROMPT_LAUNCHER_SRC
     cmd_prompt_launcher.cxx
     )
-
-
 if (QT4_FOUND)
 set(nki2mha_converter_SRC
 	nki2mha_converter_main.cpp
@@ -149,7 +147,7 @@ QT4_ADD_RESOURCES (nki2mha_converter_SRC
 	nki2mha_converter.qrc)
 
 	
-set(GAMMA_GUI_SRC
+set(GAMMA_GUI_BASE_SRC
 	gamma_gui_main.cpp	
 	gamma_gui.cpp
 	gamma_gui.h
@@ -176,15 +174,46 @@ QT4_WRAP_UI(GAMMA_GUI_UI
 	DlgGammaView.ui)
 
 set(GAMMA_GUI_SRC
-	${GAMMA_GUI_SRC}
-	${GAMMA_GUI_MOC}
-	${GAMMA_GUI_UI}
-	)
+    ${GAMMA_GUI_BASE_SRC}
+    ${GAMMA_GUI_MOC}
+    ${GAMMA_GUI_UI}
+    )
 
+# Don't compile the files which include generated headers until
+# generated headers are built.
+set_source_files_properties (${GAMMA_GUI_BASE_SRC}
+    PROPERTIES OBJECT_DEPENDS "${GAMMA_GUI_UI}")
+    
 set(REGISTER_GUI_SRC
-	register_gui_main.cpp
-	register_gui.cpp 
-	register_gui.h
+  register_gui_main.cpp
+  register_gui.cpp
+  register_gui.h
+  qyklabel.h
+  qyklabel.cpp
+  YK16GrayImage.cxx
+  YK16GrayImage.h
+  qt_util.h
+  qt_util.cxx
+  qcustomplot.h
+  qcustomplot.cpp
+  yk_config.h
+  YKThreadRegi.h
+  YKThreadRegi.cpp
+  )
+
+QT4_WRAP_CPP(REGISTER_GUI_SRC	
+  qyklabel.h
+  qcustomplot.h
+  register_gui.h
+  YKThreadRegi.h)
+QT4_WRAP_UI(REGISTER_GUI_SRC
+  register_gui.ui
+  )
+
+set(BEAMDATA_GEN_GUI_SRC	
+	beamdata_gen_gui.h
+	beamdata_gen_gui.cpp
+	beamdata_gen_gui_main.cpp
 	qyklabel.h
 	qyklabel.cpp
 	YK16GrayImage.cxx
@@ -194,18 +223,20 @@ set(REGISTER_GUI_SRC
 	qcustomplot.h
 	qcustomplot.cpp
 	yk_config.h
-	YKThreadRegi.h
-	YKThreadRegi.cpp
+	BeamDataRFA.cxx
+	BeamDataRFA.h
 	)
 
-QT4_WRAP_CPP(REGISTER_GUI_SRC	
+QT4_WRAP_CPP(BEAMDATA_GEN_GUI_SRC	
+	beamdata_gen_gui.h
 	qyklabel.h
 	qcustomplot.h
-	register_gui.h
-	YKThreadRegi.h)
-QT4_WRAP_UI(REGISTER_GUI_SRC
-	register_gui.ui
+	beamdata_gen_gui.h
 	)
+QT4_WRAP_UI(BEAMDATA_GEN_GUI_SRC
+	beamdata_gen_gui.ui
+	)
+
 endif()
 
 ##-----------------------------------------------------------------------------
@@ -279,6 +310,10 @@ if (QT4_FOUND)
 	${BUILD_ALWAYS} ${INSTALL_IF_NOT_DEBIAN})
     if (DCMTK_FOUND)
 	plm_add_executable (gamma_gui "${GAMMA_GUI_SRC}" 
+	    "${PLASTIMATCH_LIBS};${QT_LIBRARIES}" "${PLASTIMATCH_LDFLAGS}" 
+	    ${BUILD_ALWAYS} ${INSTALL_IF_NOT_DEBIAN})
+
+	plm_add_executable (beamdata_gen_gui "${BEAMDATA_GEN_GUI_SRC}" 
 	    "${PLASTIMATCH_LIBS};${QT_LIBRARIES}" "${PLASTIMATCH_LDFLAGS}" 
 	    ${BUILD_ALWAYS} ${INSTALL_IF_NOT_DEBIAN})
     endif ()

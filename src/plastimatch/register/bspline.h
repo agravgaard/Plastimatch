@@ -8,7 +8,7 @@
 #include "plm_int.h"
 #include <string>
 
-class Bspline_mi_hist_set;
+class Joint_histogram;
 class Bspline_optimize;
 class Bspline_parms;
 class Bspline_score;
@@ -33,7 +33,6 @@ PLMREGISTER_API void bspline_save_debug_state (
     Bspline_state *bst, 
     Bspline_xform* bxf
 );
-void dump_xpm_hist (Bspline_mi_hist_set* mi_hist, char* file_base, int iter);
 void bspline_condense_smetric_grad (
     float* cond_x, float* cond_y, float* cond_z,
     Bspline_xform* bxf,

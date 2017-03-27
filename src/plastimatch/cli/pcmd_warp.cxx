@@ -116,6 +116,8 @@ parse_fn (
     parser->add_long_option ("", "algorithm", 
         "algorithm to use for warping, either \"itk\" or \"native\", "
         "default is native", 1, "native");
+    parser->add_long_option ("", "force-resample",
+        "resample the transformed image even when transform is linear", 0);
     parser->add_long_option ("", "dose-scale", 
         "scale the dose by this value", 1, "");
     parser->add_long_option ("", "interpolation", 
@@ -267,6 +269,9 @@ parse_fn (
         throw (dlib::error ("Error. Unknown --algorithm argument: " + arg));
     }
 
+    if (parser->option("force-resample")) {
+        parms->force_resample = true;
+    }
     if (parser->option("default-value")) {
         parms->default_val = parser->get_float("default-value");
     }
@@ -368,7 +373,7 @@ parse_fn (
     if (parser->option ("rtss-series-description")) {
         std::string arg = parser->get_string ("rtss-series-description");
         std::string metadata_string = "0008,103e=" + arg;
-        parms->m_rtss_metadata.push_back (metadata_string);
+        parms->m_rtstruct_metadata.push_back (metadata_string);
     }
     if (parser->option ("series-number")) {
         std::string arg = parser->get_string ("series-number");
@@ -383,7 +388,7 @@ parse_fn (
     if (parser->option ("rtss-series-number")) {
         std::string arg = parser->get_string ("rtss-series-number");
         std::string metadata_string = "0020,0011=" + arg;
-        parms->m_rtss_metadata.push_back (metadata_string);
+        parms->m_rtstruct_metadata.push_back (metadata_string);
     }
 }
 

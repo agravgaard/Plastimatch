@@ -18,7 +18,7 @@ The recommended method for downloading plastimatch is to use subversion
 to download the source code, and then compile the source.
 To download using subversion, use the following command::
 
-  $ git clone https://gitlab.com/plastimatch/plastimatch.git
+  git clone https://gitlab.com/plastimatch/plastimatch.git
 
 If you are using Windows, you will need a git client.
 We recommend cygwin (http://cygwin.com) for command-line users, 
@@ -28,16 +28,24 @@ If you have already downloaded a previous version,
 you can update to the latest version by executing the following command 
 from within the plastimatch source directory::
 
-  $ git pull
+  git pull
 
 Build dependencies
 ------------------
 
 Debian installs
 ^^^^^^^^^^^^^^^
-The following will get you started on a debian system::
+On debian, all the needed dependencies are already included.
+The following command will install all the needed prerequisites.::
 
-  sudo apt-get install cmake-curses-gui g++ make libdcmtk2-dev libinsighttoolkit4-dev libpng12-dev subversion zlib1g-dev
+   sudo apt-get install g++ make git cmake-curses-gui \
+     libblas-dev liblapack-dev libsqlite-dev \
+     libdcmtk-dev libdlib-dev libfftw3-dev \
+     libgdcm2-dev libinsighttoolkit4-dev \
+     libpng-dev libtiff-dev uuid-dev zlib1g-dev 
+
+..  sudo apt-get install cmake-curses-gui g++ make \
+    libdcmtk2-dev libinsighttoolkit4-dev libpng12-dev subversion zlib1g-dev
 
 
 Cmake (required)
@@ -53,17 +61,17 @@ C/C++ Compiler (required)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 You will need a C/C++ compiler.  If you are running 
 Windows, we recommend Microsoft Visual Studio (Express or Full).
-Any version 2008 or higher should be fine.
+Versions 2008 and higher are supported.
 You can download the Microsoft Visual Studio Express compiler 
 from here:
 
   http://www.microsoft.com/Express/
 
-On windows, you may also use the MinGW compiler.
-However, ITK does not support cygwin.
+On windows, you may use the MinGW compiler, 
+however, ITK does not support cygwin.
 
-On unix systems, either g++ or clang should be fine.
-For ITK 3.20, only g++ is supported.  
+On unix systems, g++ and clang are supported.
+If you use ITK 3.20, however, only g++ is supported.  
 The clang compiler will work for newer versions of ITK.
 
 On OSX, you need the Xcode package, and you must also install the 

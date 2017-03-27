@@ -3,7 +3,9 @@
    ----------------------------------------------------------------------- */
 #include "plmcli_config.h"
 
+#include "logfile.h"
 #include "pcmd_register.h"
+#include "plm_return_code.h"
 #include "registration.h"
 
 void
@@ -23,9 +25,12 @@ do_command_register (int argc, char* argv[])
     }
 
     Registration reg;
-    if (reg.set_command_file (command_filename) < 0) {
-        printf ("Error.  could not load %s as command file.\n", 
+    Plm_return_code rc = reg.set_command_file (command_filename);
+    if (rc != PLM_SUCCESS) {
+        logfile_printf ("Error.  Could not load %s as command file.\n", 
             command_filename);
+        exit (1);
     }
+
     reg.do_registration ();
 }

@@ -38,7 +38,7 @@ print_usage (void)
 	" -i algorithm      Choose algorithm {exact,uniform}\n"
 	" -o \"o1 o2 o3\"     Set isocenter position\n"
 	" -G                Create geometry files only, not drr images.\n"
-	" -P                Suppress attenuation preprocessing.\n"
+	" -P conversion     Choose HU conversion type {preprocess,inline,none}\n"
 	" -I infile         Set the input file in mha format\n"
 	" -O outprefix      Generate output files using the specified prefix\n"
     );
@@ -78,7 +78,7 @@ drr_opts_init (Drr_options* options)
 
     options->exponential_mapping = 0;
     options->output_format= OUTPUT_FORMAT_PFM;
-    options->preprocess_attenuation = true;
+    options->hu_conversion = PREPROCESS_CONVERSION;
     options->output_details_prefix = "";
     options->output_details_fn = "";
     options->algorithm = DRR_ALGORITHM_EXACT;
@@ -307,9 +307,20 @@ parse_args (Drr_options* options, int argc, char* argv[])
 	    options->geometry_only = 1;
 	}
 	else if (!strcmp (argv[i], "-P")) {
-	    options->preprocess_attenuation = false;
+	    if (++i >= argc) { print_usage(); }
+	    if (!strcmp(argv[i], "preprocess")) {
+		options->hu_conversion = PREPROCESS_CONVERSION;
+	    } else if (!strcmp(argv[i], "inline")) {
+		options->hu_conversion = INLINE_CONVERSION;
+	    } else if (!strcmp(argv[i], "none")) {
+		options->hu_conversion = NO_CONVERSION;
+	    } else {
+                printf ("Error, unknown option -P %s\n", argv[i]);
+		print_usage ();
+	    }
 	}
 	else {
+            printf ("Error, unknown option %s\n", argv[i]);
 	    print_usage ();
 	    break;
 	}

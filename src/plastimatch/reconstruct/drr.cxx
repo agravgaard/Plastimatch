@@ -32,8 +32,8 @@ public:
     FILE *details_fp;            /* Write ray trace details to this file */
     double accum;                /* Accumulated intensity */
     int num_pix;                 /* Number of pixels traversed */
-    bool process_attenuation;    /* Should input voxels be mapped from 
-                                    HU to attenuation? */
+    Hu_conversion hu_conversion; /* Should input voxels be mapped from 
+                                    HU to attenuation?  How? */
 public:
     Callback_data () {
         vol = 0;
@@ -42,7 +42,7 @@ public:
         details_fp = 0;
         accum = 0.;
         num_pix = 0;
-        process_attenuation = false;
+        hu_conversion = PREPROCESS_CONVERSION;
     }
 };
 
@@ -99,7 +99,7 @@ drr_ray_trace_callback (
 {
     Callback_data *cd = (Callback_data *) callback_data;
 
-    if (cd->process_attenuation) {
+    if (cd->hu_conversion == INLINE_CONVERSION) {
         cd->accum += vox_len * attenuation_lookup (vox_value);
     } else {
         cd->accum += vox_len * vox_value;
@@ -215,7 +215,7 @@ drr_ray_trace_image (
             cd.r = r;
             cd.c = c;
             cd.details_fp = details_fp;
-            cd.process_attenuation = ! options->preprocess_attenuation;
+            cd.hu_conversion = options->hu_conversion;
 	    switch (options->algorithm) {
 	    case DRR_ALGORITHM_EXACT:
 		value = drr_ray_trace_exact (&cd, vol, vol_limit, p1, p2);

@@ -43,6 +43,10 @@ add_cms_contournames (Rtss *rtss, const char *filename)
     getline (ifs, line);
     int rc, xio_version;
     rc = sscanf (line.c_str(), "%x", &xio_version);
+    if (rc != 1) {
+        print_and_exit ("Error parsing contournames: "
+            "could not read version (%s)\n", line.c_str());
+    }
     if (xio_version == 0x00061027) {
 	printf ("Version 00061027 found.\n");
 	skip_lines = 5;
@@ -364,9 +368,9 @@ xio_structures_save (
 		if (z != curr_polyline->slice_no) {
 		    continue;
 		}
-		fprintf (fp, "%d\n", curr_polyline->num_vertices);
+		fprintf (fp, "%d\n", (int) curr_polyline->num_vertices);
 		fprintf (fp, "%lu\n", (unsigned long) (i+1));
-		for (int k = 0; k < curr_polyline->num_vertices; k++) {
+		for (size_t k = 0; k < curr_polyline->num_vertices; k++) {
 		    fprintf (fp, "%6.1f,%6.1f", 
 			curr_polyline->x[k] * transform->direction_cosines[0]
 			    - transform->x_offset,
@@ -406,7 +410,7 @@ xio_structures_apply_transform (
 	Rtss_roi *curr_structure = rtss->slist[i];
 	for (size_t j = 0; j < curr_structure->num_contours; j++) {
 	    Rtss_contour *curr_polyline = curr_structure->pslist[j];
-	    for (int k = 0; k < curr_polyline->num_vertices; k++) {
+	    for (size_t k = 0; k < curr_polyline->num_vertices; k++) {
 		curr_polyline->x[k] =
 		    (curr_polyline->x[k] * transform->direction_cosines[0])
 		    + transform->x_offset;

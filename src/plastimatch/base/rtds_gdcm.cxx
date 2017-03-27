@@ -34,8 +34,8 @@ Rt_study::load_gdcm (const char *dicom_dir)
     }
     if (gdcm_series->m_rtstruct_file_list) {
 	const std::string& filename = gdcm_series->get_rtstruct_filename();
-	d_ptr->m_rtss = Segmentation::New ();
-	d_ptr->m_rtss->load_gdcm_rtss (filename.c_str(), d_ptr->m_drs.get());
+	d_ptr->m_seg = Segmentation::New ();
+	d_ptr->m_seg->load_gdcm_rtss (filename.c_str(), d_ptr->m_drs.get());
     }
 #endif
 
@@ -46,7 +46,7 @@ Rt_study::load_gdcm (const char *dicom_dir)
 
 #if PLM_DCM_USE_GDCM1
     /* Use native reader to set meta */
-    gdcm_series->get_metadata (this->get_metadata ());
+    gdcm_series->get_metadata (this->get_study_metadata ());
     delete gdcm_series;
 #endif
 }
@@ -59,9 +59,9 @@ Rt_study::save_gdcm (const char *output_dir)
 	d_ptr->m_img->save_short_dicom (output_dir, d_ptr->m_drs.get());
     }
 #if PLM_DCM_USE_GDCM1
-    if (d_ptr->m_rtss) {
+    if (d_ptr->m_seg) {
 	printf ("Rt_study::save_dicom: save_gdcm_rtss()\n");
-	d_ptr->m_rtss->save_gdcm_rtss (output_dir, d_ptr->m_drs);
+	d_ptr->m_seg->save_gdcm_rtss (output_dir, d_ptr->m_drs);
     }
     if (this->has_dose()) {
         std::string fn;

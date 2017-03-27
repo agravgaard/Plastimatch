@@ -1,6 +1,8 @@
 [GLOBAL]
-fixed=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
-moving=@PLM_BUILD_TESTING_DIR@/gauss-2.mha
+fixed[0]=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
+moving[0]=@PLM_BUILD_TESTING_DIR@/gauss-2.mha
+fixed[1]=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
+moving[1]=@PLM_BUILD_TESTING_DIR@/gauss-2.mha
 
 vf_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-vf.mha
 xform_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-xf.txt
@@ -12,8 +14,10 @@ optim=lbfgsb
 impl=plastimatch
 threading=single
 alg_flavor=c
-metric=mi,gm
-metric_lambda=0.1,100
+metric[0]=gm
+metric[1]=mi
+metric_lambda[0]=0.1
+metric_lambda[1]=100
 max_its=5
 convergence_tol=3
 grad_tol=0.1

@@ -1,4 +1,355 @@
 ******************************************************************************
+Global vs stage vs shared
+
+There are only a few small differences.
+
+Review of global options
+
+- No registration is run
+- Allows process stage before first registration stage
+- Global outputs are written after final stage
+-- Written at original resolution, potentially with different options
+- Logfile is global
+-- I suppose you could switch logfile per stage if you wanted
+
+Review of stage options
+
+- Resume stage / finalize stage
+
+******************************************************************************
+Alternate syntax
+
+[METRIC]
+id=0
+metric=mse
+fixed=x1
+moving=y1
+lambda=0.1
+
+[METRIC]
+id=1
+metric=dmap
+fixed=x2
+moving=y2
+lambda=1.0
+histogram_bins=30
+
+[STAGE]
+metric=mse,dmap
+
+Note that this is not more powerful.  Instead we could do this:
+
+fixed[0]=x1
+moving[0]=y1
+metric[0]=mse
+fixed[1]=x2
+moving[1]=y2
+metric[1]=mi
+histogram_bins[1]=30
+
+Also, with the first syntax, you might want some way to specify
+warped images (warped y1 and y2).  
+
+
+******************************************************************************
+Registration similarity parms/data (cont.)
+
+On the use of std::map.
+
+There are three places where it gets used.
+- Shared_parms
+-- Individual maps for filenames fixed, moving, etc
+- Stage_parms
+-- To be added, individual maps for parameters smetric, smetric_lambda
+- Registration_data
+-- Map of Registration_similarity_data's (containing Plm_image's)
+
+After this, the map gets dissolved into a vector of Stage_similarity_data
+
+- Filenames go raw into map for Shared_parms, images get loaded
+  into Registration_data.
+- Smetric gets cooked and split going into vector for Stage_parms.
+- The Registration_similarity_data (and then Stage_similarity_data)
+  seem to need the parameters.
+
+The main question seems to be that parms and images are considered separate.
+What kind of remedies are there for this?
+
+- Keep separate, parallel maps
+-- Registration_similarity_data stays as-is
+-- Individual maps (or Similarity_parms map) remain in Stage_parms
+-- Copy into unified vector of Stage_similarity_data
+- Single unified parameter map, duplicated parms
+-- Upgrade smetric, smetric_lambda to shared parms
+-- Copy parms into unified Registration_similarity_data at same time
+   as image load for each stage
+- Unify Registration_parms and Registration_data
+-- Upgrade smetric, smetric_lambda to shared parms
+-- Create <filename,Plm_image> pairs
+--- Or scoreboard that maps filename -> Plm_image
+-- At filename load, the <filename,Plm_image> pairs are interpreted
+
+The first option seems easiest, and we could eventually upgrade
+to third option later.
+
+The second option is largely similar to the first, and does not appear
+to have significant advantages, with the exception of a unified map.
+
+The third option seems elegant, but may have some fragile points.
+
+- What to do about process section?  Possible solutions:
+-- Update scoreboard entries with process results
+-- Augment scoreboard to include variable
+-- In any case, this is not super-well supported anyway
+- What to do about avoiding repeat loads
+-- Images in scoreboard, filenames get passed to stages
+-- Pointers copied from stage to stage
+
+Similarity_data
+  <fixed_fn,fixed>, <moving_fn,moving>, 
+  smetric, smetric_lambda
+
+Registration_parms
+  list<Stage_parms*>
+
+Stage_parms
+  map<str,Similarity_data>
+
+Final decision: "first option"
+
+******************************************************************************
+Registration similarity parms/data (cont.)
+
+ROIs are different from similarity?  Here are ways they are different.
+
+- Probably ROIs should affect multiple similarity metrics
+- Probably ROIs should affect regularization
+-- This one is not currently implemented
+-- Ideally should be allowed independent of similarity roi
+-- Ideally should be allowed on a per-regularization basis
+
+Current decision.  Make ROI affect multiple similiary metrics.
+
+******************************************************************************
+Registration similarity parms/data (cont.)
+
+Proposed change option 1
+
+Registration_parms
+  list<Stage_parms*>
+  Shared_parms
+    map<str,Similarity_parms>  <- new
+
+Similarity_parms
+  fixed_fn
+  moving_fn
+
+What should happen with un-specified parameters?  Example:
+
+fixed[0] = a.mha
+moving[0] = b.mha
+metric[0] = mi       // A) should this propagate to [1]?
+impl = plastimatch   // B) should this propagate to [1]?
+fixed[1] = c.mha     // C) if moving[1] not specified should anything happen?
+histeq[1] = true     // D) should this propagate to [0]?
+
+Answers:
+
+A)  No.
+B)  No.
+C)  No.
+D)  No.
+
+******************************************************************************
+Registration similarity parms/data (cont.)
+
+Current status 2016-12-28
+
+Registration_parms
+  list<Stage_parms*>
+  Shared_parms
+    map<str,str> fixed_fn, moving_fn, etc
+
+Registration_data
+  map<str,Reg_sim_data>
+  list<str>
+  Stage_parms auto_parms
+
+Bspline_stage
+  Bspline_optimize    <- check_grad, bspline_score only depends on this
+    Bspline_parms
+    Bspline_state     <- needs parms & bxf to initialize
+      Stage_similarity_data  <- newly created bxf depends on master image
+      Bspline_score
+    Bspline_xform     <- might be loaded from disc, might rely on
+    		      	 fixed image size to set # of control points
+
+1a) Load image
+1b) Fixate image
+2a) Load xform
+2b) Fixate xform
+
+N.b. also
+
+  Bspline_options
+    Bspline_parms
+
+
+******************************************************************************
+Registration similarity parms/data
+
+There are three main types of similarity data:
+- parms
+- original images
+- derived images
+
+In 2016-12-22 design (so far), 
+
+- parms
+  -  Read into Stage_parms during parameter file parsing.
+  -  For each stage, copied into Bspline_parms.
+- original images
+  -  Filenames are read into Shared_parms (but update each 
+     stage not implemented) during parameter file parsing.
+  -  Images loaded during load_stage_input(), placed in 
+     Registration_data (Type Similarity_data).
+  -  They are not reloaded each stage because file_names are
+     not copied when new stages are created.
+- derived images
+  -  Images subsampled and grad calculated into Bspline_stage,
+     then copied into Bspline_parms.
+
+Next iteration of design.
+
+- parms
+  -  Read into Stage_parms during parameter file parsing.
+  -  For each stage, copied into Bspline_parms.
+- original images
+  -  Filenames are read into Shared_parms (but update each 
+     stage not implemented) during parameter file parsing.
+  -  Images loaded during load_stage_input(), placed in 
+     Registration_data (type Registration_data::similarity_images).
+  -  They are not reloaded each stage because file_names are
+     not copied when new stages are created.
+- derived images
+  -  Images subsampled and grad calculated into Bspline_stage,
+     then copied into Bspline_parms, type Bspline_data::similarity_images.
+
+
+******************************************************************************
+register_gui
+2016-10-31
+
+A) Multiple jobs, each with one fixed and one moving
+
+   job1/fix.mha
+   job1/mov.mha
+   job2/fix.mha
+   job2/mov.mha
+
+*) Choose job1/fix.mha as fixed
+*) Choose job1/mov.mha as moving
+*) Click on "repeat for peer directories"
+
+B) Multiple jobs, each with one fixed and many moving
+
+   job1/fix.mha
+   job1/mov1.mha
+   job1/mov2.mha
+   job2/fix.mha
+   job2/mov1.mha
+   job2/mov2.mha
+
+*) Choose job1/fix.mha as fixed
+*) Choose job1 as moving
+*) Click on "repeat for peer directories"
+
+C) Multiple jobs, all-to-all
+
+   job1/img1.mha
+   job1/img2.mha
+   job1/img3.mha
+   job2/img1.mha
+   job2/img2.mha
+   job2/img3.mha
+
+*) Choose job1 as fixed
+*) Click on "repeat for peer directories"
+
+D) All-to-all with different directories
+
+   dir/p1/img.mha
+   dir/p2/img.mha
+   dir/p3/img.mha
+
+*) Choose dir as fixed
+*) Click "recurse"
+*) Unclick "repeat for peer directories"
+
+******************************************************************************
+DICOM export entry points
+2016-10-19
+
+Rt_study::save_dcmtk
+Dcmtk_rt_study::save
+
+Rt_study::save_gdcm
+Segmentation::save_gdcm_rtss
+
+******************************************************************************
+Slice_list
+2016-10-05
+
+Used in:
+
+base/dcmtk_rtss.cxx
+base/rtss.cxx
+base/rtss.h
+base/rt_study_metadata.cxx
+
+Slice_list is encapsulated inside rt_study_metadata.cxx.
+- The get/set image_header function is based on Slice_list
+- slice_list_apply
+-- What does it mean?
+--- called on rtss 
+-- When is it called
+- slice_list_complete
+-- What does it mean?
+--- set_image_header() and set_slice_list_complete() both were called
+-- When is it called
+
+******************************************************************************
+register_gui
+2016-09-01
+
+Use cases for register_gui
+
+A) Multiple jobs, each with one fixed and one moving
+
+   job1/fix.mha
+   job1/mov.mha
+   job2/fix.mha
+   job2/mov.mha
+
+B) Multiple jobs, each with one fixed and many moving
+
+   job1/fix.mha
+   job1/mov1.mha
+   job1/mov2.mha
+   job2/fix.mha
+   job2/mov1.mha
+   job2/mov2.mha
+
+C) Multiple jobs, all-to-all
+
+   job1/img1.mha
+   job1/img2.mha
+   job1/img3.mha
+   job2/img1.mha
+   job2/img2.mha
+   job2/img3.mha
+
+******************************************************************************
 cmake upgrade
 2016-05-16
 
@@ -47,12 +398,12 @@ xvi archive
 2016-04-13
 
 1) Handle multiple Rx (done)
-2) Handle HFP/FFS/FFP
-3) Handle rotations
+2) Handle HFP/FFS/FFP (done)
+3) Handle rotations (done)
 4) Some form of series description and study description (done)
 5) Correct dates (done)
 6) Mark as CBCT (done)
-7) Some form of window/level (not supported by MIM?)
+7) Some form of window/level (done, supported by MIM 6.6)
 
 
 ******************************************************************************
@@ -771,68 +1122,6 @@ rt_study.save ("output_directory");
 
 PatientPosition ?
 StudyID ?
-
-***** Slice list, slice index *****
-
-Slice_list
-    bool m_loaded;
-    Plm_image_header m_pih;
-    std::vector<Pstring> m_ct_slice_uids;
-
-Slice_index
-    bool m_loaded;
-    Plm_image_header m_pih;
-    Metadata m_demographics;
-    Pstring m_study_id;
-    Pstring m_ct_study_uid;
-    Pstring m_ct_series_uid;
-    Pstring m_ct_fref_uid;
-    std::vector<Pstring> m_ct_slice_uids;
-
-Dicom_rt_study --> Rename to Rt_study_metadata
-    bool m_loaded;
-    Plm_image_header m_pih;
-
-    std::string date_string;
-    std::string time_string;
-    std::string ct_series_uid;
-    std::string dose_instance_uid;
-    std::string dose_series_uid;
-    std::string for_uid;
-    std::string rtss_instance_uid;
-    std::string rtss_series_uid;
-    std::string study_uid;
-    Slice_list slice_list;
-
-    Metadata study_metadata;
-    Metadata image_metadata;
-    Metadata rtss_metadata;
-    Metadata dose_metadata;
-
--- References
-
-Slice_index
-    cxt_io
-        UIDs are loaded and saved
-    dcmtk_rdd
-    dicom_util
-    gdcm1_dose
-    gdcm1_rdd
-    gdcm1_rtss
-        UIDs, image header, demographics are loaded
-    itk_dicom_save
-    itk_image_save (cxx only)
-    plm_image
-    rtss
-    xio_ct (h only)
-    xio_ct_transform
-    rt_study
-    segmentation
-
-Slice_list
-    dicom_rt_study
-    rtss
-
 
 ***** Rtss, rtss_structure_set, ... *****
 

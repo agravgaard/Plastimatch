@@ -1,8 +1,9 @@
 [GLOBAL]
-fixed=gauss-1.mha
-moving=gauss-6.mha
-xform_out=plm-reg-align-center-xf.txt
-img_out=plm-reg-align-center-img.mha
+fixed=@PLM_BUILD_TESTING_DIR@/gauss-1.mha
+moving=@PLM_BUILD_TESTING_DIR@/gauss-6.mha
+
+xform_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-img.mha
 
 [STAGE]
 xform=align_center

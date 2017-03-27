@@ -6,6 +6,7 @@
 
 #include "plmutil_config.h"
 #include "itk_image_type.h"
+#include "plm_image.h"
 
 class Distance_map_private;
 class Plm_image;
@@ -34,6 +35,8 @@ public:
     void set_input_image (const char* image_fn);
     /*! \brief Set the input image as an ITK image. */
     void set_input_image (const UCharImageType::Pointer image);
+    /*! \brief Set the input image as a Plm_image. */
+    void set_input_image (const Plm_image::Pointer& image);
     /*! \brief Choose whether the output image is distance or squared 
       distance. The default is not squared distance. */
     void set_use_squared_distance (bool use_squared_distance);

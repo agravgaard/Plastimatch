@@ -18,7 +18,6 @@ public:
     Bspline_stage_private *d_ptr;
 public:
     Bspline_stage (
-        Registration_parms *regp, 
         Registration_data *regd, 
         const Stage_parms *stage, 
         Xform *xf_in);
@@ -33,7 +32,6 @@ protected:
 
 Xform::Pointer
 do_gpuit_bspline_stage (
-    Registration_parms* regp, 
     Registration_data* regd, 
     const Xform::Pointer& xf_in, 
     const Stage_parms* stage);

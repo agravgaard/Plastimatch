@@ -27,6 +27,7 @@ public:
     Plm_return_code set_key_value (
         const std::string& section,
         const std::string& key, 
+        // const std::string& index, 
         const std::string& val);
 
 public:

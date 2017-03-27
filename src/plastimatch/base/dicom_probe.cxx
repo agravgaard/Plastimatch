@@ -43,15 +43,13 @@ dicom_probe_dose (const char *fn)
 #endif
 }
 
-
 /* Return true if the file is a dicom rtplan */
 bool
 dicom_probe_rtplan(const char *rtplan_fn)
 {
 #if PLM_DCM_USE_DCMTK
     return dcmtk_rtplan_probe(rtplan_fn);
-#elif PLM_DCM_USE_GDCM1
-    //return gdcm_rtss_probe(rtplan_fn);//not yet implemented
+#elif PLM_DCM_USE_GDCM1    
     return false;
 #else
     return false;

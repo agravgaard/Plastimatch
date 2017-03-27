@@ -83,6 +83,7 @@ public:
     virtual Plm_return_code set_key_value (
         const std::string& section,
         const std::string& key, 
+        //const std::string& index, 
         const std::string& val);
 };
 
@@ -90,6 +91,7 @@ Plm_return_code
 Mabs_parms_parser::set_key_value (
     const std::string& section,
     const std::string& key, 
+    //const std::string& index, 
     const std::string& val)
 {
     /* [CONVERT] */
@@ -227,6 +229,9 @@ Mabs_parms_parser::set_key_value (
         }
         else if (key == "convert_dir") {
             mp->convert_dir = val;
+        }
+        else if (key == "prealign_dir") {
+            mp->prealign_dir = val;
         }
         else if (key == "fusion_criteria") {
             if (val == "gaussian" || val == "GAUSSIAN" || val == "Gaussian") {

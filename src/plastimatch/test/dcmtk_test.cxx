@@ -6,20 +6,20 @@
 #include <stdio.h>
 #include <string.h>
 #include "compiler_warnings.h"
-#include "dcmtk_loader.h"
+#include "dcmtk_rt_study.h"
 
 #if defined (GCS_FIX)
 void
 dcmtk_series_set_test (char *dicom_dir)
 {
-    Dcmtk_loader dss;
+    Dcmtk_rt_study drs;
     printf ("Searching directory: %s\n", dicom_dir);
-    dss.insert_directory (dicom_dir);
-    dss.sort_all ();
-    //dss.debug ();
+    drs.insert_directory (dicom_dir);
+    drs.sort_all ();
+    //drs.debug ();
 
     Rt_study rtds;
-    dss.load_rtds (&rtds);
+    drs.load_rtds (&rtds);
 
     if (rtds.m_img) {
         rtds.m_img->save_image ("img.mha");

@@ -8,8 +8,8 @@
 
 #include "volume.h"
 
-PLMBASE_API Volume* volume_make_gradient (Volume* ref);
-//PLMBASE_API Volume::Pointer volume_make_gradient (Volume* ref);
+PLMBASE_API Volume* volume_make_gradient (const Volume* ref);
+PLMBASE_API Volume::Pointer volume_gradient (const Volume::Pointer& ref);
 PLMBASE_API Volume::Pointer volume_gradient_magnitude (
     const Volume::Pointer& ref);
 

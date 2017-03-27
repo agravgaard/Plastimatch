@@ -867,15 +867,15 @@ synthetic_mha (
     rt_study->set_image (pli);
     if (parms->m_want_ss_img) {
         /* Create rtss & set into rt_study */
-        Segmentation::Pointer rtss = Segmentation::New ();
-        rt_study->set_rtss (rtss);
+        Segmentation::Pointer seg = Segmentation::New ();
+        rt_study->set_segmentation (seg);
 
         /* Insert ss_image into rtss */
-        rtss->set_ss_img (ss_img);
+        seg->set_ss_img (ss_img);
 
         /* Insert structure set into rtss */
         Rtss *rtss_ss = new Rtss;
-        rtss->set_structure_set (rtss_ss);
+        seg->set_structure_set (rtss_ss);
 
         /* Add structure names */
         switch (parms->pattern) {

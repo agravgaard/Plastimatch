@@ -8,7 +8,7 @@ project (plastimatch)
 ## The version here should be equal to the "next release"
 set (PLM_VERSION_MAJOR "1")
 set (PLM_VERSION_MINOR "6")
-set (PLM_VERSION_PATCH "4")
+set (PLM_VERSION_PATCH "5")
 #set (PLM_RELEASE_VERSION FALSE)
 set (PLM_RELEASE_VERSION TRUE)
 
@@ -51,25 +51,24 @@ option (PLM_CONFIG_DISABLE_OPENCL "Set to ON to build without OpenCL" OFF)
 option (PLM_CONFIG_DISABLE_OPENMP "Set to ON to build without OpenMP" OFF)
 option (PLM_CONFIG_DISABLE_PLASTIMATCH "Disable building plastimatch" OFF)
 option (PLM_CONFIG_DISABLE_QT "Set to ON to build without QT" OFF)
-option (PLM_CONFIG_DISABLE_REG23 "Disable building REG-2-3" OFF)
+option (PLM_CONFIG_DISABLE_REG23 "Disable building REG-2-3" ON)
 option (PLM_CONFIG_DISABLE_SSE2 "Set to ON to build without SSE" OFF)
 option (PLM_CONFIG_ENABLE_MATLAB "Set to ON to build Matlab plugins" OFF)
 
 option (PLM_CONFIG_BUILD_QT_PLUGINS "Build QT4 Designer Plugins?" OFF)
 option (PLM_CONFIG_DEBIAN_BUILD "Set to ON to configure build for debian" OFF)
 option (PLM_CONFIG_LIBRARY_BUILD "Set to ON to build only libraries" OFF)
-option (PLM_CONFIG_NOMANIFEST "Set to ON to build windows DLLs without manifests" OFF)
+option (PLM_CONFIG_NOMANIFEST
+    "Set to ON to build windows DLLs without manifests" OFF)
 
 # Compile and link options
 option (PLM_SUPERBUILD "Download missing external libraries" OFF)
 option (PLM_PREFER_EXTERNAL_ITK "Prefer external ITK to local one" OFF)
 option (BUILD_SHARED_LIBS "Build plastimatch as shared library" OFF)
 
-# GCS 2012-03-15: We prefer f2c over fortran because bspline optimization
-# fails when compiling fortran in debug mode with gcc 4.5.0
-option (PLM_PREFER_F2C "Prefer using f2c over native fortran compiler" ON)
-option (PLM_PREFER_SYSTEM_F2C "Prefer the system f2c over the included f2c" ON)
-option (PLM_PREFER_NO_FORTRAN_NO_F2C "Prefer no fortran, no f2c" ON)
+# GCS 2016-08-18: Debian now ships dlib, give option to prefer local copy
+option (PLM_PREFER_SYSTEM_DLIB
+    "Prefer the system dlib over the included dlib" ON)
 
 # Testing
 option (PLM_BUILD_TESTING "Enable regression testing" ON)
@@ -84,11 +83,11 @@ option (PLM_PACKAGE_32BIT
 option (PLM_PACKAGE_NSIS "Set to ON when packaging binaries with NSIS" OFF)
 option (PLM_PACKAGE_WIX "Set to ON when packaging binaries with WIX" OFF)
 option (PLM_PACKAGE_LEGACY_CMAKE_CONFIG
-  "Use the old code for creating PlastimatchConfig.cmake and friends" OFF)
+    "Use the old code for creating PlastimatchConfig.cmake and friends" OFF)
 
 # Use legacy packaging if cmake version is < 3.0
 if (CMAKE_VERSION VERSION_LESS "3.0")
-  set (PLM_PACKAGE_LEGACY_CMAKE_CONFIG ON CACHE BOOL)
+  set (PLM_PACKAGE_LEGACY_CMAKE_CONFIG ON CACHE BOOL "Use legacy packaging routines")
 endif ()
 
 # Override some options if library build is selected
@@ -97,8 +96,6 @@ if (PLM_CONFIG_LIBRARY_BUILD)
   set (PLM_CONFIG_DISABLE_FATM ON)
   set (PLM_CONFIG_DISABLE_MONDOSHOT ON)
   set (PLM_CONFIG_DISABLE_REG23 ON)
-  set (PLM_CONFIG_PREFER_F2C ON)
-  set (PLM_PREFER_SYSTEM_F2C OFF)
 endif ()
   
 ##-----------------------------------------------------------------------------
@@ -167,9 +164,6 @@ if (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 3.1)
 else ()
     include (InstallRequiredSystemLibraries)
 endif ()
-
-# http://www.cmake.org/Bug/view.php?id=9220
-include (cmake/language_support.cmake)
 
 # Superbuild
 if (PLM_SUPERBUILD)
@@ -273,69 +267,12 @@ set (BUILD_ALWAYS 1)
 set (BUILD_IF_NOT_SLICER_EXT 1)
 
 ##-----------------------------------------------------------------------------
-##  Set the math library -- need this variable to configure libf2c
+##  Set the math library
 ##-----------------------------------------------------------------------------
 if (UNIX)
   set (MATH_LIB -lm)
 else ()
   set (MATH_LIB)
-endif ()
-
-##-----------------------------------------------------------------------------
-##  Figure out FORTRAN madness
-##  This needs to be done before add_subdirectory() calls 
-##   to set PLM_FORTRAN_LIBRARIES properly
-##-----------------------------------------------------------------------------
-if (NOT PLM_PREFER_NO_FORTRAN_NO_F2C)
-if (NOT MINGW)
-  # For some reason, CMake tries to invoke devenv instead of gfortran
-  # for mingw.
-  include (cmake/PLM_FindFortran.cmake)
-
-  # The FortranCInterface is not included on CMake 2.6.2
-  # INCLUDE (FortranCInterface)
-endif ()
-
-# Choose between f2c or fortran
-set (PLM_USE_F2C FALSE)
-if (NOT PLM_CONFIG_DEBIAN_BUILD AND (PLM_PREFER_F2C OR NOT CMAKE_Fortran_COMPILER_WORKS))
-  set (PLM_USE_F2C TRUE)
-endif ()
-
-if (PLM_USE_F2C)
-  # If the user wants the system f2c, check for it
-  if (PLM_PREFER_SYSTEM_F2C)
-    find_package (F2C)
-  endif ()
-
-  # If the user doesn't want system f2c, or didn't find it, build the 
-  # included f2c
-  if (NOT PLM_PREFER_SYSTEM_F2C OR NOT F2C_LIBRARY)
-    set (PLM_USE_INCLUDED_F2C 1)
-    add_subdirectory (libs/libf2c)
-    set (F2C_LIBRARY f2c1)
-    set (F2C_INCLUDE_DIR libs/libf2c)
-  endif ()
-endif ()
-
-if (PLM_USE_F2C)
-  set (PLM_FORTRAN_LIBRARIES ${F2C_LIBRARY})
-#  if (UNIX AND NOT PLM_USE_INCLUDED_F2C)
-#    set (PLM_FORTRAN ${PLM_FORTRAN} f2c_helper)
-#  endif ()
-else ()
-  # It would seem that mixed-language programs need to set compiler and 
-  # linker flags manually
-  #   http://www.vtk.org/Wiki/CMakeForFortranExample
-  # In theory, this is fixed in a future release
-  #   http://www.cmake.org/Bug/view.php?id=9195
-  message (STATUS "Fortran compiler = ${CMAKE_Fortran_COMPILER}")
-  if (Fortran_COMPILER_NAME STREQUAL "gfortran" 
-      OR Fortran_COMPILER_NAME STREQUAL "f95")
-    set (PLM_FORTRAN_LIBRARIES gfortran)
-  endif ()
-endif ()
-message (STATUS "PLM_FORTRAN_LIBRARIES: ${PLM_FORTRAN_LIBRARIES}")
 endif ()
 
 ##-----------------------------------------------------------------------------
@@ -355,7 +292,17 @@ else ()
     set (DCMTK_FOUND FALSE)
   endif ()
 endif ()
-find_package (Dlib)
+if (PLM_PREFER_SYSTEM_DLIB)
+  # Use this version if you want to use the internal cmake find. 
+  # The internal version has issue finding the correct BLAS library
+  # for Debian, so we prefer Debian version.
+  # find_package (Dlib)
+  
+  # However, the Debian cmake find is broken.  Its breakage can
+  # be worked around by setting dlib_BINARY_DIR.
+  set (dlib_BINARY_DIR 1)
+  find_package (dlib QUIET)
+endif ()
 find_package (Etags)
 #find_package (Fann)
 find_package (FFTW)
@@ -416,12 +363,19 @@ set (DEVILLARD_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/devillard")
 add_subdirectory (libs/devillard)
 
 ##-----------------------------------------------------------------------------
-##  Only use local dlib
+##  If using local dlib
 ##-----------------------------------------------------------------------------
-if (NOT DLIB_INCLUDE_DIR)
-  #  set (DLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/dlib-17.34")
-  # set (DLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/dlib-17.46")
-  set (DLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/dlib-18.7")
+if (dlib_FOUND)
+  set (DLIB_INCLUDE_DIR ${dlib_INCLUDE_DIR})
+  set (DLIB_LIBRARIES ${dlib_LIBRARIES})
+  set (DLIB_FOUND TRUE)
+endif ()
+if (DLIB_FOUND)
+  set (DLIB_HAVE_LIBRARY TRUE)
+else ()
+  set (DLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/dlib-19.1")
+  set (DLIB_LIBRARIES "")
+  set (DLIB_HAVE_LIBRARY FALSE)
 endif ()
 
 ##-----------------------------------------------------------------------------
@@ -429,14 +383,6 @@ endif ()
 ##-----------------------------------------------------------------------------
 set (INIH_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/inih-r29")
 add_subdirectory (libs/inih-r29)
-
-##-----------------------------------------------------------------------------
-##  Only use local nocedal
-##-----------------------------------------------------------------------------
-if (NOT PLM_PREFER_NO_FORTRAN_NO_F2C)
-  add_subdirectory (libs/nocedal)
-  link_directories (${CMAKE_CURRENT_BINARY_DIR}/libs/nocedal)
-endif ()
 
 ##-----------------------------------------------------------------------------
 ##  LUA 5.1.4
@@ -619,6 +565,15 @@ if (PLM_SUPERBUILD)
   endif ()
 endif ()
 if (ITK_FOUND)
+  # GCS 2016-10-20
+  # The GDCM USE file spews out copious extraneous warnings on Debian.
+  # If we are not using GDCM, this might be avoided by setting
+  # ITK_USE_SYSTEM_GDCM to FALSE.  However, this has the undesirable
+  # effect of removing gdcm includes from include list and gdcm libraries
+  # from library list.
+  #if (DCMTK_FOUND)
+  # set (ITK_USE_SYSTEM_GDCM FALSE)
+  #endif ()
   include (${ITK_USE_FILE})
   set (ITK_VERSION 
     "${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH}")
@@ -647,8 +602,7 @@ message (STATUS "ITK_VERSION = ${ITK_VERSION} found")
 ##-----------------------------------------------------------------------------
 ##  GDCM
 ##-----------------------------------------------------------------------------
-# If we have ITK, then we will use GDCM 
-if (ITK_FOUND)
+if (NOT DCMTK_FOUND AND ITK_FOUND)
   # The default case is that ITK_USE_SYSTEM_GDCM was used, 
   # the gdcm use file was already loaded from UseITK.cmake, and therefore
   # GDCM_VERSION is already known.  If this is not the case, we look 
@@ -689,12 +643,6 @@ endif ()
 ##-----------------------------------------------------------------------------
 ##  Figure out if we should use gdcm or dcmtk
 ##-----------------------------------------------------------------------------
-##  GCS Temporary hack
-##  -- I had moved this to the src/plastimatch directory, but it needs to 
-##     be used to configure the tests as well...
-##  -- The final solution is probably to move Testing into src/plastimatch
-##-----------------------------------------------------------------------------
-
 set (PLM_DCM_USE_DCMTK 0)
 set (PLM_DCM_USE_GDCM1 0)
 set (PLM_DCM_USE_GDCM2 0)
@@ -707,36 +655,37 @@ else ()
     set (PLM_DCM_USE_GDCM1 1)
 endif ()
 
-
 ##-----------------------------------------------------------------------------
 ##  VTK
 ##-----------------------------------------------------------------------------
-find_package (VTK)
-if (VTK_FOUND)
-  message (STATUS "VTK version ${VTK_VERSION}")
-else ()
-  message (STATUS "VTK not found")
+if (NOT PLM_CONFIG_DISABLE_REG23)
+  find_package (VTK)
+  if (VTK_FOUND)
+    message (STATUS "VTK version ${VTK_VERSION}")
+  else ()
+    message (STATUS "VTK not found")
+  endif ()
+  # GCS 2012-05-14: Including VTK_USE_FILE causes VTK to pollute the 
+  # include directory list, which causes cuda to fail to compile
+  #if (VTK_FOUND)
+  #  include (${VTK_USE_FILE})
+  #endif ()
 endif ()
-# GCS 2012-05-14: Including VTK_USE_FILE causes VTK to pollute the 
-# include directory list, which causes cuda to fail to compile
-#if (VTK_FOUND)
-#  include (${VTK_USE_FILE})
-#endif ()
 
 ##-----------------------------------------------------------------------------
 ##  QT
 ##-----------------------------------------------------------------------------
 if (PLM_CONFIG_DISABLE_QT)
-    set (QT4_FOUND false)
+  set (QT4_FOUND false)
 else ()
-    #Edited by YPark, in VS2013 with win7, QtWebkit was not able to be compiled.(.lib file is not generated.) QtWebkit is only used by Reg23.
-    if (PLM_CONFIG_DISABLE_REG23)
-	message (STATUS "Due to the REG23 disabled, QtWebkit is no longer needed")
-	find_package (Qt4 4.6.3 COMPONENTS QtCore QtGui QtDesigner)
-    else ()
-	message (STATUS "In VS2013 w/ Qt4.8.6, QtWebkit couldn't be compiled. Check PLM_CONFIG_DISABLE_REG23 if you don't want REG23 and there is compiling error.")
-	find_package (Qt4 4.6.3 COMPONENTS QtCore QtGui QtWebKit QtDesigner)
-    endif ()	
+  # In VS2013 with win7, QtWebkit was not able to be compiled.(.lib file
+  # is not generated.) QtWebkit is only used by Reg23.
+  if (PLM_CONFIG_DISABLE_REG23)
+    find_package (Qt4 4.6.3 COMPONENTS QtCore QtGui QtDesigner)
+  else ()
+    message (STATUS "In VS2013 w/ Qt4.8.6, QtWebkit couldn't be compiled. Check PLM_CONFIG_DISABLE_REG23 if you don't want REG23 and there is compiling error.")
+    find_package (Qt4 4.6.3 COMPONENTS QtCore QtGui QtWebKit QtDesigner)
+  endif ()
 endif ()
 
 if (QT4_FOUND)
@@ -917,9 +866,7 @@ endif ()
 # Add sample directory/files to Install Only for windows users
 if (WIN32 OR WIN64)
   set (PLM_WINDOWS_INSTALL_DIR "${CMAKE_SOURCE_DIR}/extra/windows-install")
-  install (DIRECTORY "${PLM_WINDOWS_INSTALL_DIR}/sample" DESTINATION bin)
-  install (FILES "${PLM_WINDOWS_INSTALL_DIR}/colormap_customgamma.txt" DESTINATION bin)
-  install (FILES "${PLM_WINDOWS_INSTALL_DIR}/colormap_jet.txt" DESTINATION bin)
+  install (DIRECTORY "${PLM_WINDOWS_INSTALL_DIR}/sample" DESTINATION bin)  
   install (FILES "${PLM_WINDOWS_INSTALL_DIR}/launch_cmd_prompt.bat" DESTINATION bin)
 endif ()
 
@@ -1047,7 +994,7 @@ if (PLM_BUILD_TESTING)
 
   # Copy the lconv script
   configure_file (
-    "${CMAKE_SOURCE_DIR}/run_lcov.sh" 
+    "${CMAKE_SOURCE_DIR}/extra/devtools/run_lcov.sh" 
     "${CMAKE_BINARY_DIR}/run_lcov.sh"
     COPYONLY)
 endif ()

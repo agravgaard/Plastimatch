@@ -20,16 +20,12 @@ public:
     Bspline_optimize ();
     ~Bspline_optimize ();
 public:
-    Volume *fixed;
-    Volume *moving;
-    Volume *moving_grad;
-public:
-    void initialize (Bspline_xform *bxf, Bspline_parms *parms);
-
-    /* Get raw objects, needed by CUDA code */
     Bspline_parms* get_bspline_parms ();
     Bspline_state* get_bspline_state ();
     Bspline_xform* get_bspline_xform ();
+    void set_bspline_parms (Bspline_parms *parms);
+    void set_bspline_xform (Bspline_xform *bxf);
+    void optimize ();
 };
 
 PLMREGISTER_C_API void bspline_optimize (

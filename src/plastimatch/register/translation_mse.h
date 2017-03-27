@@ -10,8 +10,7 @@
 float
 translation_mse (
     const Stage_parms *stage,
-    const Volume::Pointer& fixed,
-    const Volume::Pointer& moving,
+    const Metric_state::Pointer& ssi,
     const float dxyz[3]);
 
 #endif

@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "PLASTIMATCH" "1" "April 26, 2015" "Plastimatch 1.6.0" "Plastimatch"
+.TH "PLASTIMATCH" "1" "Dec 04, 2016" "Plastimatch 1.6.5" "Plastimatch"
 .SH NAME
 plastimatch \- register, convert, warp, or manipulate images
 .
@@ -1132,8 +1132,8 @@ Prior to running the mabs command, you must create a configuration
 file, and you must arrange your training data into the proper
 directory format.
 For a complete description of the command file syntax and
-usage examples, please refer to the \fImabs_guidebook\fP
-and the \fIsegmentation_command_file_reference\fP\&.
+usage examples, please refer to the mabs_guidebook
+and the segmentation_command_file_reference\&.
 .SH PLASTIMATCH MASK
 .sp
 The \fImask\fP command is used to fill an image region with a constant
@@ -1287,7 +1287,7 @@ and each stage begins with a line containing the string "[STAGE]".
 The global section is used to set input files, output files, and
 global parameters, while the each stage section defines a sequential
 stage of processing.  For a complete description of the command file
-syntax, please refer to the \fIregistration_command_file_reference\fP\&.
+syntax, please refer to the registration_command_file_reference\&.
 .SS Examples
 .sp
 If you want to register image_2.mha to match image_1.mha using
@@ -1367,7 +1367,7 @@ res=1 1 1
 .UNINDENT
 .UNINDENT
 .sp
-For more examples, please refer to the \fIimage_registration_guidebook\fP\&.
+For more examples, please refer to the image_registration_guidebook\&.
 .SH PLASTIMATCH RESAMPLE
 .sp
 The \fIresample\fP command can be used to change the geometry of an image.
@@ -1379,16 +1379,29 @@ The command line usage is given as follows:
 .nf
 .ft C
 Usage: plastimatch resample [options]
-Required:   \-\-input=file
-            \-\-output=file
-Optional:   \-\-subsample="x y z"
-            \-\-fixed=file
-            \-\-origin="x y z"
-            \-\-spacing="x y z"
-            \-\-size="x y z"
-            \-\-output_type={uchar,short,ushort,float,vf}
-            \-\-interpolation={nn, linear}
-            \-\-default_val=val
+Options:
+    \-\-default\-value <arg>   value to set for pixels with unknown value,
+                             default is 0
+    \-\-dim <arg>             size of output image in voxels "x [y z]"
+    \-\-direction\-cosines <arg>
+                            oriention of x, y, and z axes; Specify either
+                             preset value,
+                             {identity,rotated\-{1,2,3},sheared}, or 9 digit
+                             matrix string "a b c d e f g h i"
+\-F, \-\-fixed <arg>           fixed image (match output size to this image)
+\-h, \-\-help                  display this help message
+    \-\-input <arg>           input directory or filename; can be an image or
+                             vector field
+    \-\-interpolation <arg>   interpolation type, either "nn" or "linear",
+                             default is linear
+    \-\-origin <arg>          location of first image voxel in mm "x y z"
+    \-\-output <arg>          output image or vector field
+    \-\-output\-type <arg>     type of output image, one of {uchar, short,
+                             float, ...}
+    \-\-spacing <arg>         voxel spacing in mm "x [y z]"
+    \-\-subsample <arg>       bin voxels together at integer subsampling rate
+                             "x [y z]"
+    \-\-version               display the program version
 .ft P
 .fi
 .UNINDENT

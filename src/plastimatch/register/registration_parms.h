@@ -20,6 +20,7 @@ class Registration_parms_private;
 class Shared_parms;
 class Stage_parms;
 
+#define DEFAULT_IMAGE_KEY "0"
 class PLMREGISTER_API Registration_parms {
 public:
     SMART_POINTER_SUPPORT (Registration_parms);
@@ -50,12 +51,12 @@ public:
     Registration_parms();
     ~Registration_parms();
 public:
-    int set_command_string (const std::string& command_string);
+    Plm_return_code set_command_string (const std::string& command_string);
     Plm_return_code set_key_value (
         const std::string& section,
         const std::string& key, 
         const std::string& val);
-    int parse_command_file (const char* options_fn);
+    Plm_return_code parse_command_file (const char* options_fn);
     void set_job_paths (void);
 public:
     const std::string& get_fixed_fn ();

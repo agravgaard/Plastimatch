@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #include "bspline.h"            /* for enums */
-#include "bspline_mi_hist.h"    /* for enums */
+// #include "bspline_mi_hist.h"    /* for enums */
 #include "plm_image_type.h"
 #include "plm_return_code.h"
 #include "process_parms.h"
@@ -168,8 +168,8 @@ public:
     /* Quaternion optimizer */
     float learn_rate;
     /* Mutual information */
-    int mi_hist_fixed_bins;
-    int mi_hist_moving_bins;
+    plm_long mi_hist_fixed_bins;
+    plm_long mi_hist_moving_bins;
     int mi_num_spatial_samples;
     float mi_num_spatial_samples_pct;
     enum Mi_hist_type mi_hist_type;

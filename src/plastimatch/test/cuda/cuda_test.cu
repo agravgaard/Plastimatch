@@ -4,6 +4,18 @@
 // Simple utility function to check for CUDA runtime errors
 void checkCUDAError (const char *msg);
 
+class A {
+public:
+    int a;
+    float b;
+public:
+    int get_a ();
+    void set_a (int val);
+};
+
+int A::get_a () { return this->a; }
+void A::set_a (int val) { this->a = val; }
+
 // Part 3 of 5: implement the kernel
 __global__ void 
 myFirstKernel(int *d_a)
@@ -136,6 +148,11 @@ cuda_mem_test (int argc, char** argv)
 int 
 main (int argc, char** argv)
 {
-    //cuda_test_1 (argc, argv);
+    // do some c++ here
+    A a1;
+    a1.set_a (32);
+    printf ("C++ test: %d\n", a1.get_a());
+
+    // cuda_test_1 (argc, argv);
     return cuda_mem_test (argc, argv);
 }

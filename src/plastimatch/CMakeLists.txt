@@ -16,7 +16,6 @@ option (PLM_CONFIG_DISABLE_VISCOUS
     "Disable experimental viscous fluid registration algorithm" ON)
 option (PLM_CONFIG_ENABLE_PLASTIMATCH_QT
     "Enable experimental plastimatch_qt executable" OFF)
-option (PLM_CONFIG_KEYHOLIZE "Enable RT structure keyholization" OFF)
 option (PLM_CONFIG_PREFER_PATCHED_ITK
     "Prefer to use the patched version of certain ITK files" ON)
 option (PLM_CONFIG_VOL_LIST
@@ -26,7 +25,7 @@ option (PLM_CONFIG_VOL_LIST
 option (PLM_CONFIG_LEGACY_BSPLINE_EXTEND
   "Use legacy code for extending b-spline domain" OFF)
 option (PLM_CONFIG_LEGACY_BSPLINE_XFORM_IO
-  "Use legacy code for reading and writing b-spline xform files" ON)
+  "Use legacy code for reading and writing b-spline xform files" OFF)
 option (PLM_CONFIG_LEGACY_MI_METRIC
   "For ITK metrics, the legacy implementation of the mi metric is Viola-Wells to Mattes" OFF)
 option (PLM_CONFIG_LEGACY_PROJ_GEO
@@ -139,11 +138,6 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/sys/plm_config.h.in
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/sys/plm_version.h.in
   ${PLM_BUILD_ROOT}/plm_version.h)
 
-if (NOT PLM_PREFER_NO_FORTRAN_NO_F2C)
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/sys/plm_fortran.h.in
-  ${PLM_BUILD_ROOT}/plm_fortran.h)
-endif ()
-
 ##-----------------------------------------------------------------------------
 ## Option to generate .clang_complete for hip Vim users using clang_complete
 ##-----------------------------------------------------------------------------
@@ -200,7 +194,7 @@ if (NOT PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/base>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/plastimatch/util>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/devillard>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libs/dlib-18.7>
+    $<BUILD_INTERFACE:${DLIB_INCLUDE_DIR}>
     )
   if (PLMLIB_CONFIG_ENABLE_REGISTER)
     list (APPEND PLASTIMATCH_INCLUDE_DIRECTORIES
@@ -270,18 +264,10 @@ if (PLMLIB_CONFIG_ENABLE_DOSE)
   set (EXPORT_TARGET_LIST ${EXPORT_TARGET_LIST} specfun plmdose)
 endif ()
 if (PLMLIB_CONFIG_ENABLE_REGISTER)
-  if (NOT PLM_PREFER_NO_FORTRAN_NO_F2C)
-    set (EXPORT_TARGET_LIST ${EXPORT_TARGET_LIST} nocedal)
-  endif ()
   set (EXPORT_TARGET_LIST ${EXPORT_TARGET_LIST} lbfgs plmregister)
 endif ()
 if (PLMLIB_CONFIG_ENABLE_RECONSTRUCT)
   set (EXPORT_TARGET_LIST ${EXPORT_TARGET_LIST} plmreconstruct)
-endif ()
-if (NOT PLM_PREFER_NO_FORTRAN_NO_F2C)
-  if (PLM_USE_INCLUDED_F2C)
-    set (EXPORT_TARGET_LIST ${EXPORT_TARGET_LIST} f2c1)
-  endif ()
 endif ()
 if (CUDA_FOUND)
   if (PLMLIB_CONFIG_ENABLE_REGISTER OR PLMLIB_CONFIG_ENABLE_RECONSTRUCT)
@@ -354,9 +340,11 @@ else (PLM_PACKAGE_LEGACY_CMAKE_CONFIG)
     )
 
   # Make the targets file
-  export (EXPORT PlastimatchLibraryDepends
-    FILE "${CMAKE_BINARY_DIR}/PlastimatchLibraryDepends.cmake"
-    )
+  if (NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 3.0)
+    export (EXPORT PlastimatchLibraryDepends
+      FILE "${CMAKE_BINARY_DIR}/PlastimatchLibraryDepends.cmake"
+      )
+  endif ()
   
   # Make the config file
   configure_file (

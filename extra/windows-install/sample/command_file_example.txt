@@ -1,0 +1,26 @@
+# command line: plastimatch register "./sample/command_file_example.txt"
+
+[GLOBAL]
+fixed=./sample/CT_fixed.nrrd
+moving=./sample/MR_moving.nrrd
+img_out=./sample/MR_deformed.nrrd
+xform_out=./sample/xform_deform.txt
+
+[STAGE]
+xform=rigid
+optim=versor
+impl=itk
+threading=openmp
+max_its=70
+img_out=./sample/output_rigid_stage0.mha
+
+[STAGE]
+xform=bspline
+impl=plastimatch
+threading=openmp
+regularization_lambda=1e-005
+metric=mi
+max_its=50
+grid_spac=30 30 30
+res=2 2 1
+img_out=./sample/output_deform_stage2.mha

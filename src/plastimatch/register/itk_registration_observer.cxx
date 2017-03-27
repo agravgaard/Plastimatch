@@ -14,8 +14,10 @@
 #include "itk_registration.h"
 #include "itk_registration_private.h"
 #include "logfile.h"
+#include "metric_parms.h"
 #include "plm_math.h"
 #include "plm_timer.h"
+#include "shared_parms.h"
 #include "stage_parms.h"
 
 /* Lots of ITK algorithms don't behave uniformly.
@@ -80,6 +82,17 @@ public:
     void
     Execute (const itk::Object * object, const itk::EventObject & event)
     {
+        /* GCS FIX, split metric vector into separate items in 
+           Stage_similarity_data list */
+        Metric_parms metric_parms;
+        const Shared_parms *shared = irp->stage->get_shared_parms();
+        std::map<std::string,Metric_parms>::const_iterator metric_it;
+        for (metric_it = shared->metric.begin();
+             metric_it != shared->metric.end(); ++metric_it) {
+            metric_parms = metric_it->second;
+            break;
+        }
+        
         if (typeid(event) == typeid(itk::StartEvent)) {
             m_feval = 0;
             m_prev_value = -DBL_MAX;
@@ -115,8 +128,8 @@ public:
             double duration = timer->report ();
 
             lprintf ("%s [%2d,%3d] %9.3f [%6.3f secs]\n", 
-                (irp->stage->metric_type[0] == REGISTRATION_METRIC_MSE)
-                  ? "MSE" : "MI",
+                (metric_parms.metric_type == SIMILARITY_METRIC_MSE)
+                ? "MSE" : "MI",
                 it, m_feval, val, duration);
             timer->start ();
             m_feval++;
@@ -139,13 +152,13 @@ public:
             /* Print out score & optimizer stats */
             if (irp->stage->optim_type == OPTIMIZATION_AMOEBA) {
                 lprintf ("%s [%3d] %9.3f ",
-                    (irp->stage->metric_type[0] == REGISTRATION_METRIC_MSE) 
-                      ? "MSE" : "MI",
+                    (metric_parms.metric_type == SIMILARITY_METRIC_MSE) 
+                    ? "MSE" : "MI",
                     m_feval / 2, val);
             } else {
                 lprintf ("%s [%2d,%3d,%5.2f] %9.3f ",
-                    (irp->stage->metric_type[0] == REGISTRATION_METRIC_MSE) 
-                      ? "MSE" : "MI",
+                    (metric_parms.metric_type == SIMILARITY_METRIC_MSE) 
+                    ? "MSE" : "MI",
                     it, m_feval, ss, val);
             }
 

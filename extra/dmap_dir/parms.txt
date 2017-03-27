@@ -1,0 +1,16 @@
+[GLOBAL]
+fixed[0]=fixed.nrrd
+fixed[1]=fixed-struct-dmap.nrrd
+moving[0]=moving.nrrd
+moving[1]=moving-struct-dmap.nrrd
+
+[STAGE]
+xform=translation
+impl=plastimatch
+max_its=5
+
+[STAGE]
+xform=bspline
+res=2 2 2
+grid_spac=10 10 10
+max_its=5

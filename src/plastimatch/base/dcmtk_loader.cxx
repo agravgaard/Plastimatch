@@ -176,6 +176,12 @@ Dcmtk_loader::get_dose ()
     return d_ptr->dose;
 }
 
+Rtplan::Pointer
+Dcmtk_loader::get_rtplan()
+{
+	return d_ptr->rtplan;
+}
+
 void
 Dcmtk_loader::parse_directory (void)
 {

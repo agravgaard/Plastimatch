@@ -1,0 +1,15 @@
+[GLOBAL]
+fixed=@PLM_BUILD_TESTING_DIR@/rect-4.mha
+moving=@PLM_BUILD_TESTING_DIR@/rect-8.mha
+
+vf_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-vf.mha
+xform_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-xf.txt
+img_out=@PLM_BUILD_TESTING_DIR@/@PLM_TEST_NAME@-img.mha
+
+[STAGE]
+xform=bspline
+alg_flavor=k
+metric=dmap
+max_its=20
+grid_spac=10 10 10
+res=2 2 2

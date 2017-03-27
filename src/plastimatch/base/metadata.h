@@ -8,6 +8,11 @@
 #include <map>
 #include <string>
 #include <vector>
+#if PLM_DCM_USE_DCMTK
+#include "dcmtk_config.h"
+#include "dcmtk/dcmdata/dctagkey.h"
+#endif
+
 #include "smart_pointer.h"
 
 /*! \brief 
@@ -27,10 +32,6 @@ public:
        broken stdint implementation in gdcm 1.X. */
     std::string
     make_key (unsigned short key1, unsigned short key2) const;
-    const char*
-    get_metadata_ (const std::string& key) const;
-    const char*
-    get_metadata_ (unsigned short key1, unsigned short key2) const;
     const std::string&
     get_metadata (const std::string& key) const;
     const std::string&
@@ -39,12 +40,24 @@ public:
     set_metadata (const std::string& key, const std::string& val);
     void set_metadata (unsigned short key1, unsigned short key2,
         const std::string& val);
+#if PLM_DCM_USE_DCMTK
+    const std::string& get_metadata (const DcmTagKey& key) const;
+    void set_metadata (const DcmTagKey& key, const std::string& val);
+#endif
+
     /*! \brief Copy a list of strings of the form "XXXX,YYYY=string"
       into the metadata map. */
     void set_metadata (const std::vector<std::string>& metadata);
+
+    /*! \brief Attach a parent to this metadata set.  The parent metadata
+      is used when there is no match in the child metadata. */
     void set_parent (const Metadata::Pointer& parent) {
         m_parent = parent;
     }
+
+    /*! \brief Remove a key from the metadata, if the key exists. */
+    void remove_metadata (unsigned short key1, unsigned short key2);
+
     void create_anonymous ();
     void print_metadata () const;
 

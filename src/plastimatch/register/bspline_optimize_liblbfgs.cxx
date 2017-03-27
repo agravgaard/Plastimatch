@@ -47,7 +47,7 @@ evaluate (
     bst->feval ++;
 
     /* Return cost */
-    return (lbfgsfloatval_t) bst->ssd.score;
+    return (lbfgsfloatval_t) bst->ssd.total_score;
 }
 
 static int

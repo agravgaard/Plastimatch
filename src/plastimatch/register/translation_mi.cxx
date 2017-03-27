@@ -12,6 +12,7 @@
 #include "plm_image.h"
 #include "plm_image_header.h"
 #include "registration_data.h"
+#include "joint_histogram.h"
 #include "stage_parms.h"
 #include "translation_mi.h"
 #include "volume.h"
@@ -22,24 +23,18 @@
 float
 translation_mi (
     const Stage_parms *stage,
-    const Volume::Pointer& fixed,
-    const Volume::Pointer& moving,
+    const Metric_state::Pointer& ssi,
     const float dxyz[3])
 {
-    Bspline_mi_hist_set *mi_hist = new Bspline_mi_hist_set (
+    Volume *fixed = ssi->fixed_ss.get();
+    Volume *moving = ssi->moving_ss.get();
+    Joint_histogram *mi_hist = new Joint_histogram (
         stage->mi_hist_type,
         stage->mi_hist_fixed_bins,
         stage->mi_hist_moving_bins);
-    mi_hist->initialize (fixed.get(), moving.get());
+    mi_hist->initialize (fixed, moving);
     mi_hist->reset_histograms ();
         
-    float mse_score = 0.0f;
-    double* f_hist = mi_hist->f_hist;
-    double* m_hist = mi_hist->m_hist;
-    double* j_hist = mi_hist->j_hist;
-    double mhis = 0.0f;      /* Moving histogram incomplete sum */
-    double jhis = 0.0f;      /* Joint  histogram incomplete sum */
-
     plm_long fijk[3], fidx;       /* Indices within fixed image (vox) */
     float fxyz[3];                /* Position within fixed image (mm) */
     float mijk[3];                /* Indices within moving image (vox) */
@@ -67,7 +62,7 @@ translation_mi (
                 if (!moving->is_inside (mijk)) continue;
 
                 /* Get tri-linear interpolation fractions */
-                li_clamp_3d (mijk, mijk_f, mijk_r, li_1, li_2, moving.get());
+                li_clamp_3d (mijk, mijk_f, mijk_r, li_1, li_2, moving);
                     
                 /* Find the fixed image linear index */
                 fidx = volume_index (fixed->dim, fijk);
@@ -78,8 +73,7 @@ translation_mi (
                 midx_f = volume_index (moving->dim, mijk_f);
 
                 /* Add to histogram */
-                mi_hist->add_pvi_8 (
-                    fixed.get(), moving.get(), fidx, midx_f, li_1, li_2);
+                mi_hist->add_pvi_8 (fixed, moving, fidx, midx_f, li_1, li_2);
 
                 num_vox++;
             }

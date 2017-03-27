@@ -175,13 +175,12 @@ bspline_opts_parse_args (Bspline_options* options, int argc, char* argv[])
 	    }
 	    i++;
 	    if (!strcmp(argv[i], "mse")) {
-		parms->metric_type[0] = REGISTRATION_METRIC_MSE;
+		options->metric_type = SIMILARITY_METRIC_MSE;
 	    } else if (!strcmp(argv[i], "mi")) {
-		parms->metric_type[0] = REGISTRATION_METRIC_MI_MATTES;
+		options->metric_type = SIMILARITY_METRIC_MI_MATTES;
 	    } else {
 		print_usage ();
 	    }
-            parms->metric_lambda[0] = 1.;
 	}
 	else if (!strcmp (argv[i], "-s")) {
 	    if (i == (argc-1) || argv[i+1][0] == '-') {

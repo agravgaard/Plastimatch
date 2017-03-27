@@ -145,9 +145,11 @@ Dlib_master_slave::slave_release_resource ()
     d_ptr->rm.unlock ();
 }
 
+#if !DLIB_HAVE_LIBRARY
 #include "dlib/threads/multithreaded_object_extension.cpp"
 #include "dlib/threads/threaded_object_extension.cpp"
 #include "dlib/threads/threads_kernel_1.cpp"
 #include "dlib/threads/threads_kernel_2.cpp"
 #include "dlib/threads/threads_kernel_shared.cpp"
 #include "dlib/threads/thread_pool_extension.cpp"
+#endif

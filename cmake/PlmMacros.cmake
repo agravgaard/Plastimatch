@@ -1,16 +1,6 @@
 ##-----------------------------------------------------------------------------
 ##  Macros for creating targets
 ##-----------------------------------------------------------------------------
-## JAS 2011.01.24
-##  I have commented out the INSTALL for the PLM_ADD_LIBRARY
-##  macro since it was only serving to include static link
-##  libraries in the CPack generated packages.
-##  Namely: libplastimatch1.a, libgpuit.a, & libf2c_helper.a
-## GCS 2011-04-19
-##  However, it is also needed to correctly install dlls for windows
-##  binary packaging.
-## GCS 2012-06-10
-##  Installed libraries need added to export set for external applications.
 macro (PLM_ADD_LIBRARY 
     TARGET_NAME
     TARGET_SRC
@@ -50,8 +40,7 @@ macro (PLM_ADD_LIBRARY
       PROPERTIES SOVERSION "${PLM_VERSION_MAJOR}.${PLM_VERSION_MINOR}")
 endmacro ()
 
-# The bstrlib and f2c library are static because they aren't 
-# properly decorated for windows
+# Static libraries used when they aren't properly decorated for windows
 macro (PLM_ADD_STATIC_LIBRARY 
     TARGET_NAME TARGET_SRC TARGET_LIBS TARGET_LDFLAGS TARGET_INCLUDES)
 
@@ -183,10 +172,6 @@ macro (PLM_SET_PIC_FLAGS)
 	    set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fPIC")
 	    set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
 	    set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fPIC")
-	    set (CMAKE_Fortran_FLAGS_RELEASE 
-		"${CMAKE_Fortran_FLAGS_RELEASE} -fPIC")
-	    set (CMAKE_Fortran_FLAGS_DEBUG 
-		"${CMAKE_Fortran_FLAGS_DEBUG} -fPIC")
 	endif ()
     else ()
 	set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)

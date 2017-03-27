@@ -248,7 +248,7 @@ Mabs_atlas_selection::compute_similarity_value_post()
     Xform::Pointer xf = reg.do_registration_pure ();
 
     Plm_image::Pointer deformed_atlas = Plm_image::New ();
-    Plm_image_header fixed_pih (regd->fixed_image);
+    Plm_image_header fixed_pih (this->subject);
     plm_warp (deformed_atlas, 0, xf, &fixed_pih, 
         this->atlas, regp->default_value, 0, 1);
    
@@ -289,7 +289,7 @@ Mabs_atlas_selection::compute_similarity_value_ratio()
     Xform::Pointer xf = reg.do_registration_pure ();
 
     Plm_image::Pointer deformed_atlas = Plm_image::New ();
-    Plm_image_header fixed_pih (regd->fixed_image);
+    Plm_image_header fixed_pih (this->subject);
     plm_warp (deformed_atlas, 0, xf, &fixed_pih, 
         this->atlas, regp->default_value, 0, 1);
 
