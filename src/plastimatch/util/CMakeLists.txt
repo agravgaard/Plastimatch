@@ -16,14 +16,14 @@ include_directories (AFTER ${CMAKE_SOURCE_DIR}/libs/devillard)
 ##-----------------------------------------------------------------------------
 set (PLMUTIL_LIBRARY_SRC
   bspline_correspond.cxx
-  dice_statistics.cxx dice_statistics.h 
+  dice_statistics.cxx dice_statistics.h
   dicom_sro_save.cxx
   distance_map.cxx
   diff.cxx
-  dvh.cxx dvh.h 
+  dvh.cxx dvh.h
   gamma_dose_comparison.cxx gamma_dose_comparison.h
-  geometry_chooser.cxx geometry_chooser.h 
-  hausdorff_distance.cxx hausdorff_distance.h 
+  geometry_chooser.cxx geometry_chooser.h
+  hausdorff_distance.cxx hausdorff_distance.h
   image_boundary.cxx image_boundary.h
   image_center.cxx image_center.h
   itk_adjust.cxx
@@ -38,10 +38,10 @@ set (PLMUTIL_LIBRARY_SRC
   proj_image_filter.cxx
   plm_series.cxx
   plm_study.cxx
-  rt_study_warp.cxx rt_study_warp.h 
+  rt_study_warp.cxx rt_study_warp.h
   sift.cxx
-  simplify_points.cxx 
-  ss_img_stats.cxx 
+  simplify_points.cxx
+  ss_img_stats.cxx
   synthetic_mha.cxx
   synthetic_vf.cxx
   threshbox.cxx
@@ -50,7 +50,7 @@ set (PLMUTIL_LIBRARY_SRC
 if (FFTW_FOUND)
   set (PLMUTIL_LIBRARY_SRC
     ${PLMUTIL_LIBRARY_SRC}
-    gabor.cxx gabor.h 
+    gabor.cxx gabor.h
     ramp_filter.cxx ramp_filter.h
    )
 endif ()
@@ -68,7 +68,7 @@ endforeach ()
 ##-----------------------------------------------------------------------------
 ##  LIBRARY DEPENDENCIES
 ##-----------------------------------------------------------------------------
-set (PLMUTIL_LIBRARY_DEPENDENCIES 
+set (PLMUTIL_LIBRARY_DEPENDENCIES
   ${FFTW_LIBRARIES}
   devillard
   plmbase
@@ -81,11 +81,11 @@ set (PLMUTIL_LIBRARY_DEPENDENCIES
 if (OPENMP_FOUND)
   set (PLMUTIL_LIBRARY_LDFLAGS "${OPENMP_LDFLAGS}")
   set_source_files_properties (dice_statistics.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
   set_source_files_properties (image_center.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
   set_source_files_properties (vf_invert.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
 endif ()
 
 ##-----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ endif ()
 ##-----------------------------------------------------------------------------
 plm_add_library (
   plmutil
-  "${PLMUTIL_LIBRARY_SRC}" 
+  "${PLMUTIL_LIBRARY_SRC}"
   "${PLMUTIL_LIBRARY_DEPENDENCIES}"
   "${PLMUTIL_LIBRARY_LDFLAGS}"
   "${PLASTIMATCH_INCLUDE_DIRECTORIES}"

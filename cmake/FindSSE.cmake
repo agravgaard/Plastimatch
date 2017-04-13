@@ -1,56 +1,145 @@
-# JAS 08.19.2010
-# I have tested this working under Linux using gcc-4.4
-# The OSX/Darwin case is untested, but should work in theory.
+#.rst:
+# FindSSE2
+# --------
+#
+# Finds SSE2 support
+#
+# This module can be used to detect SSE2 support in a C compiler.  If
+# the compiler supports SSE2, the flags required to compile with
+# SSE2 support are returned in variables for the different languages.
+# The variables may be empty if the compiler does not need a special
+# flag to support SSE2.
+#
+# The following variables are set:
+#
+# ::
+#
+#    SSE2_C_FLAGS - flags to add to the C compiler for SSE2 support
+#    SSE2_FOUND - true if SSE2 is detected
+#
+#=============================================================================
 
-# LINUX: We check for SSE extensions using a RegEx on /proc/cpuinfo
-IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+set(_SSE2_REQUIRED_VARS)
+set(CMAKE_REQUIRED_QUIET_SAVE ${CMAKE_REQUIRED_QUIET})
+set(CMAKE_REQUIRED_QUIET ${SSE2_FIND_QUIETLY})
 
-  # Store /proc/cpuinfo output into CPUINFO
-  EXEC_PROGRAM (cat ARGS "/proc/cpuinfo" OUTPUT_VARIABLE CPUINFO)
+# sample SSE2 source code to test
+set(SSE2_C_TEST_SOURCE
+"
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <emmintrin.h>
+#endif
+int foo() {
+    __m128i vOne = _mm_set1_epi16(1);
+    __m128i result = _mm_add_epi16(vOne,vOne);
+    return _mm_extract_epi16(result, 0);
+}
+int main(void) { return foo(); }
+")
 
-  # Check for SSE2
-  STRING (REGEX REPLACE "^.*(sse2).*$" "\\1" SSE_THERE ${CPUINFO})
-  STRING (COMPARE EQUAL "sse2" "${SSE_THERE}" SSE2_TRUE)
-  IF (SSE2_TRUE)
-    SET (SSE2_FOUND true CACHE BOOL "SSE2 Available?")
-    SET (SSE2_FLAGS "-msse2 -mfpmath=sse")
-  ELSE (SSE2_TRUE)
-    SET (SSE2_FOUND false CACHE BOOL "SSE2 Available?")
-  ENDIF (SSE2_TRUE)
-    
-# OSX/DARWIN: We check for SSE extensions using a RegEx on sysctl output
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  EXEC_PROGRAM ("/usr/sbin/sysctl -n machdep.cpu.features" 
-    OUTPUT_VARIABLE CPUINFO)
-    
-  # Check for SSE2
-  STRING (REGEX REPLACE "^.*(SSE2).*$" "\\1" SSE_THERE ${CPUINFO})
-  STRING (COMPARE EQUAL "SSE2" "${SSE_THERE}" SSE2_TRUE)
-  IF (SSE2_TRUE)
-    SET (SSE2_FOUND true CACHE BOOL "SSE2 Available?")
-    SET (SSE2_FLAGS "-msse2 -mfpmath=sse")  # Darwin uses gcc, right?
-  ELSE (SSE2_TRUE)
-    SET (SSE2_FOUND false CACHE BOOL "SSE2 Available?")
-  ENDIF (SSE2_TRUE)
+# if these are set then do not try to find them again,
+# by avoiding any try_compiles for the flags
+if(SSE2_C_FLAGS)
+else()
+  if(WIN32)
+    set(SSE2_C_FLAG_CANDIDATES "/arch:SSE2")
+  else()
+    set(SSE2_C_FLAG_CANDIDATES
+      #Empty, if compiler automatically accepts SSE2
+      " "
+      #GNU, Intel
+      "-march=core2"
+      #clang
+      "-msse2"
+    )
+  endif()
 
-# WINDOWS: Currently, no SSE detection method.  Disabled.
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-  set (SSE2_FOUND false CACHE BOOL "SSE2 Available?")
+  include(CheckCSourceCompiles)
 
-# Something else... BSD or BeOS, perhaps?  Disabled.
-ELSE (CMAKE_SYSTEM_NAME MATCHES "Linux")
-  set (SSE2_FOUND false CACHE BOOL "SSE2 Available?")
+  foreach(FLAG IN LISTS SSE2_C_FLAG_CANDIDATES)
+    set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+    set(CMAKE_REQUIRED_FLAGS "${FLAG}")
+    unset(HAVE_SSE2 CACHE)
+    if(NOT CMAKE_REQUIRED_QUIET)
+      message(STATUS "Try SSE2 C flag = [${FLAG}]")
+    endif()
+    check_c_source_compiles("${SSE2_C_TEST_SOURCE}" HAVE_SSE2)
+    set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+    if(HAVE_SSE2)
+      set(SSE2_C_FLAGS_INTERNAL "${FLAG}")
+      break()
+    endif()
+  endforeach()
+endif()
 
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+unset(SSE2_C_FLAG_CANDIDATES)
 
+set(SSE2_C_FLAGS "${SSE2_C_FLAGS_INTERNAL}"
+  CACHE STRING "C compiler flags for SSE2 intrinsics")
 
-# Report SSE2 compiler flags or failure.
-IF (SSE2_FOUND)
-  MESSAGE (STATUS "SSE2_FLAGS \"${SSE2_FLAGS}\"")
-ELSE (SSE2_FOUND)
-  MESSAGE (STATUS "CPU does not support SSE2.")
-ENDIF (SSE2_FOUND)
-    
+list(APPEND _SSE2_REQUIRED_VARS SSE2_C_FLAGS)
 
-# Put this in the advanced toggles
-mark_as_advanced (SSE2_FOUND)
+set(CMAKE_REQUIRED_QUIET ${CMAKE_REQUIRED_QUIET_SAVE})
+
+if(_SSE2_REQUIRED_VARS)
+  include(FindPackageHandleStandardArgs)
+
+  find_package_handle_standard_args(SSE2
+                                    REQUIRED_VARS ${_SSE2_REQUIRED_VARS})
+
+  mark_as_advanced(${_SSE2_REQUIRED_VARS})
+
+  unset(_SSE2_REQUIRED_VARS)
+else()
+  message(SEND_ERROR "FindSSE2 requires C or CXX language to be enabled")
+endif()
+
+set(SSE2_C_TEST_SOURCE_SET1_EPI64X
+"
+#include <stdint.h>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <emmintrin.h>
+#endif
+__m128i foo() {
+    __m128i vOne = _mm_set1_epi64x(1);
+    return vOne;
+}
+int main(void) { foo(); return 0; }
+")
+
+if(SSE2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${SSE2_C_FLAGS}")
+  unset(HAVE_SSE2_MM_SET1_EPI64X CACHE)
+  check_c_source_compiles("${SSE2_C_TEST_SOURCE_SET1_EPI64X}" HAVE_SSE2_MM_SET1_EPI64X)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(SSE2_C_TEST_SOURCE_SET_EPI64X
+"
+#include <stdint.h>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <emmintrin.h>
+#endif
+__m128i foo() {
+    __m128i vOne = _mm_set_epi64x(1,1);
+    return vOne;
+}
+int main(void) { foo(); return 0; }
+")
+
+if(SSE2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${SSE2_C_FLAGS}")
+  unset(HAVE_SSE2_MM_SET_EPI64X CACHE)
+  check_c_source_compiles("${SSE2_C_TEST_SOURCE_SET_EPI64X}" HAVE_SSE2_MM_SET_EPI64X)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()

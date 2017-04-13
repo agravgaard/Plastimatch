@@ -36,23 +36,23 @@ endif ()
 ##-----------------------------------------------------------------------------
 ##  LIBRARY DEPENDENCIES
 ##-----------------------------------------------------------------------------
-set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES 
+set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES
   plmutil
   plmbase
   plmsys
   )
 if (CUDA_FOUND)
-  set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES 
+  set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES
     ${PLMRECONSTRUCT_LIBRARY_DEPENDENCIES}
     plmcuda
     )
-  set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES 
+  set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES
     ${PLMRECONSTRUCT_LIBRARY_DEPENDENCIES}
     plmreconstructcuda
     )
 endif ()
 if (OPENCL_FOUND)
-  set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES 
+  set (PLMRECONSTRUCT_LIBRARY_DEPENDENCIES
     ${PLMRECONSTRUCT_LIBRARY_DEPENDENCIES}
     plmopencl
     )
@@ -64,9 +64,9 @@ endif ()
 if (OPENMP_FOUND)
   set (PLMRECONSTRUCT_LIBRARY_LDFLAGS "${OPENMP_LDFLAGS}")
   set_source_files_properties (drr.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
   set_source_files_properties (fdk.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
 endif ()
 
 ##-----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ endif ()
 ##-----------------------------------------------------------------------------
 plm_add_library (
   plmreconstruct
-  "${PLMRECONSTRUCT_LIBRARY_SRC}" 
+  "${PLMRECONSTRUCT_LIBRARY_SRC}"
   "${PLMRECONSTRUCT_LIBRARY_DEPENDENCIES}"
   "${PLMRECONSTRUCT_LIBRARY_LDFLAGS}"
   "${PLASTIMATCH_INCLUDE_DIRECTORIES}"

@@ -37,10 +37,10 @@ set (PLMREGISTER_LIBRARY_SRC
   bspline_optimize_nlopt.cxx bspline_optimize_nlopt.h
   bspline_optimize_steepest.cxx bspline_optimize_steepest.h
   bspline_parms.cxx bspline_parms.h
-  bspline_score.cxx bspline_score.h 
-  bspline_stage.cxx bspline_stage.h 
-  bspline_state.cxx bspline_state.h 
-  bspline_regularize.cxx bspline_regularize.h 
+  bspline_score.cxx bspline_score.h
+  bspline_stage.cxx bspline_stage.h
+  bspline_state.cxx bspline_state.h
+  bspline_regularize.cxx bspline_regularize.h
   bspline_regularize_analytic.cxx bspline_regularize_analytic.h
   bspline_regularize_numeric.cxx bspline_regularize_numeric.h
   bspline_regularize_semi_analytic.cxx
@@ -50,7 +50,7 @@ set (PLMREGISTER_LIBRARY_SRC
   demons_state.cxx demons_state.h
   gpuit_demons.cxx gpuit_demons.h
   histogram.cxx histogram.h
-  itk_align_center.cxx itk_align_center.h 
+  itk_align_center.cxx itk_align_center.h
   itk_demons.cxx itk_demons.h
   itk_demons_registration_filter.h
   itk_demons_util.cxx itk_demons_util.h
@@ -65,7 +65,7 @@ set (PLMREGISTER_LIBRARY_SRC
   itk_tps.cxx itk_tps.h
   joint_histogram.cxx joint_histogram.h
   landmark_warp.cxx landmark_warp.h
-  metric_parms.cxx metric_parms.h 
+  metric_parms.cxx metric_parms.h
   metric_state.cxx metric_state.h
   process_parms.cxx process_parms.h
   rbf_cluster.cxx rbf_cluster.h
@@ -74,14 +74,14 @@ set (PLMREGISTER_LIBRARY_SRC
   registration.cxx registration.h
   registration_data.cxx registration_data.h
   registration_parms.cxx registration_parms.h
-  registration_resample.cxx registration_resample.h 
+  registration_resample.cxx registration_resample.h
   registration_similarity_data.h
   shared_parms.cxx shared_parms.h
   similarity_metric_type.cxx similarity_metric_type.h
   stage_parms.cxx stage_parms.h
-  translation_grid_search.cxx translation_grid_search.h 
-  translation_mi.cxx translation_mi.h 
-  translation_mse.cxx translation_mse.h 
+  translation_grid_search.cxx translation_grid_search.h
+  translation_mi.cxx translation_mi.h
+  translation_mse.cxx translation_mse.h
   )
 
 if (OPENCL_FOUND)
@@ -103,7 +103,7 @@ endif ()
 ##-----------------------------------------------------------------------------
 set (PLMREGISTER_LIBRARY_DEPENDENCIES)
 
-set (PLMREGISTER_LIBRARY_DEPENDENCIES 
+set (PLMREGISTER_LIBRARY_DEPENDENCIES
   ${PLMREGISTER_LIBRARY_DEPENDENCIES}
   ${LIBLBFGS_LIBRARIES}
   plmbase
@@ -112,25 +112,25 @@ set (PLMREGISTER_LIBRARY_DEPENDENCIES
   )
 
 if (CUDA_FOUND)
-  set (PLMREGISTER_LIBRARY_DEPENDENCIES 
+  set (PLMREGISTER_LIBRARY_DEPENDENCIES
     ${PLMREGISTER_LIBRARY_DEPENDENCIES}
     plmcuda
     )
-  set (PLMREGISTER_LIBRARY_DEPENDENCIES 
+  set (PLMREGISTER_LIBRARY_DEPENDENCIES
     ${PLMREGISTER_LIBRARY_DEPENDENCIES}
     plmregistercuda
     )
 endif ()
 
 if (OPENCL_FOUND)
-  set (PLMREGISTER_LIBRARY_DEPENDENCIES 
+  set (PLMREGISTER_LIBRARY_DEPENDENCIES
     ${PLMREGISTER_LIBRARY_DEPENDENCIES}
     plmopencl
     )
 endif ()
 
 if (NLOPT_FOUND)
-  set (PLMREGISTER_LIBRARY_DEPENDENCIES 
+  set (PLMREGISTER_LIBRARY_DEPENDENCIES
     ${PLMREGISTER_LIBRARY_DEPENDENCIES}
     ${NLOPT_LIBRARIES}
     )
@@ -142,15 +142,15 @@ endif ()
 if (OPENMP_FOUND)
   set (PLMREGISTER_LIBRARY_LDFLAGS "${OPENMP_LDFLAGS}")
   set_source_files_properties (bspline.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
   set_source_files_properties (bspline_gm.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
   set_source_files_properties (bspline_mi.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
   set_source_files_properties (bspline_mse.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
   set_source_files_properties (bspline_regularize_analytic.cxx
-    PROPERTIES COMPILE_FLAGS ${OPENMP_FLAGS})
+    PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
 endif ()
 
 # bspline registration benefits from SSE2
@@ -163,7 +163,7 @@ endif ()
 ##-----------------------------------------------------------------------------
 plm_add_library (
   plmregister
-  "${PLMREGISTER_LIBRARY_SRC}" 
+  "${PLMREGISTER_LIBRARY_SRC}"
   "${PLMREGISTER_LIBRARY_DEPENDENCIES}"
   "${PLMREGISTER_LIBRARY_LDFLAGS}"
   "${PLASTIMATCH_INCLUDE_DIRECTORIES}"
